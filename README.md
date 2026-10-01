@@ -26,6 +26,7 @@ The app is fully static and has no external dependencies: the PDF library is bun
 - **No hints or corrections.** Students see no feedback, no debit/credit totals, and no account categories on the adjustments. The score appears only at the end.
 - **Locked forward.** Submitting a phase locks it.
 - **Progress is saved** in the browser. A reload resumes the same version with all answers, so refreshing cannot be used to fish for new numbers.
+- **Unlimited retakes, highest score counts.** After finishing, students can click **Retake Exam** for a brand-new version (new numbers, transactions and order). The results page lists every attempt and stars the highest. Each attempt has its own PDF (`..._Attempt2.pdf`), and students upload the report for each attempt. Retakes are tracked in the student's browser, so the attempt number and version code on each PDF, plus Canvas submission history, are your record.
 - **PDF report.** At the end, students download `ACC211_Midterm_<Name>.pdf` with their name, version code, a check code, start and submit times, phase scores, and every response they entered (correct answers are not shown). They upload this PDF to Canvas.
 
 ## Scoring rules
@@ -48,7 +49,7 @@ The app is fully static and has no external dependencies: the PDF library is bun
 Open `instructor/answer-key.html` directly from your computer (double-click it; no server needed).
 
 - Enter a student's **version code** to see the full answer key for that version: all entries, both trial balances, the correct closing entries, net income or loss, and ending capital.
-- Optionally enter the **name, phase scores and check code** from the student's PDF. If they don't match, the PDF may have been edited.
+- Optionally enter the **name, attempt number, phase scores and check code** from the student's PDF. If they don't match, the PDF may have been edited.
 
 **Shared lab computer?** Open the exam with `#reset` at the end of the URL (for example `https://your-site.netlify.app/#reset`) to clear a finished exam so the next student can start.
 

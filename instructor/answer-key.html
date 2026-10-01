@@ -30,6 +30,7 @@
       <form id="lookup" class="verify">
         <label>Version code<input id="code" placeholder="ABCD-EFGH" required></label>
         <label>Student name<input id="vname" placeholder="optional"></label>
+        <label>Attempt<input id="vattempt" placeholder="1" inputmode="numeric"></label>
         <label>Phase 1 score<input id="s1" placeholder="e.g. 36.00"></label>
         <label>Phase 2 score<input id="s2"></label>
         <label>Phase 3 score<input id="s3"></label>
@@ -89,9 +90,10 @@
       const out = document.getElementById('verifyOut');
       if (name && chk && vals.every(v => !isNaN(v))) {
         const fake = { phase1: { score: vals[0] }, phase2: { score: vals[1] }, phase3: { score: vals[2] }, total: Math.round((vals[0] + vals[1] + vals[2]) * 100) / 100 };
-        const ok = E.checkCode(code, name, fake) === chk;
+        const attempt = parseInt(document.getElementById('vattempt').value, 10) || 1;
+        const ok = E.checkCode(code, name, fake, attempt) === chk;
         out.innerHTML = ok ? '<span class="badge ok">Check code matches</span> The name and scores agree with this version.'
-          : '<span class="badge bad">Check code does not match</span> The name, scores or version on the report may have been altered. Compare against the key below.';
+          : '<span class="badge bad">Check code does not match</span> The name, attempt, scores or version on the report may have been altered. Compare against the key below.';
       } else {
         out.textContent = '';
       }

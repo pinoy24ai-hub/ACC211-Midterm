@@ -78,3 +78,8 @@ assert.strictEqual(g(step1, ['101', '350'], '3000', B), 0);        // wrong acco
 assert.strictEqual(g(step4, ['306', '301'], '800', B), 6);
 assert.strictEqual(g(step4, ['306', '301'], '0', Object.assign({}, B, { '306': 0 })), 2); // drawing already closed elsewhere
 console.log('OK:', N, 'versions checked;', losses, 'with a net loss in Phase 3');
+// check code: attempt 1 unchanged from before retakes existed; later attempts differ
+const R = { phase1: { score: 40 }, phase2: { score: 30 }, phase3: { score: 20 }, total: 90 };
+assert.strictEqual(E.checkCode('ABCD-EFGH', 'Ana Reyes', R), E.checkCode('ABCD-EFGH', 'Ana Reyes', R, 1));
+assert.notStrictEqual(E.checkCode('ABCD-EFGH', 'Ana Reyes', R, 1), E.checkCode('ABCD-EFGH', 'Ana Reyes', R, 2));
+console.log('OK: check codes');

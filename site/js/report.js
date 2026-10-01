@@ -40,6 +40,7 @@
     y += 10;
 
     const meta = [
+      ['Attempt', String(state.attempt || 1)],
       ['Version code', state.code],
       ['Check code', check],
       ['Business', exam.business.name + ' (' + exam.owner + ', owner)'],
@@ -73,7 +74,7 @@
     y = doc.lastAutoTable.finalY + 20;
 
     doc.setFont('helvetica', 'normal').setFontSize(9).setTextColor.apply(doc, MUTED);
-    doc.text(doc.splitTextToSize('Upload this PDF to the Canvas assignment. The pages that follow list every response you entered. ' +
+    doc.text(doc.splitTextToSize('Upload this PDF to the Canvas assignment. If you take the exam more than once, your highest attempt counts. The pages that follow list every response you entered. ' +
       'Scoring: journal lines earn credit for the correct account, side and amount; each closing entry earns credit for selecting every account in the entry (both sides) and for the amount transferred.', W - 2 * M), M, y);
 
     // ---- Detail pages ----
@@ -168,12 +169,12 @@
     for (let p = 1; p <= pages; p++) {
       doc.setPage(p);
       doc.setFont('helvetica', 'normal').setFontSize(8).setTextColor.apply(doc, MUTED);
-      doc.text(t(state.name) + '  |  Version ' + state.code + '  |  Check ' + check, M, H - 24);
+      doc.text(t(state.name) + '  |  Attempt ' + (state.attempt || 1) + '  |  Version ' + state.code + '  |  Check ' + check, M, H - 24);
       doc.text('Page ' + p + ' of ' + pages, W - M, H - 24, { align: 'right' });
     }
 
     const safe = t(state.name).replace(/[^A-Za-z0-9]+/g, '_').replace(/^_|_$/g, '');
-    doc.save('ACC211_Midterm_' + (safe || 'Student') + '.pdf');
+    doc.save('ACC211_Midterm_' + (safe || 'Student') + '_Attempt' + (state.attempt || 1) + '.pdf');
   }
 
   window.ExamReport = { download: download };

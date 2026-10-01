@@ -656,10 +656,13 @@
   }
 
   // Tamper check printed on the report; the instructor tool recomputes it.
-  function checkCode(code, name, result) {
-    const s = [normalizeCode(code), String(name || '').trim().toLowerCase(),
+  // The attempt number is part of the code from attempt 2 on, so a report can't be
+  // relabeled as a different attempt.
+  function checkCode(code, name, result, attempt) {
+    let s = [normalizeCode(code), String(name || '').trim().toLowerCase(),
       result.phase1.score.toFixed(2), result.phase2.score.toFixed(2),
       result.phase3.score.toFixed(2), result.total.toFixed(2)].join('|');
+    if (attempt > 1) s += '|A' + attempt;
     return hashString('ACC211-CHECK|' + s).toString(36).toUpperCase().slice(-8);
   }
 

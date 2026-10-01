@@ -45,6 +45,7 @@
   function fmt(n) { return n ? E.money(n).replace('$', '') : ''; }
   function fmtTotal(n) { return E.money(n); }
   function nowIso() { return new Date().toISOString(); }
+  function attemptNo() { return (state && state.attempt) || 1; }
 
   function dialog(title, bodyHtml, okLabel, showCancel) {
     const dlg = document.getElementById('dialog');
@@ -74,7 +75,7 @@
     const chip = document.getElementById('studentChip');
     if (state) {
       chip.hidden = false;
-      chip.innerHTML = '<b>' + esc(state.name) + '</b> &middot; Version ' + esc(state.code);
+      chip.innerHTML = '<b>' + esc(state.name) + '</b> &middot; Attempt ' + attemptNo() + ' &middot; Version ' + esc(state.code);
       document.getElementById('brandSub').textContent = exam.business.name + ' (' + exam.owner + ', owner)';
     } else {
       chip.hidden = true;
@@ -108,6 +109,7 @@
       '<li>Your exam has its own dollar amounts and question order.</li>' +
       '<li>Once you submit a phase, it is locked and you cannot return to it.</li>' +
       '<li>No feedback is shown during the exam. Your score appears at the end.</li>' +
+      '<li>After you finish, you may retake the exam as many times as you like. Each retake has new numbers and questions, and your highest score counts. Download and upload the report for every attempt.</li>' +
       '<li>Your work is saved in this browser as you go. If the page reloads, you can resume where you left off.</li>' +
       '<li>At the end, download your PDF score report and upload it to Canvas.</li>' +
       '</ul>' +
@@ -128,7 +130,7 @@
       if (!document.getElementById('ack').checked) { err.textContent = 'Please check the box to confirm before you begin.'; return; }
       const code = E.newVersionCode();
       state = {
-        v: 1, code: code, name: name, phase: 'p1', startedAt: nowIso(), submitted: {},
+        v: 1, code: code, name: name, attempt: 1, history: [], phase: 'p1', startedAt: nowIso(), submitted: {},
         answers: { p1: {}, p2: {}, p3: { selections: [], amounts: [], current: [], currentAmount: '' } },
         ui: { p1: 0, p2: 0 }
       };
@@ -599,13 +601,23 @@
 
   function renderResults() {
     const result = E.gradeExam(exam, state.answers);
-    const check = E.checkCode(state.code, state.name, result);
+    const check = E.checkCode(state.code, state.name, result, attemptNo());
+    const attempts = (state.history || []).concat([{ attempt: attemptNo(), code: state.code, finishedAt: state.finishedAt, total: result.total }]);
+    const best = Math.max.apply(null, attempts.map(function (x) { return x.total; }));
+    const historyHtml = attempts.length < 2 ? '' :
+      '<h3 style="margin-top:6px">Your attempts</h3>' +
+      '<table class="tbl" style="margin-bottom:18px"><thead><tr><th>Attempt</th><th>Version</th><th>Submitted</th><th class="num">Score</th></tr></thead><tbody>' +
+      attempts.map(function (x) {
+        return '<tr><td>' + x.attempt + (x.attempt === attemptNo() ? ' (this one)' : '') + '</td><td>' + esc(x.code) + '</td><td>' + esc(new Date(x.finishedAt).toLocaleString()) + '</td>' +
+          '<td class="num">' + x.total.toFixed(2) + (x.total === best ? ' &#9733;' : '') + '</td></tr>';
+      }).join('') +
+      '</tbody></table><p class="small muted">&#9733; Highest score. Your highest attempt counts, so make sure its PDF is uploaded to Canvas.</p>';
     const row = function (label, r) {
       return '<tr><td>' + label + '</td><td class="num">' + r.score.toFixed(2) + '</td><td class="num">' + r.possible + '</td></tr>';
     };
     app.innerHTML =
       '<section class="card results">' +
-      '<div class="eyebrow">Exam complete</div>' +
+      '<div class="eyebrow">Exam complete &middot; Attempt ' + attemptNo() + '</div>' +
       '<h1>Nice work, ' + esc(state.name.split(' ')[0]) + '.</h1>' +
       '<p>Your exam has been scored. Download your PDF report and upload it to the Canvas assignment.</p>' +
       '<div class="score-big"><b>' + result.total.toFixed(2) + '</b><span>/ ' + result.possible + ' points</span></div>' +
@@ -616,23 +628,50 @@
       '</tbody><tfoot><tr><td>Total</td><td class="num">' + result.total.toFixed(2) + '</td><td class="num">' + result.possible + '</td></tr></tfoot></table>' +
       '<dl class="meta-grid">' +
       '<dt>Student</dt><dd>' + esc(state.name) + '</dd>' +
+      '<dt>Attempt</dt><dd>' + attemptNo() + '</dd>' +
       '<dt>Version code</dt><dd>' + esc(state.code) + '</dd>' +
       '<dt>Check code</dt><dd>' + esc(check) + '</dd>' +
       '<dt>Submitted</dt><dd>' + esc(new Date(state.finishedAt).toLocaleString()) + '</dd>' +
       '</dl>' +
       '<div class="btn-row"><button type="button" class="btn btn-primary" id="dlPdf">Download PDF Report</button>' +
       '<span class="small muted" id="dlNote"></span></div>' +
+      '</section>' +
+      '<section class="card results">' + historyHtml +
+      '<h3>Want to try again?</h3>' +
+      '<p>You can retake the exam with a new set of numbers and questions. Your highest score counts. Download this attempt\u2019s report before you start a retake, because it will no longer be available here.</p>' +
+      '<button type="button" class="btn" id="retake">Retake Exam</button>' +
       '</section>';
 
     document.getElementById('dlPdf').addEventListener('click', function () {
       try {
         window.ExamReport.download(exam, state, result, check);
+        state.downloaded = true;
+        save();
         document.getElementById('dlNote').textContent = 'Saved as a PDF. Check your Downloads folder.';
       } catch (e) {
         console.error(e);
         document.getElementById('dlNote').textContent = 'The PDF could not be created in this browser. Please try Chrome, Edge, Firefox or Safari.';
       }
-    });
+    });    document.getElementById('retake').addEventListener('click', function () { startRetake(result, check); });
+  }
+
+  async function startRetake(result, check) {
+    const warn = state.downloaded ? '' : '<p><b>You have not downloaded the report for this attempt yet.</b> Cancel and download it first if you want to keep it.</p>';
+    const ok = await dialog('Start attempt ' + (attemptNo() + 1) + '?',
+      warn + '<p>You will get a new version of the exam with different numbers and questions. This attempt\u2019s score (' + result.total.toFixed(2) +
+      ') stays in your attempt list, and your highest score counts.</p>', 'Start Retake');
+    if (!ok) return;
+    const hist = (state.history || []).concat([{ attempt: attemptNo(), code: state.code, startedAt: state.startedAt, finishedAt: state.finishedAt, total: result.total, check: check }]);
+    const code = E.newVersionCode();
+    state = {
+      v: 1, code: code, name: state.name, attempt: attemptNo() + 1, history: hist, phase: 'p1', startedAt: nowIso(), submitted: {},
+      answers: { p1: {}, p2: {}, p3: { selections: [], amounts: [], current: [], currentAmount: '' } },
+      ui: { p1: 0, p2: 0 }
+    };
+    exam = E.generateExam(code);
+    save();
+    window.scrollTo(0, 0);
+    render();
   }
 
   // Lets the instructor reset a lab computer: add #reset to the URL.
