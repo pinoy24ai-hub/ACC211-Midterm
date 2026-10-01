@@ -6,7 +6,7 @@ An interactive, browser-based midterm on the accounting cycle for a service busi
 |---|---|---|
 | 1 | Journalize 10 transactions using a drop-down chart of accounts | 40 (4 each) |
 | 2 | Record 6 adjusting entries from a given unadjusted trial balance: 1 accrued expense, 1 accrued revenue, 2 deferred expenses, 1 deferred revenue, 1 depreciation | 36 (6 each) |
-| 3 | Run a click-based closing routine on a given adjusted trial balance: revenues to Income Summary, expenses to Income Summary, Income Summary to Capital, Drawing to Capital | 24 (6 each) |
+| 3 | Run a click-based closing routine on a given adjusted trial balance: revenues to Income Summary, expenses to Income Summary, Income Summary to Capital, Drawing to Capital | 24 (6 per entry) |
 
 Each phase supplies its own data, so mistakes never carry over from one phase to the next.
 
@@ -31,7 +31,17 @@ The app is fully static and has no external dependencies: the PDF library is bun
 ## Scoring rules
 
 - **Journal and adjusting entries:** each expected line earns full credit for the correct account, side (debit or credit) and amount, or half credit for the correct account and side with a wrong amount. Each extra or incomplete line deducts half a line. An entry never scores below zero.
-- **Closing steps:** credit is proportional to correct accounts selected, minus any wrong accounts selected (minimum zero).
+- **Closing entries (6 points each):**
+  - *Accounts (4 points):* students click every account in the entry, meaning the account(s) being closed **and** the account receiving the balance (Income Summary or Capital). Credit is proportional to correct accounts minus wrong ones (minimum zero). An account being closed earns nothing if its balance was already zero, for example Drawing that was wrongly closed to Income Summary in an earlier entry.
+  - *Amount (2 points):* the amount typed for the receiving account must equal the total actually closed by the accounts the student selected. It counts only when some account credit was earned.
+  - Entries post exactly as keyed, so a wrong amount flows into Income Summary and Capital, as it would in a real ledger. Grading compares each amount to the student's own selection, so one mistake is not penalized twice.
+
+## Phase 3 screen
+
+- Neutral labels ("Closing entry 1 of 4"), so students must know the order and what each entry closes.
+- Ledger grouped by Assets, Liabilities, Owner's Equity, Revenues and Expenses, with live balances.
+- Preview of each entry before posting, with the amount field on the receiving account's line. An entry can't post until it has two sides.
+- Live Income Summary T-account, the closing journal, and a post-closing trial balance at the end (not graded).
 
 ## Instructor tools
 

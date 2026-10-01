@@ -228,3 +228,23 @@ button, input, select { font: inherit; color: inherit; }
   .topbar, .btn, .navigator { display: none !important; }
   body { background: #fff; }
 }
+
+/* ---------- Phase 3: instructions, preview, T-account ---------- */
+.howto { margin: 0 0 .5rem; padding-left: 1.3rem; color: var(--ink-2); max-width: 70ch; }
+.howto li { margin-bottom: .2rem; }
+.preview { border: 1px solid var(--line-strong); border-radius: 8px; padding: 10px 12px 8px; margin-bottom: 12px; background: var(--surface-2); }
+.preview-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--brand-2); margin-bottom: 4px; }
+.preview .tbl td.cr-acct { padding-left: 28px; }
+.preview tr.recv td { background: #fff; }
+.preview-note { font-size: 13px; color: var(--muted); margin-top: 8px; }
+.done-note { font-weight: 600; color: var(--ink-2); }
+.amt-input { width: 120px; max-width: 100%; border: 1px solid var(--select-line); border-radius: 6px; padding: 6px 8px; text-align: right; font-family: var(--mono); background: #fff; }
+.sep { border: 0; border-top: 1px solid var(--line); margin: 18px 0 12px; }
+.t-account { font-family: var(--mono); font-size: 13px; }
+.t-title { font-family: inherit; text-align: center; font-weight: 700; font-size: 14px; padding-bottom: 4px; border-bottom: 2px solid var(--ink-2); }
+.t-head, .t-row { display: grid; grid-template-columns: 1fr 1fr; }
+.t-head span { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: 3px 8px; }
+.t-head span:first-child, .t-row span:first-child { border-right: 2px solid var(--ink-2); }
+.t-row span { padding: 3px 8px; min-height: 1.6em; text-align: right; }
+.t-row i { font-style: normal; color: var(--muted); float: left; }
+.t-bal { border-top: 1px solid var(--line-strong); font-weight: 700; }

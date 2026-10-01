@@ -74,7 +74,7 @@
 
     doc.setFont('helvetica', 'normal').setFontSize(9).setTextColor.apply(doc, MUTED);
     doc.text(doc.splitTextToSize('Upload this PDF to the Canvas assignment. The pages that follow list every response you entered. ' +
-      'Scoring: journal lines earn credit for the correct account, side and amount; closing steps earn credit for selecting the correct accounts.', W - 2 * M), M, y);
+      'Scoring: journal lines earn credit for the correct account, side and amount; each closing entry earns credit for selecting every account in the entry (both sides) and for the amount transferred.', W - 2 * M), M, y);
 
     // ---- Detail pages ----
     function section(title, subtitle) {
@@ -133,26 +133,25 @@
     section('Phase 3: Closing Entries', 'Closing routine run on the adjusted balances dated ' + exam.phase3.date +
       '. Score: ' + result.phase3.score.toFixed(2) + ' / ' + result.phase3.possible);
     const bal = E.atbBalances(exam.phase3);
-    const cap = exam.accounts['301'].name;
-    const stepNames = {
-      revenues: 'Close revenue account(s) to Income Summary',
-      expenses: 'Close expense accounts to Income Summary',
-      incomeSummary: 'Close Income Summary to ' + cap,
-      drawing: 'Close ' + exam.accounts['306'].name + ' to ' + cap
-    };
     exam.phase3.steps.forEach(function (s, i) {
       const selected = (state.answers.p3.selections || [])[i] || [];
-      const lines = E.applyClosing(bal, selected, s.target);
-      const body = [[{ content: 'Accounts selected: ' + (selected.length ? selected.map(function (no) { return t(acct(no)); }).join('; ') : '(none)'), colSpan: 3, styles: { fontStyle: 'italic', textColor: MUTED } }]]
+      const keyed = ((state.answers.p3.amounts || [])[i]) || '';
+      const lines = E.applyClosing(bal, selected, keyed).lines;
+      const item = result.phase3.items[i];
+      const info = 'Accounts selected: ' + (selected.length ? selected.map(function (no) { return t(acct(no)); }).join('; ') : '(none)') +
+        '\nAmount entered: ' + (keyed ? t(keyed) : '(none)') +
+        '\nAccounts ' + item.accountPts.toFixed(2) + ' / 4.00  |  Amount ' + item.amountPts.toFixed(2) + ' / 2.00';
+      const body = [[{ content: info, colSpan: 3, styles: { fontStyle: 'italic', textColor: MUTED } }]]
         .concat(lines.length
           ? lines.map(function (l) { return [(l.side === 'cr' ? '      ' : '') + t(acct(l.acct)), l.side === 'dr' ? amt(l.amount) : '', l.side === 'cr' ? amt(l.amount) : '']; })
           : [['(no amounts transferred)', '', '']]);
       doc.autoTable({
         startY: y, margin: { left: M, right: M }, theme: 'grid',
-        head: [[{ content: 'Step ' + (i + 1) + ': ' + t(stepNames[s.key]), colSpan: 2 },
-          { content: result.phase3.items[i].earned.toFixed(2) + ' / ' + s.points + ' pts', styles: { halign: 'right' } }],
+        head: [[{ content: 'Closing entry ' + (i + 1), colSpan: 2 },
+          { content: item.earned.toFixed(2) + ' / ' + s.points + ' pts', styles: { halign: 'right' } }],
         ['Posted entry', 'Debit', 'Credit']],
         body: body,
+        rowPageBreak: 'avoid',
         styles: { fontSize: 9.5, textColor: INK, cellPadding: 4 },
         headStyles: { fillColor: [244, 246, 249], textColor: INK, fontStyle: 'normal' },
         columnStyles: { 1: { halign: 'right', cellWidth: 90 }, 2: { halign: 'right', cellWidth: 90 } },

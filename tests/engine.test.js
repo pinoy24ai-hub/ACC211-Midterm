@@ -43,14 +43,18 @@ for (let i = 0; i < N; i++) {
   const p3 = ex.phase3;
   if (p3.netIncome < 0) losses++;
   // full marks with perfect answers
-  const answers = { p1: {}, p2: {}, p3: { selections: p3.steps.map(s => s.expected) } };
+  const answers = { p1: {}, p2: {}, p3: { selections: p3.steps.map(s => s.expected.slice().reverse()), amounts: p3.steps.map(s => E.money(s.amount)) } };
   ex.phase1.transactions.forEach(t => answers.p1[t.id] = asRows(t.lines));
   ex.phase2.items.forEach(t => answers.p2[t.id] = asRows(t.lines).reverse());
   const g = E.gradeExam(ex, answers);
   assert.strictEqual(g.total, 100, code + ' perfect != 100');
   // simulate the closing routine: all temporary accounts zero, capital = ending capital
   const bal = E.atbBalances(p3);
-  p3.steps.forEach(s => E.applyClosing(bal, s.expected, s.target));
+  p3.steps.forEach(s => {
+    const r = E.applyClosing(bal, s.expected);
+    assert.strictEqual(r.target, s.target);
+    assert.strictEqual(r.amount, s.amount, code + ' step amount');
+  });
   [...p3.revenues, ...p3.expenses, '306', '350'].forEach(no => assert.strictEqual(bal[no], 0));
   assert.strictEqual(-bal['301'], p3.endingCapital);
 }
@@ -61,6 +65,16 @@ assert.strictEqual(E.gradeEntry(exp, [{ acct: '101', dr: '$500', cr: '' }, { acc
 assert.strictEqual(E.gradeEntry(exp, [{ acct: '101', dr: '50', cr: '' }, { acct: '400', dr: '', cr: '500' }], 4), 3);
 assert.strictEqual(E.gradeEntry(exp, [{ acct: '400', dr: '500', cr: '' }, { acct: '101', dr: '', cr: '500' }], 4), 0);
 assert.strictEqual(E.gradeEntry(exp, [{ acct: '101', dr: '500', cr: '' }, { acct: '112', dr: '', cr: '500' }], 4), 1);
-assert.strictEqual(E.gradeSelection(['400', '405'], ['400'], 6), 3);
-assert.strictEqual(E.gradeSelection(['400'], ['400', '729'], 6), 0);
+// Phase 3: a closing entry needs both sides plus the amount transferred
+const step1 = { close: ['400'], target: '350', expected: ['400', '350'], points: 6 };
+const step4 = { close: ['306'], target: '301', expected: ['306', '301'], points: 6 };
+const g = (step, sel, amt, bal) => E.gradeClosingStep(step, sel, amt, Object.assign({}, bal)).earned;
+const B = { '400': -5000, '350': 0, '306': 800, '301': -9000, '101': 3000 };
+assert.strictEqual(g(step1, ['400', '350'], '5,000', B), 6);       // both sides, right amount
+assert.strictEqual(g(step1, ['400', '350'], '4,000', B), 4);       // wrong amount
+assert.strictEqual(g(step1, ['400'], '5000', B), 2);               // one side only: no entry posts
+assert.strictEqual(g(step1, ['400', '350', '101'], '8000', B), 2); // one wrong account
+assert.strictEqual(g(step1, ['101', '350'], '3000', B), 0);        // wrong account cancels the right one
+assert.strictEqual(g(step4, ['306', '301'], '800', B), 6);
+assert.strictEqual(g(step4, ['306', '301'], '0', Object.assign({}, B, { '306': 0 })), 2); // drawing already closed elsewhere
 console.log('OK:', N, 'versions checked;', losses, 'with a net loss in Phase 3');

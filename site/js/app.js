@@ -129,7 +129,7 @@
       const code = E.newVersionCode();
       state = {
         v: 1, code: code, name: name, phase: 'p1', startedAt: nowIso(), submitted: {},
-        answers: { p1: {}, p2: {}, p3: { selections: [], current: [] } },
+        answers: { p1: {}, p2: {}, p3: { selections: [], amounts: [], current: [], currentAmount: '' } },
         ui: { p1: 0, p2: 0 }
       };
       exam = E.generateExam(code);
@@ -348,95 +348,184 @@
 
   // ---------- Phase 3: closing routine ----------
 
-  function closingStepLabel(step) {
-    const cap = acctName('301');
-    if (step.key === 'revenues') return 'Close revenue account(s) to Income Summary';
-    if (step.key === 'expenses') return 'Close expense accounts to Income Summary';
-    if (step.key === 'incomeSummary') return 'Close Income Summary to ' + cap;
-    return 'Close ' + acctName('306') + ' to ' + cap;
+  function p3State() {
+    const a = state.answers.p3;
+    if (!a.amounts) a.amounts = [];
+    if (a.currentAmount == null) a.currentAmount = '';
+    return a;
   }
 
-  // Replay posted steps to get current balances and the posted entries.
+  // Replay posted entries (as the student keyed them) to get current balances,
+  // the posted journal, and the Income Summary T-account postings.
   function replayClosing() {
+    const a = p3State();
     const bal = E.atbBalances(exam.phase3);
-    const sel = state.answers.p3.selections;
-    const posted = sel.map(function (s, i) {
-      return { step: exam.phase3.steps[i], lines: E.applyClosing(bal, s, exam.phase3.steps[i].target), selected: s };
+    const isPostings = [];
+    const posted = a.selections.map(function (sel, i) {
+      const r = E.applyClosing(bal, sel, a.amounts[i]);
+      r.lines.forEach(function (l) { if (l.acct === '350') isPostings.push({ ref: i + 1, side: l.side, amount: l.amount }); });
+      return { lines: r.lines, selected: sel };
     });
-    return { bal: bal, posted: posted };
+    return { bal: bal, posted: posted, isPostings: isPostings };
+  }
+
+  // Build the entry the routine would post from the current selection, without posting it.
+  function previewEntry(bal, selected) {
+    const target = E.receiverOf(selected);
+    const lines = [];
+    let net = 0;
+    selected.slice().sort().forEach(function (no) {
+      const b = bal[no] || 0;
+      if (no === target || Math.abs(b) < 0.005) return;
+      lines.push({ acct: no, side: b > 0 ? 'cr' : 'dr', amount: Math.abs(b) });
+      net += b;
+    });
+    return { target: target, lines: lines, receiverSide: net > 0 ? 'dr' : 'cr', hasTransfer: Math.abs(net) >= 0.005 };
+  }
+
+  function entryLinesHtml(lines) {
+    const sorted = lines.slice().sort(function (x, y) { return x.side === y.side ? 0 : (x.side === 'dr' ? -1 : 1); });
+    return sorted.map(function (l) {
+      return '<tr><td class="' + (l.side === 'cr' ? 'cr-acct' : '') + '">' + esc(acctName(l.acct)) + '</td>' +
+        '<td class="num">' + (l.side === 'dr' ? fmt(l.amount) : '') + '</td><td class="num">' + (l.side === 'cr' ? fmt(l.amount) : '') + '</td></tr>';
+    }).join('');
+  }
+
+  function tAccountHtml(postings, balance) {
+    const drs = postings.filter(function (p) { return p.side === 'dr'; });
+    const crs = postings.filter(function (p) { return p.side === 'cr'; });
+    const n = Math.max(drs.length, crs.length, 1);
+    let rows = '';
+    for (let i = 0; i < n; i++) {
+      const d = drs[i], c = crs[i];
+      rows += '<div class="t-row"><span>' + (d ? '<i>(' + d.ref + ')</i> ' + fmt(d.amount) : '') + '</span><span>' +
+        (c ? '<i>(' + c.ref + ')</i> ' + fmt(c.amount) : '') + '</span></div>';
+    }
+    const balRow = '<div class="t-row t-bal"><span>' + (balance > 0.004 ? 'Bal. ' + fmt(balance) : '') + '</span><span>' +
+      (balance < -0.004 ? 'Bal. ' + fmt(-balance) : '') + '</span></div>';
+    return '<div class="t-account"><div class="t-title">350 Income Summary</div><div class="t-head"><span>Debit</span><span>Credit</span></div>' +
+      rows + balRow + '</div>';
   }
 
   function renderClosing() {
     const p3 = exam.phase3;
-    const a = state.answers.p3;
+    const a = p3State();
+    const total = p3.steps.length;
     const stepIdx = a.selections.length;
-    const complete = stepIdx >= p3.steps.length;
+    const complete = stepIdx >= total;
     const replay = replayClosing();
     const bal = replay.bal;
     const current = complete ? [] : a.current;
 
-    const accts = p3.atb.map(function (r) { return r.acct; }).concat(['350']).sort();
-    let d = 0, c = 0;
-    const ledgerRows = accts.map(function (no) {
-      const b = bal[no] || 0;
-      if (b > 0) d += b; else c -= b;
-      const sel = current.includes(no);
-      const cls = ['acct-row'];
-      if (sel) cls.push('selected');
-      if (complete) cls.push('locked');
-      if (Math.abs(b) < 0.005) cls.push('zero');
-      return '<tr class="' + cls.join(' ') + '" data-acct="' + no + '" tabindex="' + (complete ? -1 : 0) + '" aria-selected="' + sel + '">' +
-        '<td class="chk"><input type="checkbox" tabindex="-1" aria-label="Select ' + esc(acctName(no)) + '"' + (sel ? ' checked' : '') + (complete ? ' disabled' : '') + '></td>' +
-        '<td class="no">' + no + '</td><td>' + esc(acctName(no)) + '</td>' +
-        '<td class="num">' + (b > 0 ? fmt(b) : '') + '</td><td class="num">' + (b < 0 ? fmt(-b) : '') + '</td></tr>';
-    }).join('');
+    // Ledger grouped by account type
+    const accts = p3.atb.map(function (r) { return r.acct; }).concat(['350']);
+    let ledgerRows = '';
+    GROUPS.forEach(function (g) {
+      const inGroup = exam.chart.filter(function (x) { return g.types.includes(x.type) && accts.includes(x.no); });
+      if (!inGroup.length) return;
+      ledgerRows += '<tr class="grp"><td colspan="5">' + esc(g.label) + '</td></tr>';
+      inGroup.forEach(function (x) {
+        const no = x.no, b = bal[no] || 0;
+        const sel = current.includes(no);
+        const cls = ['acct-row'];
+        if (sel) cls.push('selected');
+        if (complete) cls.push('locked');
+        if (Math.abs(b) < 0.005) cls.push('zero');
+        ledgerRows += '<tr class="' + cls.join(' ') + '" data-acct="' + no + '" tabindex="' + (complete ? -1 : 0) + '" aria-selected="' + sel + '">' +
+          '<td class="chk"><input type="checkbox" tabindex="-1" aria-label="Select ' + esc(x.name) + '"' + (sel ? ' checked' : '') + (complete ? ' disabled' : '') + '></td>' +
+          '<td class="no">' + no + '</td><td>' + esc(x.name) + '</td>' +
+          '<td class="num">' + (b > 0.004 ? fmt(b) : '') + '</td><td class="num">' + (b < -0.004 ? fmt(-b) : '') + '</td></tr>';
+      });
+    });
 
     const stepsHtml = p3.steps.map(function (s, i) {
       const cls = i === stepIdx ? 'current' : (i < stepIdx ? 'posted' : '');
-      return '<li class="' + cls + '"><span class="n">' + (i + 1) + '</span><span>' + esc(closingStepLabel(s)) + '</span>' +
-        (i < stepIdx ? '<span class="tag">Posted</span>' : '') + '</li>';
+      return '<li class="' + cls + '"><span class="n">' + (i + 1) + '</span><span>Closing entry ' + (i + 1) + '</span>' +
+        (i < stepIdx ? '<span class="tag">Posted</span>' : (i === stepIdx ? '<span class="tag">In progress</span>' : '')) + '</li>';
     }).join('');
 
-    const consoleHtml = complete
-      ? '<div><span class="prompt">&gt;</span> Closing routine complete. All four closing entries have been posted.</div>'
-      : '<div><span class="prompt">&gt;</span> Step ' + (stepIdx + 1) + ' of ' + p3.steps.length + ': ' + esc(closingStepLabel(p3.steps[stepIdx])) + '</div>' +
-        '<div><span class="prompt">&gt;</span> Click account(s) in the ledger to select them.</div>' +
-        '<div><span class="prompt">&gt;</span> Selected: ' + (current.length ? current.map(function (no) { return esc(no + ' ' + acctName(no)); }).join(', ') : 'none') + '</div>';
+    // Preview of the entry being built
+    let previewHtml = '';
+    let canPost = false;
+    if (!complete) {
+      const pv = previewEntry(bal, current);
+      let body = entryLinesHtml(pv.lines);
+      let note = '';
+      if (pv.target && pv.hasTransfer) {
+        const amtInput = '<input id="p3Amount" class="amt-input" inputmode="decimal" autocomplete="off" placeholder="Amount" aria-label="Amount transferred to ' +
+          esc(acctName(pv.target)) + '" value="' + esc(a.currentAmount) + '">';
+        const recv = '<tr class="recv"><td class="' + (pv.receiverSide === 'cr' ? 'cr-acct' : '') + '">' + esc(acctName(pv.target)) + '</td>' +
+          '<td class="num">' + (pv.receiverSide === 'dr' ? amtInput : '') + '</td><td class="num">' + (pv.receiverSide === 'cr' ? amtInput : '') + '</td></tr>';
+        body = pv.receiverSide === 'dr' ? recv + body : body + recv;
+        canPost = !isNaN(E.parseAmount(a.currentAmount));
+        note = 'Enter the amount transferred to ' + esc(acctName(pv.target)) + '.';
+      } else if (pv.target && current.length > 1) {
+        body += '<tr class="recv"><td>' + esc(acctName(pv.target)) + '</td><td></td><td></td></tr>';
+        canPost = true;
+        note = 'No balances will be transferred by this entry.';
+      } else if (current.length) {
+        if (pv.target) body += '<tr class="recv"><td>' + esc(acctName(pv.target)) + '</td><td></td><td></td></tr>';
+        note = 'This entry has only one side so far.';
+      } else {
+        note = 'Click accounts in the ledger to build the entry.';
+      }
+      previewHtml =
+        '<div class="preview"><div class="preview-title">Entry ' + (stepIdx + 1) + ' preview &middot; ' + esc(p3.date) + '</div>' +
+        '<table class="tbl"><thead><tr><th>Account Title</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead><tbody>' +
+        (body || '<tr><td colspan="3" class="muted">No accounts selected.</td></tr>') + '</tbody></table>' +
+        '<div class="preview-note">' + note + '</div></div>' +
+        '<div class="btn-row"><button type="button" class="btn btn-ghost btn-small" id="clearSel"' + (current.length ? '' : ' disabled') + '>Clear selection</button><span class="spacer"></span>' +
+        '<button type="button" class="btn btn-primary" id="postEntry"' + (canPost ? '' : ' disabled') + '>Post Entry ' + (stepIdx + 1) + '</button></div>';
+    } else {
+      previewHtml = '<div class="preview done-note">All four closing entries have been posted.</div>' +
+        '<button type="button" class="btn btn-primary" id="finishExam" style="width:100%">Finish Exam and Get My Report</button>';
+    }
 
     const postedHtml = replay.posted.map(function (p, i) {
-      const body = p.lines.length
-        ? p.lines.map(function (l) {
-            return '<tr><td class="' + (l.side === 'cr' ? 'cr-acct' : '') + '">' + esc(acctName(l.acct)) + '</td>' +
-              '<td class="num">' + (l.side === 'dr' ? fmt(l.amount) : '') + '</td><td class="num">' + (l.side === 'cr' ? fmt(l.amount) : '') + '</td></tr>';
-          }).join('')
-        : '<tr><td colspan="3" class="muted">No amounts were transferred.</td></tr>';
       return '<div class="posted-entry"><h4>Entry ' + (i + 1) + ' &middot; ' + esc(p3.date) + '</h4>' +
-        '<table class="tbl"><thead><tr><th>Account Title</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead><tbody>' + body + '</tbody></table></div>';
+        '<table class="tbl"><thead><tr><th>Account Title</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead><tbody>' +
+        (p.lines.length ? entryLinesHtml(p.lines) : '<tr><td colspan="3" class="muted">No amounts were transferred.</td></tr>') + '</tbody></table></div>';
     }).join('');
+
+    // Post-closing trial balance once the routine is complete
+    let pctbHtml = '';
+    if (complete) {
+      let d = 0, c = 0, rows = '';
+      exam.chart.forEach(function (x) {
+        const b = bal[x.no];
+        if (!b || Math.abs(b) < 0.005) return;
+        if (b > 0) d += b; else c -= b;
+        rows += '<tr><td class="no">' + x.no + '</td><td>' + esc(x.name) + '</td><td class="num">' + (b > 0 ? fmt(b) : '') + '</td><td class="num">' + (b < 0 ? fmt(-b) : '') + '</td></tr>';
+      });
+      pctbHtml = '<section class="card"><div class="header-block"><b>' + esc(exam.business.name) + '</b><b>Post-Closing Trial Balance</b>' + esc(p3.date) + '</div>' +
+        '<table class="tbl"><thead><tr><th>No.</th><th>Account Title</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead><tbody>' + rows +
+        '</tbody><tfoot><tr><td></td><td>Totals</td><td class="num">' + fmtTotal(d) + '</td><td class="num">' + fmtTotal(c) + '</td></tr></tfoot></table></section>';
+    }
 
     app.innerHTML =
       '<div class="phase-head"><div>' +
       '<div class="eyebrow">Phase 3 of 3 &middot; 24 points</div><h1>Closing Entries</h1>' +
-      '<p>The adjusted account balances of ' + esc(exam.business.name) + ' at ' + esc(p3.date) +
-      ' are shown in the ledger below. These balances are provided for Phase 3 only. Run the closing routine one step at a time: ' +
-      'for each step, click the account(s) to close, then post the entry. The software prepares and posts the closing entry from your selection. Posted entries cannot be changed.</p>' +
+      '<p>The ledger shows the adjusted balances of ' + esc(exam.business.name) + ' at ' + esc(p3.date) +
+      ' (provided for Phase 3 only). Prepare the four closing entries in the proper order. For each entry:</p>' +
+      '<ol class="howto"><li>Click <b>every account in the entry</b>: the account(s) being closed and the account that receives the balance.</li>' +
+      '<li>Enter the <b>amount transferred</b> to the receiving account.</li>' +
+      '<li>Review the preview, then post. Posted entries cannot be changed.</li></ol>' +
       '</div></div>' +
       '<div class="layout layout-wide-side">' +
+      '<div>' +
       '<section class="card">' +
-      '<h3>General Ledger Balances</h3><div class="ref-sub muted small">Balances update after each posted closing entry. Starting point: Adjusted Trial Balance, ' + esc(p3.date) + '.</div>' +
+      '<h3>General Ledger Balances</h3><div class="ref-sub muted small">Balances update after each posted entry.</div>' +
       '<table class="tbl ledger"><thead><tr><th></th><th>No.</th><th>Account Title</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead>' +
-      '<tbody id="ledger">' + ledgerRows + '</tbody>' +
-      '<tfoot><tr><td></td><td></td><td>Totals</td><td class="num">' + fmtTotal(d) + '</td><td class="num">' + fmtTotal(c) + '</td></tr></tfoot></table>' +
-      '</section>' +
+      '<tbody id="ledger">' + ledgerRows + '</tbody></table>' +
+      '</section>' + pctbHtml +
+      '</div>' +
       '<aside class="card side">' +
       '<h3>Closing Routine</h3>' +
       '<ol class="routine-steps">' + stepsHtml + '</ol>' +
-      '<div class="console" role="status">' + consoleHtml + '</div>' +
-      (complete
-        ? '<button type="button" class="btn btn-primary" id="finishExam" style="width:100%">Finish Exam and Get My Report</button>'
-        : '<div class="btn-row"><button type="button" class="btn btn-ghost btn-small" id="clearSel"' + (current.length ? '' : ' disabled') + '>Clear selection</button><span class="spacer"></span>' +
-          '<button type="button" class="btn btn-primary" id="postEntry"' + (current.length ? '' : ' disabled') + '>Post Closing Entry</button></div>') +
-      '<hr style="border:0;border-top:1px solid var(--line);margin:18px 0 12px">' +
+      previewHtml +
+      '<hr class="sep">' +
+      tAccountHtml(replay.isPostings, bal['350'] || 0) +
+      '<hr class="sep">' +
       '<h3>Closing Journal</h3>' +
       (postedHtml || '<p class="muted small">No closing entries posted yet.</p>') +
       '</aside>' +
@@ -462,7 +551,19 @@
         const tr = ev.target.closest('tr[data-acct]');
         if (tr) { ev.preventDefault(); toggle(tr); }
       });
-      document.getElementById('clearSel').addEventListener('click', function () { a.current = []; save(); renderClosing(); });
+      const amt = document.getElementById('p3Amount');
+      if (amt) {
+        amt.addEventListener('input', function () {
+          a.currentAmount = amt.value;
+          save();
+          document.getElementById('postEntry').disabled = isNaN(E.parseAmount(amt.value));
+        });
+        amt.addEventListener('focusout', function () {
+          const n = E.parseAmount(amt.value);
+          if (!isNaN(n)) { amt.value = n.toLocaleString('en-US', { maximumFractionDigits: 2 }); a.currentAmount = amt.value; save(); }
+        });
+      }
+      document.getElementById('clearSel').addEventListener('click', function () { a.current = []; a.currentAmount = ''; save(); renderClosing(); });
       document.getElementById('postEntry').addEventListener('click', postClosingStep);
     } else {
       document.getElementById('finishExam').addEventListener('click', finishExam);
@@ -470,15 +571,15 @@
   }
 
   async function postClosingStep() {
-    const a = state.answers.p3;
-    const step = exam.phase3.steps[a.selections.length];
-    const list = a.current.slice().sort().map(function (no) { return '<li>' + esc(no + ' ' + acctName(no)) + '</li>'; }).join('');
-    const ok = await dialog('Post closing entry?',
-      '<p><b>' + esc(closingStepLabel(step)) + '</b></p><p>Selected account(s):</p><ul>' + list + '</ul><p>Posted entries cannot be changed.</p>',
-      'Post Entry');
+    const a = p3State();
+    const n = a.selections.length + 1;
+    const ok = await dialog('Post entry ' + n + '?', '<p>The entry will be posted to the ledger exactly as shown in the preview. Posted entries cannot be changed.</p>', 'Post Entry');
     if (!ok) return;
+    const pv = previewEntry(replayClosing().bal, a.current);
     a.selections.push(a.current.slice().sort());
+    a.amounts.push(pv.target && pv.hasTransfer ? a.currentAmount : '');
     a.current = [];
+    a.currentAmount = '';
     save();
     renderClosing();
   }

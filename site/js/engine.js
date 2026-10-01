@@ -487,12 +487,14 @@
       beginningCapital: capital,
       drawing: drawing,
       endingCapital: capital + netIncome - drawing,
+      // close: accounts zeroed by the entry; target: account receiving the balance.
+      // A complete answer selects both sides: close + target.
       steps: [
-        { key: 'revenues', title: 'Close revenue account(s) to Income Summary', target: '350', expected: revenues, points: 6 },
-        { key: 'expenses', title: 'Close expense accounts to Income Summary', target: '350', expected: expenses, points: 6 },
-        { key: 'incomeSummary', title: 'Close Income Summary to owner’s capital', target: '301', expected: ['350'], points: 6 },
-        { key: 'drawing', title: 'Close the drawing account to owner’s capital', target: '301', expected: ['306'], points: 6 }
-      ]
+        { key: 'revenues', close: revenues, target: '350', amount: sumOf(revenues), points: 6 },
+        { key: 'expenses', close: expenses, target: '350', amount: sumOf(expenses), points: 6 },
+        { key: 'incomeSummary', close: ['350'], target: '301', amount: Math.abs(netIncome), points: 6 },
+        { key: 'drawing', close: ['306'], target: '301', amount: drawing, points: 6 }
+      ].map(function (st) { st.expected = st.close.concat([st.target]); return st; })
     };
   }
 
@@ -562,13 +564,6 @@
     return round2(points * credit / expected.length);
   }
 
-  function gradeSelection(expected, selected, points) {
-    const sel = selected || [];
-    const right = sel.filter(function (s) { return expected.includes(s); }).length;
-    const wrong = sel.length - right;
-    return round2(points * Math.max(0, right - wrong) / expected.length);
-  }
-
   function round2(n) { return Math.round(n * 100) / 100; }
 
   function gradeExam(exam, answers) {
@@ -580,8 +575,11 @@
       return { id: it.id, earned: gradeEntry(it.lines, (answers.p2 || {})[it.id], it.points), points: it.points };
     });
     const sel = (answers.p3 && answers.p3.selections) || [];
+    const amts = (answers.p3 && answers.p3.amounts) || [];
+    const bal = atbBalances(exam.phase3);
     const p3 = exam.phase3.steps.map(function (s, i) {
-      return { id: s.key, earned: gradeSelection(s.expected, sel[i], s.points), points: s.points };
+      const g = gradeClosingStep(s, sel[i] || [], amts[i], bal);
+      return { id: s.key, earned: g.earned, accountPts: g.accountPts, amountPts: g.amountPts, points: s.points };
     });
     const total = function (list) { return round2(list.reduce(function (a, x) { return a + x.earned; }, 0)); };
     const possible = function (list) { return list.reduce(function (a, x) { return a + x.points; }, 0); };
@@ -597,9 +595,23 @@
 
   // Apply one closing step the way accounting software would: zero out each selected
   // account and post the net to the target account.
-  function applyClosing(balances, selected, target) {
+  // The receiving account in a selection: owner's capital if chosen (it is never closed),
+  // otherwise Income Summary. Without either, the entry has only one side.
+  function receiverOf(selected) {
+    if (selected.includes('301')) return '301';
+    if (selected.includes('350')) return '350';
+    return null;
+  }
+
+  // Apply one closing entry: zero out each selected account and post the net to the
+  // receiving account. If the student keyed an amount for the receiving line, the entry
+  // posts with that amount (so a keying error flows through, as it would in a real ledger).
+  // Returns the true amount transferred for grading. Mutates balances.
+  function applyClosing(balances, selected, keyed) {
+    const target = receiverOf(selected);
     const lines = [];
     let net = 0;
+    if (!target) return { lines: lines, target: null, amount: 0 };
     selected.forEach(function (no) {
       const b = balances[no] || 0;
       if (no === target || Math.abs(b) < 0.005) return;
@@ -607,13 +619,34 @@
       net += b;
       balances[no] = 0;
     });
-    if (Math.abs(net) >= 0.005) {
-      lines.push(net > 0 ? dr(target, net) : cr(target, -net));
-      balances[target] = (balances[target] || 0) + net;
+    const k = parseAmount(keyed);
+    const posted = isNaN(k) ? Math.abs(net) : Math.abs(k);
+    if (Math.abs(net) >= 0.005 && posted >= 0.005) {
+      lines.push(net > 0 ? dr(target, posted) : cr(target, posted));
+      balances[target] = (balances[target] || 0) + (net > 0 ? posted : -posted);
     }
     // debits first, then credits
     lines.sort(function (a, b) { return a.side === b.side ? 0 : (a.side === 'dr' ? -1 : 1); });
-    return lines;
+    return { lines: lines, target: target, amount: round2(Math.abs(net)) };
+  }
+
+  // Score one closing entry and advance balances. Account points: each account in the
+  // full entry (accounts closed + receiving account) earns credit if selected, but an
+  // account being closed earns nothing if its balance was already zero; each wrong
+  // account deducts one. Amount points: the typed amount must equal what the entry
+  // actually transferred, and only count when some account credit was earned.
+  function gradeClosingStep(step, selected, typedAmount, balances) {
+    const accountMax = step.points * 2 / 3, amountMax = step.points - accountMax;
+    let right = 0, wrong = 0;
+    selected.forEach(function (no) {
+      if (!step.expected.includes(no)) { wrong++; return; }
+      if (no === step.target || Math.abs(balances[no] || 0) >= 0.005) right++;
+    });
+    const accountPts = round2(accountMax * Math.max(0, right - wrong) / step.expected.length);
+    const result = applyClosing(balances, selected, typedAmount);
+    const typed = parseAmount(typedAmount);
+    const amountPts = accountPts > 0 && result.amount > 0 && Math.abs(typed - result.amount) < 0.005 ? amountMax : 0;
+    return { accountPts: accountPts, amountPts: amountPts, earned: round2(accountPts + amountPts), transferred: result.amount, lines: result.lines };
   }
 
   function atbBalances(phase3) {
@@ -636,10 +669,11 @@
     generateExam: generateExam,
     gradeExam: gradeExam,
     gradeEntry: gradeEntry,
-    gradeSelection: gradeSelection,
     normalizeLines: normalizeLines,
     parseAmount: parseAmount,
     applyClosing: applyClosing,
+    receiverOf: receiverOf,
+    gradeClosingStep: gradeClosingStep,
     atbBalances: atbBalances,
     checkCode: checkCode,
     money: money
