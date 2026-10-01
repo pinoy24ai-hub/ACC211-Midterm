@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ACC 211 Answer Key</title>
+  <link rel="stylesheet" href="../site/css/styles.css">
+  <style>
+    .key h2 { margin-top: 8px; }
+    .key .entry { margin: 0 0 14px; }
+    .key .entry p { margin: 0 0 4px; }
+    .key td.cr-acct { padding-left: 28px; }
+    .verify { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; align-items: end; }
+    .verify input { border: 1px solid var(--line-strong); border-radius: 8px; padding: 8px 10px; width: 100%; }
+    .verify label { font-size: 13px; font-weight: 600; display: grid; gap: 4px; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-weight: 700; font-size: 13px; }
+    .badge.ok { background: #e3f3e9; color: #2c7a4b; }
+    .badge.bad { background: #fbe7e7; color: #a32626; }
+    .cat { font-size: 12px; color: var(--muted); }
+    @media print { .no-print { display: none; } .card { box-shadow: none; } }
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="topbar-inner"><div class="brand"><span class="brand-mark">$</span>
+    <div><div class="brand-title">ACC 211 Midterm: Instructor Answer Key</div><div class="brand-sub">Not for students. Do not upload this folder to Netlify.</div></div></div></div></header>
+  <main class="container key">
+    <section class="card no-print">
+      <h2>Look up a version</h2>
+      <p class="muted">Enter the version code printed on the student's PDF report. Optionally enter the name and scores from the report to confirm the check code matches (a mismatch suggests the PDF was edited).</p>
+      <form id="lookup" class="verify">
+        <label>Version code<input id="code" placeholder="ABCD-EFGH" required></label>
+        <label>Student name<input id="vname" placeholder="optional"></label>
+        <label>Phase 1 score<input id="s1" placeholder="e.g. 36.00"></label>
+        <label>Phase 2 score<input id="s2"></label>
+        <label>Phase 3 score<input id="s3"></label>
+        <label>Check code<input id="chk"></label>
+        <button class="btn btn-primary" type="submit">Show Answer Key</button>
+      </form>
+      <p id="verifyOut" style="margin-top:12px"></p>
+    </section>
+    <div id="out"></div>
+  </main>
+  <script src="../site/js/engine.js"></script>
+  <script>
+  (function () {
+    const E = window.ExamEngine;
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    const fmt = n => n ? E.money(n) : '';
+
+    function entryTable(ex, lines) {
+      return '<table class="tbl"><thead><tr><th>Account Title</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead><tbody>' +
+        lines.map(l => '<tr><td class="' + (l.side === 'cr' ? 'cr-acct' : '') + '">' + l.acct + ' ' + esc(ex.accounts[l.acct].name) + '</td>' +
+          '<td class="num">' + (l.side === 'dr' ? fmt(l.amount) : '') + '</td><td class="num">' + (l.side === 'cr' ? fmt(l.amount) : '') + '</td></tr>').join('') +
+        '</tbody></table>';
+    }
+    function tbTable(ex, rows) {
+      let d = 0, c = 0;
+      const body = rows.map(r => { d += r.debit; c += r.credit; return '<tr><td class="no">' + r.acct + '</td><td>' + esc(ex.accounts[r.acct].name) + '</td><td class="num">' + fmt(r.debit) + '</td><td class="num">' + fmt(r.credit) + '</td></tr>'; }).join('');
+      return '<table class="tbl"><thead><tr><th>No.</th><th>Account</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead><tbody>' + body +
+        '</tbody><tfoot><tr><td></td><td>Totals</td><td class="num">' + E.money(d) + '</td><td class="num">' + E.money(c) + '</td></tr></tfoot></table>';
+    }
+
+    function show(code) {
+      const ex = E.generateExam(code);
+      const p3 = ex.phase3;
+      const bal = E.atbBalances(p3);
+      const closing = p3.steps.map(s => ({ s, lines: E.applyClosing(bal, s.expected, s.target) }));
+      document.getElementById('out').innerHTML =
+        '<section class="card"><h1>Version ' + esc(ex.code) + '</h1><p>' + esc(ex.business.name) + ' &middot; Owner: ' + esc(ex.owner) + '</p></section>' +
+        '<section class="card"><h2>Phase 1: General Journal (40 pts, 4 each)</h2>' +
+        ex.phase1.transactions.map((t, i) => '<div class="entry"><p><b>' + (i + 1) + '. ' + esc(t.date) + '</b> ' + esc(t.text) + '</p>' + entryTable(ex, t.lines) + '</div>').join('') + '</section>' +
+        '<section class="card"><h2>Phase 2: Adjusting Entries (36 pts, 6 each)</h2>' +
+        '<h3>Unadjusted Trial Balance, ' + esc(ex.phase2.date) + '</h3>' + tbTable(ex, ex.phase2.tb) + '<br>' +
+        ex.phase2.items.map((t, i) => '<div class="entry"><p><b>Adjustment ' + (i + 1) + '</b> <span class="cat">(' + esc(t.category) + ')</span> ' + esc(t.text) + '</p>' + entryTable(ex, t.lines) + '</div>').join('') + '</section>' +
+        '<section class="card"><h2>Phase 3: Closing Entries (24 pts, 6 per step)</h2>' +
+        '<h3>Adjusted Trial Balance, ' + esc(p3.date) + '</h3>' + tbTable(ex, p3.atb) + '<br>' +
+        closing.map((c, i) => '<div class="entry"><p><b>Step ' + (i + 1) + '</b> Correct selection: ' + c.s.expected.map(no => no + ' ' + esc(ex.accounts[no].name)).join('; ') + '</p>' + entryTable(ex, c.lines) + '</div>').join('') +
+        '<p><b>Net ' + (p3.netIncome >= 0 ? 'income' : 'loss') + ':</b> ' + E.money(Math.abs(p3.netIncome)) +
+        ' &middot; <b>Ending capital:</b> ' + E.money(p3.endingCapital) + '</p></section>';
+    }
+
+    document.getElementById('lookup').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      const code = E.normalizeCode(document.getElementById('code').value);
+      show(code);
+      const name = document.getElementById('vname').value.trim();
+      const vals = ['s1', 's2', 's3'].map(id => parseFloat(document.getElementById(id).value));
+      const chk = document.getElementById('chk').value.trim().toUpperCase();
+      const out = document.getElementById('verifyOut');
+      if (name && chk && vals.every(v => !isNaN(v))) {
+        const fake = { phase1: { score: vals[0] }, phase2: { score: vals[1] }, phase3: { score: vals[2] }, total: Math.round((vals[0] + vals[1] + vals[2]) * 100) / 100 };
+        const ok = E.checkCode(code, name, fake) === chk;
+        out.innerHTML = ok ? '<span class="badge ok">Check code matches</span> The name and scores agree with this version.'
+          : '<span class="badge bad">Check code does not match</span> The name, scores or version on the report may have been altered. Compare against the key below.';
+      } else {
+        out.textContent = '';
+      }
+    });
+  })();
+  </script>
+</body>
+</html>
