@@ -83,3 +83,9 @@ const R = { phase1: { score: 40 }, phase2: { score: 30 }, phase3: { score: 20 },
 assert.strictEqual(E.checkCode('ABCD-EFGH', 'Ana Reyes', R), E.checkCode('ABCD-EFGH', 'Ana Reyes', R, 1));
 assert.notStrictEqual(E.checkCode('ABCD-EFGH', 'Ana Reyes', R, 1), E.checkCode('ABCD-EFGH', 'Ana Reyes', R, 2));
 console.log('OK: check codes');
+// the self-contained instructor inspector must carry the current engine
+const fs = require('fs');
+const inspector = fs.readFileSync(__dirname + '/../instructor/version-inspector.html', 'utf8');
+assert(inspector.includes(fs.readFileSync(__dirname + '/../site/js/engine.js', 'utf8')),
+  'instructor/version-inspector.html is out of date: run node tools/build-instructor.js');
+console.log('OK: version inspector up to date');

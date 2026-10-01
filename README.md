@@ -51,6 +51,15 @@ Open `instructor/answer-key.html` directly from your computer (double-click it; 
 - Enter a student's **version code** to see the full answer key for that version: all entries, both trial balances, the correct closing entries, net income or loss, and ending capital.
 - Optionally enter the **name, attempt number, phase scores and check code** from the student's PDF. If they don't match, the PDF may have been edited.
 
+### Version Inspector (whole class)
+
+Open `instructor/version-inspector.html` (double-click it). It is a single self-contained file, so it also works if you save it somewhere on its own.
+
+- Paste one report per line: either a bare version code, or a full row copied from a spreadsheet in this order: `Name, Attempt, Version code, Phase 1, Phase 2, Phase 3, Check code` (commas or tabs). Header rows are skipped.
+- The roster verifies every check code and flags **shared codes** (the same version under different names, which usually means a copied report), **repeats**, **impossible codes**, and scores above the maximum.
+- Click **View key** for the full answer key for any row, with Previous/Next and Print. **Download CSV** exports the roster with results, net income and ending capital.
+- After changing `site/js/engine.js`, rebuild it with `node tools/build-instructor.js`. The test suite fails if you forget.
+
 **Shared lab computer?** Open the exam with `#reset` at the end of the URL (for example `https://your-site.netlify.app/#reset`) to clear a finished exam so the next student can start.
 
 ## Limits worth knowing

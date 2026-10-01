@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ACC 211 Version Inspector</title>
+  <!-- GENERATED FILE: edit tools/version-inspector.src.html, then run `node tools/build-instructor.js`. -->
+  <style>
+    :root {
+      --bg: #f4f6f9; --surface: #fff; --surface-2: #f8fafc; --ink: #1b2533; --ink-2: #4a5668; --muted: #6b7789;
+      --line: #dbe1ea; --line-strong: #c3ccd9; --brand: #1f4e79; --brand-2: #2d6aa3; --brand-soft: #e7eff8;
+      --ok: #2c7a4b; --ok-bg: #e3f3e9; --bad: #a32626; --bad-bg: #fbe7e7; --warn: #8a5a00; --warn-bg: #fff4dc;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    h1, h2, h3 { line-height: 1.25; margin: 0 0 .5rem; }
+    h1 { font-size: 1.45rem; } h2 { font-size: 1.2rem; } h3 { font-size: 1.02rem; margin-top: 14px; }
+    p { margin: 0 0 .75rem; }
+    button, input, textarea { font: inherit; color: inherit; }
+    .topbar { background: var(--brand); color: #fff; }
+    .topbar-inner { max-width: 1240px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .topbar b { font-size: 1.05rem; }
+    .topbar span { font-size: 12px; opacity: .85; }
+    .container { max-width: 1240px; margin: 0 auto; padding: 20px 16px 64px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(16,24,40,.06); }
+    .card + .card { margin-top: 16px; }
+    .muted { color: var(--muted); } .small { font-size: 13px; }
+    textarea { width: 100%; min-height: 150px; border: 1px solid var(--line-strong); border-radius: 8px; padding: 10px 12px; font-family: var(--mono); font-size: 13px; resize: vertical; }
+    .btn { border: 1px solid var(--line-strong); background: #fff; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn:hover { background: var(--surface-2); }
+    .btn-primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .btn-primary:hover { background: var(--brand-2); }
+    .btn-small { padding: 4px 10px; font-size: 13px; }
+    .spacer { flex: 1; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+    .btn:focus-visible, textarea:focus-visible { outline: 3px solid #9cc3ea; outline-offset: 1px; }
+    code, .mono { font-family: var(--mono); font-size: 13px; }
+    .format { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin: 8px 0 12px; }
+    .format code { background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.4rem; line-height: 1.1; }
+    .stat span { font-size: 12px; color: var(--muted); }
+    .stat.ok b { color: var(--ok); } .stat.bad b { color: var(--bad); } .stat.warn b { color: var(--warn); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border-bottom: 2px solid var(--line); padding: 6px 8px; white-space: nowrap; }
+    td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .num { text-align: right; font-family: var(--mono); white-space: nowrap; }
+    tr.active td { background: var(--brand-soft); }
+    tfoot td { font-weight: 700; border-top: 2px solid var(--ink-2); border-bottom: 3px double var(--ink-2); }
+    td.cr-acct { padding-left: 30px; }
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-weight: 700; font-size: 12px; white-space: nowrap; margin: 1px 2px 1px 0; }
+    .badge.ok { background: var(--ok-bg); color: var(--ok); }
+    .badge.bad { background: var(--bad-bg); color: var(--bad); }
+    .badge.warn { background: var(--warn-bg); color: var(--warn); }
+    .badge.none { background: #eef1f5; color: var(--muted); }
+    .key-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+    .key-meta { display: grid; grid-template-columns: max-content 1fr; gap: 2px 14px; font-size: 14px; margin: 6px 0 4px; }
+    .key-meta dt { color: var(--muted); } .key-meta dd { margin: 0; font-weight: 600; }
+    .entry { margin: 0 0 14px; break-inside: avoid; }
+    .entry p { margin: 0 0 4px; }
+    .cat { font-size: 12px; color: var(--muted); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 14px; border-bottom: 1px solid var(--line); }
+    .tab { border: 0; background: none; padding: 8px 12px; cursor: pointer; font-weight: 600; color: var(--muted); border-bottom: 3px solid transparent; }
+    .tab.on { color: var(--brand); border-bottom-color: var(--brand); }
+    .empty { text-align: center; color: var(--muted); padding: 26px 10px; }
+    @media print {
+      .topbar, .no-print { display: none !important; }
+      body { background: #fff; }
+      .card { box-shadow: none; border: 0; padding: 0; }
+      .tab-panel { display: block !important; }
+      .tabs { display: none; }
+      .tab-panel + .tab-panel { break-before: page; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="topbar-inner"><b>ACC 211 Midterm: Version Inspector</b>
+    <span>Instructor use only. Do not upload this file to Netlify or share it with students.</span></div></header>
+
+  <main class="container">
+    <section class="card no-print">
+      <h1>Enter version codes</h1>
+      <p class="muted">Paste one student report per line. A bare version code works, and so does a full row copied from a spreadsheet. Lines without a version code (such as a header row) are skipped.</p>
+      <div class="format">
+        <b>Full row, to verify a report:</b> <code>Name, Attempt, Version code, Phase 1, Phase 2, Phase 3, Check code</code><br>
+        Commas or tabs both work. Example: <code>Juan Dela Cruz, 2, Y59R-WK9S, 40, 36, 24, 5L7A9HDY</code><br>
+        <b>Quick lookup:</b> <code>Y59R-WK9S</code> or <code>Juan Dela Cruz Y59R-WK9S</code>
+      </div>
+      <label for="input" class="small" style="font-weight:600">Codes</label>
+      <textarea id="input" spellcheck="false" placeholder="Juan Dela Cruz, 1, RQ33-QPNC, 40, 36, 24, 3391NP9G&#10;Ana Reyes, 1, KY4V-5DHS, 38, 30, 22, ABCD1234&#10;Y59R-WK9S"></textarea>
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="run">Inspect Codes</button>
+        <button type="button" class="btn" id="clear">Clear</button>
+        <span class="spacer"></span>
+        <span class="small muted">Your list is kept in this browser only.</span>
+      </div>
+    </section>
+
+    <section class="card no-print" id="rosterCard" hidden>
+      <div class="key-head">
+        <h2>Roster</h2>
+        <button type="button" class="btn btn-small" id="csv">Download CSV</button>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Student</th><th>Att.</th><th>Version</th><th>Business (owner)</th><th class="num">Score</th><th>Check code</th><th>Flags</th><th></th></tr></thead>
+        <tbody id="roster"></tbody>
+      </table></div>
+      <p class="small muted" style="margin-top:10px">Every well-formed code produces an exam, so the check code is what confirms a report is genuine. A <b>shared code</b> means two or more rows carry the same exam version. Each student gets a fresh random code, so this usually points to a copied report.</p>
+    </section>
+
+    <section class="card" id="keyCard" hidden></section>
+  </main>
+
+  <script>
+/*__ENGINE__*/
+  </script>
+  <script>
+  (function () {
+    'use strict';
+    const E = window.ExamEngine;
+    const STORE = 'acc211-inspector-input';
+    const VALID = /^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{4}-[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{4}$/;
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    const fmt = n => n ? E.money(n) : '';
+    let rows = [];
+    let activeRow = -1;
+
+    // ---------- Parsing ----------
+
+    function findCode(text) {
+      // Version codes always carry a hyphen (ABCD-EFGH); check codes never do.
+      const m = text.match(/\b([A-Za-z0-9]{4})-([A-Za-z0-9]{4})\b/);
+      if (m) return { raw: m[0], code: (m[1] + '-' + m[2]).toUpperCase() };
+      return null;
+    }
+
+    function parseLine(line, n) {
+      const text = line.trim();
+      if (!text) return null;
+      const fields = text.split(/\t|,/).map(f => f.trim());
+      if (fields.length >= 7) {
+        // Full row: Name, Attempt, Code, P1, P2, P3, Check
+        const code = findCode(fields[2]);
+        if (!code) return null;
+        const scores = fields.slice(3, 6).map(v => parseFloat(String(v).replace(/[^0-9.\-]/g, '')));
+        return { line: n, name: fields[0], attempt: parseInt(fields[1], 10) || 1, code: code.code, scores, check: fields[6].toUpperCase().replace(/\s/g, ''), full: true };
+      }
+      const found = findCode(text);
+      if (!found) return null;
+      const name = text.replace(found.raw, '').replace(/[,\t]+/g, ' ').replace(/\s+/g, ' ').trim();
+      return { line: n, name: name, attempt: null, code: found.code, scores: null, check: '', full: false };
+    }
+
+    // ---------- Analysis ----------
+
+    function analyze(text) {
+      const parsed = text.split(/\r?\n/).map((l, i) => parseLine(l, i + 1)).filter(Boolean);
+      const byCode = {};
+      parsed.forEach((r, i) => { (byCode[r.code] = byCode[r.code] || []).push(i + 1); });
+      return parsed.map((r, i) => {
+        r.valid = VALID.test(r.code);
+        r.exam = E.generateExam(r.code);
+        r.shared = byCode[r.code].length > 1 ? byCode[r.code].filter(x => x !== i + 1) : [];
+        // Same code under one name is a repeat; under different names it is a shared (likely copied) report.
+        const norm = x => String(x.name || '').trim().toLowerCase();
+        r.sameNameOnly = r.shared.every(x => norm(parsed[x - 1]) === norm(r));
+        r.total = null;
+        r.verify = 'none';
+        if (r.full && r.scores.every(v => !isNaN(v))) {
+          r.total = Math.round((r.scores[0] + r.scores[1] + r.scores[2]) * 100) / 100;
+          const fake = { phase1: { score: r.scores[0] }, phase2: { score: r.scores[1] }, phase3: { score: r.scores[2] }, total: r.total };
+          r.verify = r.check && r.name ? (E.checkCode(r.code, r.name, fake, r.attempt) === r.check ? 'match' : 'mismatch') : 'none';
+          r.overMax = r.scores[0] > 40 || r.scores[1] > 36 || r.scores[2] > 24;
+        }
+        return r;
+      });
+    }
+
+    // ---------- Roster ----------
+
+    function renderRoster() {
+      $('rosterCard').hidden = false;
+      const n = rows.length;
+      const match = rows.filter(r => r.verify === 'match').length;
+      const mismatch = rows.filter(r => r.verify === 'mismatch').length;
+      const shared = rows.filter(r => r.shared.length && !r.sameNameOnly).length;
+      const invalid = rows.filter(r => !r.valid).length;
+      $('stats').innerHTML =
+        '<div class="stat"><b>' + n + '</b><span>codes read</span></div>' +
+        '<div class="stat ok"><b>' + match + '</b><span>check code matches</span></div>' +
+        '<div class="stat ' + (mismatch ? 'bad' : '') + '"><b>' + mismatch + '</b><span>check code mismatches</span></div>' +
+        '<div class="stat ' + (shared ? 'warn' : '') + '"><b>' + shared + '</b><span>rows with a shared code</span></div>' +
+        '<div class="stat ' + (invalid ? 'bad' : '') + '"><b>' + invalid + '</b><span>impossible codes</span></div>';
+      if (!n) { $('roster').innerHTML = '<tr><td colspan="9" class="empty">No version codes found. Codes look like <span class="mono">RQ33-QPNC</span>.</td></tr>'; return; }
+      $('roster').innerHTML = rows.map((r, i) => {
+        const flags = [];
+        if (!r.valid) flags.push('<span class="badge bad" title="Contains I, L, O, 0 or 1, which the exam never uses">Impossible code</span>');
+        if (r.shared.length) flags.push(r.sameNameOnly
+          ? '<span class="badge none">Repeated (row ' + r.shared.join(', ') + ')</span>'
+          : '<span class="badge warn">Shared code (row ' + r.shared.join(', ') + ')</span>');
+        if (r.overMax) flags.push('<span class="badge bad">Score above maximum</span>');
+        const check = r.verify === 'match' ? '<span class="badge ok">Match</span>'
+          : r.verify === 'mismatch' ? '<span class="badge bad">Mismatch</span>'
+          : '<span class="badge none">Not checked</span>';
+        return '<tr class="' + (i === activeRow ? 'active' : '') + '"><td class="muted">' + (i + 1) + '</td><td>' + esc(r.name || '(no name)') + '</td>' +
+          '<td>' + (r.attempt || '') + '</td><td class="mono">' + esc(r.code) + '</td>' +
+          '<td>' + esc(r.exam.business.name) + ' <span class="muted">(' + esc(r.exam.owner) + ')</span></td>' +
+          '<td class="num">' + (r.total != null ? r.total.toFixed(2) : '') + '</td><td>' + check + '</td><td>' + (flags.join('') || '<span class="muted small">None</span>') + '</td>' +
+          '<td><button type="button" class="btn btn-small" data-view="' + i + '">View key</button></td></tr>';
+      }).join('');
+    }
+
+    // ---------- Answer key ----------
+
+    function entryTable(ex, lines) {
+      const sorted = lines.slice().sort((a, b) => a.side === b.side ? 0 : (a.side === 'dr' ? -1 : 1));
+      return '<table><thead><tr><th>Account Title</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead><tbody>' +
+        sorted.map(l => '<tr><td class="' + (l.side === 'cr' ? 'cr-acct' : '') + '">' + l.acct + ' ' + esc(ex.accounts[l.acct].name) + '</td>' +
+          '<td class="num">' + (l.side === 'dr' ? fmt(l.amount) : '') + '</td><td class="num">' + (l.side === 'cr' ? fmt(l.amount) : '') + '</td></tr>').join('') +
+        '</tbody></table>';
+    }
+    function tbTable(ex, rowsTb) {
+      let d = 0, c = 0;
+      const body = rowsTb.map(r => { d += r.debit; c += r.credit; return '<tr><td class="muted mono">' + r.acct + '</td><td>' + esc(ex.accounts[r.acct].name) + '</td><td class="num">' + fmt(r.debit) + '</td><td class="num">' + fmt(r.credit) + '</td></tr>'; }).join('');
+      return '<table><thead><tr><th>No.</th><th>Account</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead><tbody>' + body +
+        '</tbody><tfoot><tr><td></td><td>Totals</td><td class="num">' + E.money(d) + '</td><td class="num">' + E.money(c) + '</td></tr></tfoot></table>';
+    }
+
+    function renderKey(i, tab) {
+      activeRow = i;
+      renderRoster();
+      const r = rows[i], ex = r.exam, p3 = ex.phase3;
+      const bal = E.atbBalances(p3);
+      const closing = p3.steps.map(s => ({ s, lines: E.applyClosing(bal, s.expected).lines }));
+      const verifyLine = r.verify === 'match' ? '<span class="badge ok">Check code matches</span> Name, attempt and scores agree with this version.'
+        : r.verify === 'mismatch' ? '<span class="badge bad">Check code does not match</span> The name, attempt, scores or version on this report may have been altered.'
+        : '<span class="badge none">Not checked</span> Enter a full row to verify this report.';
+      const panels = {
+        p1: '<h2>Phase 1: General Journal <span class="muted small">(40 pts, 4 each)</span></h2>' +
+          '<p class="muted small">' + esc(ex.phase1.month) + ' ' + ex.phase1.year + ', in the order the student saw them.</p>' +
+          ex.phase1.transactions.map((t, k) => '<div class="entry"><p><b>' + (k + 1) + '. ' + esc(t.date) + '</b> ' + esc(t.text) + '</p>' + entryTable(ex, t.lines) + '</div>').join(''),
+        p2: '<h2>Phase 2: Adjusting Entries <span class="muted small">(36 pts, 6 each)</span></h2>' +
+          '<div class="grid2"><div><h3>Unadjusted Trial Balance, ' + esc(ex.phase2.date) + '</h3>' + tbTable(ex, ex.phase2.tb) + '</div><div>' +
+          ex.phase2.items.map((t, k) => '<div class="entry"><p><b>Adjustment ' + (k + 1) + '</b> <span class="cat">(' + esc(t.category) + ')</span> ' + esc(t.text) + '</p>' + entryTable(ex, t.lines) + '</div>').join('') +
+          '</div></div>',
+        p3: '<h2>Phase 3: Closing Entries <span class="muted small">(24 pts, 6 per entry: 4 accounts + 2 amount)</span></h2>' +
+          '<div class="grid2"><div><h3>Adjusted Trial Balance, ' + esc(p3.date) + '</h3>' + tbTable(ex, p3.atb) +
+          '<h3>Results</h3><table><tbody>' +
+          '<tr><td>Total revenues</td><td class="num">' + E.money(p3.steps[0].amount) + '</td></tr>' +
+          '<tr><td>Total expenses</td><td class="num">' + E.money(p3.steps[1].amount) + '</td></tr>' +
+          '<tr><td>Net ' + (p3.netIncome >= 0 ? 'income' : 'loss') + '</td><td class="num">' + E.money(Math.abs(p3.netIncome)) + '</td></tr>' +
+          '<tr><td>Beginning capital (ATB)</td><td class="num">' + E.money(p3.beginningCapital) + '</td></tr>' +
+          '<tr><td>Drawing</td><td class="num">' + E.money(p3.drawing) + '</td></tr>' +
+          '<tr><td><b>Ending capital</b></td><td class="num"><b>' + E.money(p3.endingCapital) + '</b></td></tr>' +
+          '</tbody></table></div><div>' +
+          closing.map((c, k) => '<div class="entry"><p><b>Closing entry ' + (k + 1) + '</b><br><span class="small">Accounts to click: ' +
+            c.s.expected.map(no => no + ' ' + esc(ex.accounts[no].name)).join('; ') + '<br>Amount transferred: ' + E.money(c.s.amount) + '</span></p>' + entryTable(ex, c.lines) + '</div>').join('') +
+          '</div></div>'
+      };
+      tab = tab || 'p1';
+      $('keyCard').hidden = false;
+      $('keyCard').innerHTML =
+        '<div class="key-head"><div><h1>Answer key: ' + esc(r.code) + '</h1>' +
+        '<dl class="key-meta"><dt>Student</dt><dd>' + esc(r.name || '(no name)') + (r.attempt ? ', attempt ' + r.attempt : '') + '</dd>' +
+        '<dt>Business</dt><dd>' + esc(ex.business.name) + ' (owner: ' + esc(ex.owner) + ')</dd>' +
+        (r.total != null ? '<dt>Reported score</dt><dd>' + r.scores.map(v => v.toFixed(2)).join(' + ') + ' = ' + r.total.toFixed(2) + ' / 100</dd>' : '') +
+        '</dl><p class="small">' + verifyLine + '</p></div>' +
+        '<div class="btn-row no-print" style="margin-top:0"><button type="button" class="btn btn-small" id="prev"' + (i ? '' : ' disabled') + '>&larr; Previous</button>' +
+        '<button type="button" class="btn btn-small" id="next"' + (i < rows.length - 1 ? '' : ' disabled') + '>Next &rarr;</button>' +
+        '<button type="button" class="btn btn-small btn-primary" id="print">Print key</button></div></div>' +
+        '<div class="tabs no-print" role="tablist">' +
+        [['p1', 'Phase 1'], ['p2', 'Phase 2'], ['p3', 'Phase 3']].map(t => '<button type="button" role="tab" class="tab' + (t[0] === tab ? ' on' : '') + '" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '">' + t[1] + '</button>').join('') +
+        '</div>' +
+        Object.keys(panels).map(k => '<div class="tab-panel" data-panel="' + k + '"' + (k === tab ? '' : ' style="display:none"') + '>' + panels[k] + '</div>').join('');
+      $('keyCard').querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => renderKey(i, b.dataset.tab)));
+      $('prev').addEventListener('click', () => renderKey(i - 1, tab));
+      $('next').addEventListener('click', () => renderKey(i + 1, tab));
+      $('print').addEventListener('click', () => window.print());
+    }
+
+    // ---------- CSV export ----------
+
+    function downloadCsv() {
+      const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const head = ['Row', 'Student', 'Attempt', 'Version code', 'Business', 'Owner', 'Phase 1', 'Phase 2', 'Phase 3', 'Total', 'Check code', 'Check result', 'Flags', 'Net income (loss)', 'Ending capital'];
+      const lines = rows.map((r, i) => {
+        const flags = [];
+        if (!r.valid) flags.push('Impossible code');
+        if (r.shared.length) flags.push((r.sameNameOnly ? 'Repeated in row ' : 'Shared code with row ') + r.shared.join(' and '));
+        if (r.overMax) flags.push('Score above maximum');
+        return [i + 1, r.name, r.attempt || '', r.code, r.exam.business.name, r.exam.owner,
+          r.scores ? r.scores[0] : '', r.scores ? r.scores[1] : '', r.scores ? r.scores[2] : '', r.total != null ? r.total : '',
+          r.check, r.verify === 'match' ? 'Match' : r.verify === 'mismatch' ? 'Mismatch' : 'Not checked', flags.join('; '),
+          r.exam.phase3.netIncome, r.exam.phase3.endingCapital].map(q).join(',');
+      });
+      const blob = new Blob([[head.map(q).join(',')].concat(lines).join('\r\n')], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'ACC211_Midterm_Roster.csv';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    // ---------- Wiring ----------
+
+    function run() {
+      const text = $('input').value;
+      try { localStorage.setItem(STORE, text); } catch (e) { /* storage unavailable */ }
+      rows = analyze(text);
+      activeRow = -1;
+      $('keyCard').hidden = true;
+      renderRoster();
+      if (rows.length === 1) renderKey(0);
+    }
+
+    $('run').addEventListener('click', run);
+    $('clear').addEventListener('click', () => {
+      $('input').value = '';
+      try { localStorage.removeItem(STORE); } catch (e) { /* ignore */ }
+      rows = []; $('rosterCard').hidden = true; $('keyCard').hidden = true;
+    });
+    $('csv').addEventListener('click', downloadCsv);
+    $('roster').addEventListener('click', ev => {
+      const b = ev.target.closest('[data-view]');
+      if (b) { renderKey(Number(b.dataset.view)); $('keyCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+    try { const saved = localStorage.getItem(STORE); if (saved) { $('input').value = saved; run(); } } catch (e) { /* ignore */ }
+  })();
+  </script>
+</body>
+</html>
