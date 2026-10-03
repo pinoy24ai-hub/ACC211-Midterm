@@ -97,3 +97,6 @@ details.refresher .trick { font-size: 14px; background: var(--select); border-ra
 .phase-steps li:not(.active) .lbl { display: none; }
 .layout-single { grid-template-columns: minmax(0, 1fr); max-width: 880px; }
 .side { top: 16px; max-height: calc(100vh - 32px); }
+
+/* In "click a line" questions, lines that aren't choices are muted */
+.pick-table.has-picks tbody tr[data-line]:not(.pickable) td { color: var(--muted); }

@@ -47,3 +47,17 @@ assert.deepStrictEqual(JSON.stringify(E.generateExam('ABCD-EFGH')), JSON.stringi
 const other = E.generateExam('ZZZZ-2222');
 assert(ex.stages.some((st, i) => st.questions.some((q, j) => q.options && JSON.stringify(q.options) !== JSON.stringify(other.stages[i].questions[j].options))));
 console.log('OK: Part 2 prototype checks passed');
+// "click a line" expense questions offer 2 to 4 expenses, not all, with one clear answer
+ex.stages.forEach(st => st.questions.filter(q => q.kind === 'pick' && q.view === 'is').forEach(q => {
+  assert(q.pickKeys.length >= 2 && q.pickKeys.length <= 4 && q.pickKeys.length < IS.exp.length, q.id + ' offers 2-4 expenses');
+  assert(q.pickKeys.includes(q.answer), q.id + ' answer is among the choices');
+}));
+const byKey = k => IS.exp.find(e => e.key === k);
+const v5 = ex.stages[0].questions[4], h5 = ex.stages[1].questions[4];
+const shareMove = k => E.share(byKey(k).a2, IS.rev.a2) - E.share(byKey(k).a1, IS.rev.a1);
+const sorted = v5.pickKeys.map(shareMove).sort((a, b) => b - a);
+assert(sorted[0] - sorted[1] >= 0.5, 'percent-of-revenue pick has a clear winner');
+const dollars = h5.pickKeys.map(k => Math.abs(byKey(k).a2 - byKey(k).a1)).sort((a, b) => b - a);
+assert(dollars[0] - dollars[1] >= 500, 'dollar-change pick has a clear winner');
+assert.notStrictEqual(v5.answer, h5.answer, 'the two pick questions have different answers');
+console.log('OK: pick questions use a subset of expenses');

@@ -179,8 +179,19 @@
     const npm1 = share(IS.ni1, IS.rev.a1), npm2 = share(IS.ni2, IS.rev.a2);
     const revP = chg(IS.rev.a1, IS.rev.a2), teP = chg(IS.te1, IS.te2), niP = chg(IS.ni1, IS.ni2);
     // expense whose share of revenue rose the most, and expense with the biggest dollar change
-    const shareRise = IS.exp.slice().sort((a, b) => (share(b.a2, IS.rev.a2) - share(b.a1, IS.rev.a1)) - (share(a.a2, IS.rev.a2) - share(a.a1, IS.rev.a1)))[0];
-    const bigDollar = IS.exp.slice().sort((a, b) => Math.abs(b.a2 - b.a1) - Math.abs(a.a2 - a.a1))[0];
+    // "Click the line" questions offer a subset of 4 expenses, not all of them.
+    // The answer is the top item within that subset.
+    const shareMove = e => share(e.a2, IS.rev.a2) - share(e.a1, IS.rev.a1);
+    const dollarMove = e => Math.abs(e.a2 - e.a1);
+    const topOf = (keys, score) => keys.map(line).sort((a, b) => score(b) - score(a))[0];
+    const names = keys => {
+      const n = keys.map(k => line(k).label.replace(/ expense$/, '').toLowerCase());
+      return n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] + ' expense';
+    };
+    const shareKeys = ['sal', 'rent', 'sup', 'util'];
+    const dollarKeys = ['rent', 'sup', 'dep', 'adv'];
+    const shareRise = topOf(shareKeys, shareMove);
+    const bigDollar = topOf(dollarKeys, dollarMove);
     const clKeys = ['ap', 'sp', 'ur', 'npc'];
     const clRise = clKeys.map(it).sort((a, b) => (b.a2 - b.a1) - (a.a2 - a.a1))[0];
     const cr1 = r2(BS.cr1), cr2 = r2(BS.cr2), dr1 = r1(BS.dr1 * 100), dr2 = r1(BS.dr2 * 100);
@@ -204,9 +215,9 @@
         tiles: [tile('ni2', 'Net income, ' + Y2, IS.ni2), tile('te2', 'Total expenses, ' + Y2, IS.te2), tile('rev2', 'Revenue, ' + Y2, IS.rev.a2), tile('rev1', 'Revenue, ' + Y1, IS.rev.a1), tile('ni1', 'Net income, ' + Y1, IS.ni1)],
         answer: { a: 'ni2', op: '/', b: 'rev2' },
         hint: 'Profit margin = Net income / Revenue. Both amounts must come from ' + Y2 + '.' },
-      { kind: 'pick', label: 'Find It', view: 'is', pickKeys: IS.exp.map(e => e.key), answer: shareRise.key,
-        prompt: 'Click the expense whose percent of revenue went UP the most from ' + Y1 + ' to ' + Y2 + '.',
-        hint: 'For each expense, compare its percent of revenue in ' + Y1 + ' with its percent in ' + Y2 + '. Look at the share, not the dollars.' },
+      { kind: 'pick', label: 'Find It', view: 'is', pickKeys: shareKeys, answer: shareRise.key,
+        prompt: 'Of these four expenses (' + names(shareKeys) + '), click the one whose percent of revenue went UP the most from ' + Y1 + ' to ' + Y2 + '.',
+        hint: 'For each of the four expenses, compare its percent of revenue in ' + Y1 + ' with its percent in ' + Y2 + '. Look at the share, not the dollars.' },
       tf('If an expense grew in dollars, its percent of revenue must have grown too.', false,
         { hint: 'Look at rent expense: it grew in dollars. Did its share of revenue grow?' })
     ] });
@@ -226,9 +237,9 @@
       mc('Year over Year', 'By how many dollars did advertising expense change from ' + Y1 + ' to ' + Y2 + '?', dText(adv.a2 - adv.a1),
         [dText(adv.a1 - adv.a2), dText(adv.a2), dText(adv.a1 + adv.a2)],
         { hint: 'Subtract: ' + Y2 + ' amount - ' + Y1 + ' amount.' }),
-      { kind: 'pick', label: 'Find It', view: 'is', pickKeys: IS.exp.map(e => e.key), answer: bigDollar.key,
-        prompt: 'Click the expense that changed the most in DOLLARS from ' + Y1 + ' to ' + Y2 + '.',
-        hint: 'Subtract the two columns for each expense and look for the biggest difference.' },
+      { kind: 'pick', label: 'Find It', view: 'is', pickKeys: dollarKeys, answer: bigDollar.key,
+        prompt: 'Of these four expenses (' + names(dollarKeys) + '), click the one that changed the most in DOLLARS from ' + Y1 + ' to ' + Y2 + '.',
+        hint: 'For each of the four expenses, subtract the ' + Y1 + ' amount from the ' + Y2 + ' amount and look for the biggest difference.' },
       mc('What It Means', 'Revenue rose ' + revP.toFixed(1) + '%, total expenses rose ' + teP.toFixed(1) + '%, and net income rose only ' + niP.toFixed(1) + '%. Which statement explains this?',
         'Expenses grew faster than revenue, so almost none of the extra revenue reached net income.',
         ['Revenue grew faster than expenses, so net income should have doubled.',

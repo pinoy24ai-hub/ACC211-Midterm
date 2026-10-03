@@ -119,10 +119,10 @@
     const row = (l, cls, key) => {
       const pickable = pick && pick.keys.includes(key);
       const c = (cls || '') + (pickable ? ' pickable' : '') + (pickable && pick.value === key ? ' picked' : '');
-      return '<tr class="' + c.trim() + '"' + (pickable ? ' data-pick="' + key + '" tabindex="0"' : '') + '><td class="' + (key && key !== 'rev' ? 'ind' : '') + '">' + esc(l.label) + '</td><td class="num">' + fmt(l.a2) + '</td><td class="num">' + fmt(l.a1) + '</td></tr>';
+      return '<tr class="' + c.trim() + '" data-line="' + key + '"' + (pickable ? ' data-pick="' + key + '" tabindex="0"' : '') + '><td class="' + (key && key !== 'rev' ? 'ind' : '') + '">' + esc(l.label) + '</td><td class="num">' + fmt(l.a2) + '</td><td class="num">' + fmt(l.a1) + '</td></tr>';
     };
     return '<div class="header-block"><b>' + esc(D().biz.name) + '</b><b>Comparative Income Statement</b>For the Years Ended December 31, ' + Y2 + ' and ' + Y1 + '</div>' +
-      '<table class="tbl pick-table"><thead><tr><th></th><th class="num">' + Y2 + '</th><th class="num">' + Y1 + '</th></tr></thead><tbody>' +
+      '<table class="tbl pick-table' + (pick ? ' has-picks' : '') + '"><thead><tr><th></th><th class="num">' + Y2 + '</th><th class="num">' + Y1 + '</th></tr></thead><tbody>' +
       '<tr class="grp"><td colspan="3">Revenues</td></tr>' + row(IS.rev, '', 'rev') +
       '<tr class="grp"><td colspan="3">Expenses</td></tr>' + IS.exp.map(e => row(e, '', e.key)).join('') +
       '<tr class="sub"><td>Total expenses</td><td class="num">' + fmt(IS.te2) + '</td><td class="num">' + fmt(IS.te1) + '</td></tr>' +
@@ -207,7 +207,7 @@
     }
     if (q.kind === 'pick') {
       const pick = { keys: q.pickKeys, value: a };
-      return '<p class="small muted">Click a line on the statement below.</p><div class="stmt">' + (q.view === 'bs' ? bsTable(pick) : isTable(pick)) + '</div>';
+      return '<p class="small muted">Click one of the ' + q.pickKeys.length + ' marked lines on the statement below.</p><div class="stmt">' + (q.view === 'bs' ? bsTable(pick) : isTable(pick)) + '</div>';
     }
     if (q.kind === 'build') {
       const place = (a && a.place) || {};
