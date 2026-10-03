@@ -76,24 +76,50 @@ Generates 3,000 random versions and confirms every entry and trial balance balan
 
 ---
 
-# Part 2: Financial Statement Analysis (prototype)
+# Part 2: Financial Statement Analysis
 
-Folder: **`part2-site/`** (deploy it as its own Netlify site, separately from `site/`).
+Two sites built from the same source files:
 
-**Status: fixed-values prototype.** Every student sees the same statements for *Blue Harbor Mobile Detailing* (owner Camila Reyes, 2024 and 2025). Only the order of multiple-choice options changes per version code. Randomized values come next; the questions already compute every number from the statement data, so only `buildData()` in `part2-site/js/engine.js` needs to change.
+| Folder | Use | Numbers | Hints |
+|---|---|---|---|
+| **`part2-exam-site/`** | The real midterm Part 2. Deploy this as its own Netlify site. | New numbers for every version code (every new start and every retake) | None, and no refreshers |
+| `part2-site/` | Practice / review version | Fixed: Blue Harbor Mobile Detailing, revenue $160,000 to $184,000 | Free hints and a refresher per stage |
+
+**Never edit `part2-exam-site/` directly.** Edit `part2-site/`, then run `node tools/build-part2-exam.js`. The only difference between the two is `js/config.js`. The tests fail if the exam folder is out of date.
+
+## Stages
 
 | Stage | Section | Topic | Points |
 |---|---|---|---|
 | A1 | Income statement | Percent of Revenue (vertical analysis) | 15 |
 | A2 | Income statement | Year-over-Year Changes (horizontal analysis) | 15 |
-| A3 | Income statement | Profit Margin vs Industry (24.0% benchmark) | 15 |
+| A3 | Income statement | Profit Margin vs Industry benchmark | 15 |
 | B1 | Balance sheet | Sort and Total | 15 |
-| B2 | Balance sheet | Working Capital and Current Ratio (1.50 benchmark) | 15 |
-| B3 | Balance sheet | Debt Ratio (50% benchmark) | 12.5 |
+| B2 | Balance sheet | Working Capital and Current Ratio vs benchmark | 15 |
+| B3 | Balance sheet | Debt Ratio vs benchmark | 12.5 |
 | B4 | Both | The Bank's Decision (scorecard, loan rules, 2 written answers) | 12.5 |
 
-- 40 questions, 2.5 points each. Question types follow the review games: multiple choice, true/false, click a line, build-the-total boards (partial credit per item) and formula builders (all or nothing).
-- Hints are always free, and each stage has a quick refresher. No right/wrong feedback; stages lock on submit.
-- The two written answers in the final stage are required but not scored; they print in the PDF.
-- Same shell as Part 1: name first, saved progress, unlimited retakes (highest counts), and a PDF report per attempt (`ACC211_Midterm_Part2_<Name>_AttemptN.pdf`) with a check code. The report also lists hints used.
-- Tests: `node tests/part2.test.js`.
+- 40 questions, 2.5 points each: multiple choice, true/false, click a line (4 expenses offered), build-the-total boards (partial credit per item) and formula builders (all or nothing).
+- No right/wrong feedback; stages lock on submit. The two written answers in the final stage are required but not scored; they print in the PDF.
+- Name first, saved progress, unlimited retakes (highest counts), and a PDF report per attempt with a check code.
+
+## What changes in each exam version
+
+The business (Blue Harbor Mobile Detailing, owner Camila Reyes) stays the same. Every version keeps the **same story**: revenue grows, expenses grow faster, the net profit margin falls from above to below the industry benchmark, the current ratio falls below its benchmark, the debt ratio moves above its benchmark, and only working capital meets the bank's loan rules. What changes:
+
+- All dollar amounts on both statements (they always foot, balance, and tie: depreciation expense equals the change in accumulated depreciation).
+- Which expenses each question asks about, the four expenses offered in the click-a-line questions, and the items students classify.
+- The industry and ratio benchmarks, the bank's working-capital rule and the loan amount (always set so the story holds).
+- Multiple-choice option order, and question order within each stage (the finale keeps its order because its questions build on each other).
+- No displayed percent or ratio ever sits on a rounding edge, and every "which is biggest" question has a clear winner.
+
+## Part 2 Version Inspector
+
+Open `instructor/part2-inspector.html` (self-contained; double-click it). Paste rows as `Name, Attempt, Version code, Section A, Section B, Check code`, or bare codes. It verifies check codes, flags shared, repeated and impossible codes and scores above the maximum, and shows each version's statements, key results, and the correct answer to every question in the order that student saw them. Practice-site reports have a different check code, so they can't pass as exam reports.
+
+## Tests
+
+```
+node tests/part2.test.js        # practice version
+node tests/part2-exam.test.js   # 3,000 randomized exam versions, plus build checks
+```

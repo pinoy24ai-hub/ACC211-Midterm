@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ACC 211 Part 2 Inspector</title>
+  <!-- GENERATED FILE: edit tools/part2-inspector.src.html, then run `node tools/build-instructor.js`. -->
+  <style>
+    :root {
+      --bg: #f4f6f9; --surface: #fff; --surface-2: #f8fafc; --ink: #1b2533; --ink-2: #4a5668; --muted: #6b7789;
+      --line: #dbe1ea; --line-strong: #c3ccd9; --brand: #1f4e79; --brand-2: #2d6aa3; --brand-soft: #e7eff8;
+      --ok: #2c7a4b; --ok-bg: #e3f3e9; --bad: #a32626; --bad-bg: #fbe7e7; --warn: #8a5a00; --warn-bg: #fff4dc;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    h1, h2, h3 { line-height: 1.25; margin: 0 0 .5rem; }
+    h1 { font-size: 1.45rem; } h2 { font-size: 1.2rem; } h3 { font-size: 1.02rem; margin-top: 14px; }
+    p { margin: 0 0 .75rem; }
+    button, input, textarea { font: inherit; color: inherit; }
+    .topbar { background: var(--brand); color: #fff; }
+    .topbar-inner { max-width: 1240px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .topbar b { font-size: 1.05rem; }
+    .topbar span { font-size: 12px; opacity: .85; }
+    .container { max-width: 1240px; margin: 0 auto; padding: 20px 16px 64px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(16,24,40,.06); }
+    .card + .card { margin-top: 16px; }
+    .muted { color: var(--muted); } .small { font-size: 13px; }
+    textarea { width: 100%; min-height: 150px; border: 1px solid var(--line-strong); border-radius: 8px; padding: 10px 12px; font-family: var(--mono); font-size: 13px; resize: vertical; }
+    .btn { border: 1px solid var(--line-strong); background: #fff; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn:hover { background: var(--surface-2); }
+    .btn-primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .btn-primary:hover { background: var(--brand-2); }
+    .btn-small { padding: 4px 10px; font-size: 13px; }
+    .spacer { flex: 1; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+    .btn:focus-visible, textarea:focus-visible { outline: 3px solid #9cc3ea; outline-offset: 1px; }
+    code, .mono { font-family: var(--mono); font-size: 13px; }
+    .format { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin: 8px 0 12px; }
+    .format code { background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.4rem; line-height: 1.1; }
+    .stat span { font-size: 12px; color: var(--muted); }
+    .stat.ok b { color: var(--ok); } .stat.bad b { color: var(--bad); } .stat.warn b { color: var(--warn); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border-bottom: 2px solid var(--line); padding: 6px 8px; white-space: nowrap; }
+    td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .num { text-align: right; font-family: var(--mono); white-space: nowrap; }
+    tr.active td { background: var(--brand-soft); }
+    tfoot td { font-weight: 700; border-top: 2px solid var(--ink-2); border-bottom: 3px double var(--ink-2); }
+    td.cr-acct { padding-left: 30px; }
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-weight: 700; font-size: 12px; white-space: nowrap; margin: 1px 2px 1px 0; }
+    .badge.ok { background: var(--ok-bg); color: var(--ok); }
+    .badge.bad { background: var(--bad-bg); color: var(--bad); }
+    .badge.warn { background: var(--warn-bg); color: var(--warn); }
+    .badge.none { background: #eef1f5; color: var(--muted); }
+    .key-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+    .key-meta { display: grid; grid-template-columns: max-content 1fr; gap: 2px 14px; font-size: 14px; margin: 6px 0 4px; }
+    .key-meta dt { color: var(--muted); } .key-meta dd { margin: 0; font-weight: 600; }
+    .entry { margin: 0 0 14px; break-inside: avoid; }
+    .entry p { margin: 0 0 4px; }
+    .cat { font-size: 12px; color: var(--muted); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 14px; border-bottom: 1px solid var(--line); }
+    .tab { border: 0; background: none; padding: 8px 12px; cursor: pointer; font-weight: 600; color: var(--muted); border-bottom: 3px solid transparent; }
+    .tab.on { color: var(--brand); border-bottom-color: var(--brand); }
+    .empty { text-align: center; color: var(--muted); padding: 26px 10px; }
+    @media print {
+      .topbar, .no-print { display: none !important; }
+      body { background: #fff; }
+      .card { box-shadow: none; border: 0; padding: 0; }
+      .tab-panel { display: block !important; }
+      .tabs { display: none; }
+      .tab-panel + .tab-panel { break-before: page; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="topbar-inner"><b>ACC 211 Midterm Part 2: Version Inspector</b>
+    <span>Instructor use only. Do not upload this file to Netlify or share it with students.</span></div></header>
+
+  <main class="container">
+    <section class="card no-print">
+      <h1>Enter Part 2 version codes</h1>
+      <p class="muted">Paste one student report per line, from the randomized Part 2 exam. A bare version code works, and so does a full row copied from a spreadsheet. Lines without a version code (such as a header row) are skipped.</p>
+      <div class="format">
+        <b>Full row, to verify a report:</b> <code>Name, Attempt, Version code, Section A, Section B, Check code</code><br>
+        Commas or tabs both work. Example: <code>Juan Dela Cruz, 1, Q7RX-M2KD, 42.5, 50, 1A2B3C4D</code><br>
+        <b>Quick lookup:</b> <code>Q7RX-M2KD</code> or <code>Juan Dela Cruz Q7RX-M2KD</code>
+      </div>
+      <label for="input" class="small" style="font-weight:600">Codes</label>
+      <textarea id="input" spellcheck="false" placeholder="Juan Dela Cruz, 1, Q7RX-M2KD, 42.5, 50, 1A2B3C4D&#10;Q7RX-M2KD"></textarea>
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="run">Inspect Codes</button>
+        <button type="button" class="btn" id="clear">Clear</button>
+        <span class="spacer"></span>
+        <span class="small muted">Your list is kept in this browser only.</span>
+      </div>
+    </section>
+
+    <section class="card no-print" id="rosterCard" hidden>
+      <div class="key-head">
+        <h2>Roster</h2>
+        <button type="button" class="btn btn-small" id="csv">Download CSV</button>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Student</th><th>Att.</th><th>Version</th><th class="num">Revenue 2025</th><th class="num">Score</th><th>Check code</th><th>Flags</th><th></th></tr></thead>
+        <tbody id="roster"></tbody>
+      </table></div>
+      <p class="small muted" style="margin-top:10px">Every well-formed code produces an exam, so the check code is what confirms a report is genuine. A <b>shared code</b> means two or more names carry the same exam version, which usually points to a copied report.</p>
+    </section>
+
+    <section class="card" id="keyCard" hidden></section>
+  </main>
+
+  <script>
+/*__ENGINE__*/
+  </script>
+  <script>
+  (function () {
+    'use strict';
+    const E = window.Part2Engine;
+    const STORE = 'acc211-part2-inspector-input';
+    const VALID = /^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{4}-[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{4}$/;
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    const fmt = n => n ? E.money(n) : '';
+    let rows = [], activeRow = -1;
+
+    // Version codes always carry a hyphen (ABCD-EFGH); check codes never do.
+    function findCode(text) {
+      const m = text.match(/\b([A-Za-z0-9]{4})-([A-Za-z0-9]{4})\b/);
+      return m ? { raw: m[0], code: (m[1] + '-' + m[2]).toUpperCase() } : null;
+    }
+    function parseLine(line, n) {
+      const text = line.trim();
+      if (!text) return null;
+      const fields = text.split(/\t|,/).map(f => f.trim());
+      if (fields.length >= 6) {
+        const code = findCode(fields[2]);
+        if (!code) return null;
+        const scores = fields.slice(3, 5).map(v => parseFloat(String(v).replace(/[^0-9.\-]/g, '')));
+        return { line: n, name: fields[0], attempt: parseInt(fields[1], 10) || 1, code: code.code, scores, check: fields[5].toUpperCase().replace(/\s/g, ''), full: true };
+      }
+      const found = findCode(text);
+      if (!found) return null;
+      return { line: n, name: text.replace(found.raw, '').replace(/[,\t]+/g, ' ').replace(/\s+/g, ' ').trim(), attempt: null, code: found.code, scores: null, check: '', full: false };
+    }
+    function analyze(text) {
+      const parsed = text.split(/\r?\n/).map((l, i) => parseLine(l, i + 1)).filter(Boolean);
+      const byCode = {};
+      parsed.forEach((r, i) => { (byCode[r.code] = byCode[r.code] || []).push(i + 1); });
+      const norm = x => String(x.name || '').trim().toLowerCase();
+      return parsed.map((r, i) => {
+        r.valid = VALID.test(r.code);
+        r.exam = E.generateExam(r.code, { randomize: true });
+        r.shared = byCode[r.code].length > 1 ? byCode[r.code].filter(x => x !== i + 1) : [];
+        r.sameNameOnly = r.shared.every(x => norm(parsed[x - 1]) === norm(r));
+        r.total = null; r.verify = 'none';
+        if (r.full && r.scores.every(v => !isNaN(v))) {
+          r.total = Math.round((r.scores[0] + r.scores[1]) * 100) / 100;
+          const fake = { sectionA: { score: r.scores[0] }, sectionB: { score: r.scores[1] }, total: r.total };
+          r.verify = r.check && r.name ? (E.checkCode(r.code, r.name, fake, r.attempt, 'exam') === r.check ? 'match' : 'mismatch') : 'none';
+          r.overMax = r.scores[0] > 45 || r.scores[1] > 55;
+        }
+        return r;
+      });
+    }
+    function flagsOf(r, html) {
+      const f = [];
+      if (!r.valid) f.push(html ? '<span class="badge bad" title="Contains I, L, O, 0 or 1, which the exam never uses">Impossible code</span>' : 'Impossible code');
+      if (r.shared.length) f.push(html ? (r.sameNameOnly ? '<span class="badge none">Repeated (row ' + r.shared.join(', ') + ')</span>' : '<span class="badge warn">Shared code (row ' + r.shared.join(', ') + ')</span>')
+        : (r.sameNameOnly ? 'Repeated in row ' : 'Shared code with row ') + r.shared.join(' and '));
+      if (r.overMax) f.push(html ? '<span class="badge bad">Score above maximum</span>' : 'Score above maximum');
+      return f;
+    }
+
+    function renderRoster() {
+      $('rosterCard').hidden = false;
+      const n = rows.length, match = rows.filter(r => r.verify === 'match').length, mismatch = rows.filter(r => r.verify === 'mismatch').length;
+      const shared = rows.filter(r => r.shared.length && !r.sameNameOnly).length, invalid = rows.filter(r => !r.valid).length;
+      $('stats').innerHTML =
+        '<div class="stat"><b>' + n + '</b><span>codes read</span></div>' +
+        '<div class="stat ok"><b>' + match + '</b><span>check code matches</span></div>' +
+        '<div class="stat ' + (mismatch ? 'bad' : '') + '"><b>' + mismatch + '</b><span>check code mismatches</span></div>' +
+        '<div class="stat ' + (shared ? 'warn' : '') + '"><b>' + shared + '</b><span>rows with a shared code</span></div>' +
+        '<div class="stat ' + (invalid ? 'bad' : '') + '"><b>' + invalid + '</b><span>impossible codes</span></div>';
+      if (!n) { $('roster').innerHTML = '<tr><td colspan="9" class="empty">No version codes found. Codes look like <span class="mono">Q7RX-M2KD</span>.</td></tr>'; return; }
+      $('roster').innerHTML = rows.map((r, i) => {
+        const check = r.verify === 'match' ? '<span class="badge ok">Match</span>' : r.verify === 'mismatch' ? '<span class="badge bad">Mismatch</span>' : '<span class="badge none">Not checked</span>';
+        return '<tr class="' + (i === activeRow ? 'active' : '') + '"><td class="muted">' + (i + 1) + '</td><td>' + esc(r.name || '(no name)') + '</td>' +
+          '<td>' + (r.attempt || '') + '</td><td class="mono">' + esc(r.code) + '</td><td class="num">' + E.money(r.exam.data.IS.rev.a2) + '</td>' +
+          '<td class="num">' + (r.total != null ? r.total.toFixed(2) : '') + '</td><td>' + check + '</td><td>' + (flagsOf(r, true).join('') || '<span class="muted small">None</span>') + '</td>' +
+          '<td><button type="button" class="btn btn-small" data-view="' + i + '">View key</button></td></tr>';
+      }).join('');
+    }
+
+    // ---------- Answer key ----------
+
+    function correctAnswer(q) {
+      if (q.kind === 'mc' || q.kind === 'tf') return q.options.findIndex(o => o.ok);
+      if (q.kind === 'pick' || q.kind === 'formula') return q.answer;
+      const place = {}; q.items.forEach(x => place[x.key] = x.dest); return { place };
+    }
+    function isTable(D) {
+      const IS = D.IS, r = l => '<tr><td' + (l.key !== 'rev' ? ' class="cr-acct"' : '') + '>' + esc(l.label) + '</td><td class="num">' + fmt(l.a2) + '</td><td class="num">' + fmt(l.a1) + '</td></tr>';
+      return '<table><thead><tr><th>Income statement</th><th class="num">' + E.Y2 + '</th><th class="num">' + E.Y1 + '</th></tr></thead><tbody>' +
+        r(IS.rev) + IS.exp.map(r).join('') +
+        '<tr><td><b>Total expenses</b></td><td class="num">' + fmt(IS.te2) + '</td><td class="num">' + fmt(IS.te1) + '</td></tr>' +
+        '</tbody><tfoot><tr><td>Net income</td><td class="num">' + E.money(IS.ni2) + '</td><td class="num">' + E.money(IS.ni1) + '</td></tr></tfoot></table>';
+    }
+    function bsTable(D) {
+      const BS = D.BS;
+      return '<table><thead><tr><th>Balance sheet</th><th class="num">' + E.Y2 + '</th><th class="num">' + E.Y1 + '</th></tr></thead><tbody>' +
+        BS.items.map(x => '<tr><td>' + esc(x.label) + '</td><td class="num">' + fmt(x.a2) + '</td><td class="num">' + fmt(x.a1) + '</td></tr>').join('') +
+        [['Total current assets', 'ca'], ['Total assets', 'ta'], ['Total current liabilities', 'cl'], ['Total liabilities', 'tl']].map(t =>
+          '<tr><td><b>' + t[0] + '</b></td><td class="num"><b>' + E.money(BS[t[1] + '2']) + '</b></td><td class="num"><b>' + E.money(BS[t[1] + '1']) + '</b></td></tr>').join('') +
+        '</tbody></table>';
+    }
+    function resultsTable(D) {
+      const IS = D.IS, BS = D.BS, b = D.bank;
+      const rowsR = [
+        ['Net profit margin', E.pct(E.share(IS.ni1, IS.rev.a1)), E.pct(E.share(IS.ni2, IS.rev.a2)), 'Industry ' + D.bench.npm.toFixed(1) + '%; bank: at least ' + b.npm.toFixed(1) + '%'],
+        ['Working capital', E.money(BS.wc1), E.money(BS.wc2), 'Bank: at least ' + E.money(b.wc)],
+        ['Current ratio', E.ratio(BS.cr1), E.ratio(BS.cr2), 'Benchmark and bank: ' + b.cr.toFixed(2)],
+        ['Debt ratio', E.pct(BS.dr1 * 100), E.pct(BS.dr2 * 100), 'Benchmark and bank: ' + b.dr + '% or lower']
+      ];
+      return '<table><thead><tr><th>Indicator</th><th class="num">' + E.Y1 + '</th><th class="num">' + E.Y2 + '</th><th>Benchmark / rule</th></tr></thead><tbody>' +
+        rowsR.map(r => '<tr><td>' + r[0] + '</td><td class="num">' + r[1] + '</td><td class="num">' + r[2] + '</td><td>' + r[3] + '</td></tr>').join('') +
+        '</tbody></table><p class="small muted">Loan request: ' + E.money(b.loan) + '. Revenue change ' + E.pct(E.chg(IS.rev.a1, IS.rev.a2)) + ', net income change ' + E.pct(E.chg(IS.ni1, IS.ni2)) + '.</p>';
+    }
+
+    function renderKey(i, tab) {
+      activeRow = i; renderRoster();
+      const r = rows[i], ex = r.exam, D = ex.data;
+      tab = tab || 'data';
+      const verifyLine = r.verify === 'match' ? '<span class="badge ok">Check code matches</span> Name, attempt and scores agree with this version.'
+        : r.verify === 'mismatch' ? '<span class="badge bad">Check code does not match</span> The name, attempt, scores or version on this report may have been altered.'
+        : '<span class="badge none">Not checked</span> Enter a full row to verify this report.';
+      const num = { A: 0, B: 0 };
+      const stageName = st => { num[st.section]++; return st.section + num[st.section] + '. ' + st.title; };
+      const panels = { data: '<h2>Statements and results</h2><div class="grid2"><div>' + isTable(D) + '</div><div>' + bsTable(D) + '</div></div><h3>Key results</h3>' + resultsTable(D) };
+      const tabs = [['data', 'Statements']];
+      ex.stages.forEach(st => {
+        const name = stageName(st);
+        tabs.push([st.id, name.split('.')[0]]);
+        panels[st.id] = '<h2>' + esc(name) + '</h2><p class="muted small">Questions in the order this student saw them. 2.5 points each.</p>' +
+          '<table><thead><tr><th>#</th><th>Question</th><th>Correct answer</th></tr></thead><tbody>' +
+          st.questions.map((q, k) => '<tr><td>' + (k + 1) + '</td><td>' + esc(q.prompt) + '</td><td style="white-space:pre-line">' + esc(E.describeAnswer(ex, q, correctAnswer(q)).replace(/^Clicked: /, '')) + '</td></tr>').join('') +
+          '</tbody></table>';
+      });
+      $('keyCard').hidden = false;
+      $('keyCard').innerHTML =
+        '<div class="key-head"><div><h1>Answer key: ' + esc(r.code) + '</h1>' +
+        '<dl class="key-meta"><dt>Student</dt><dd>' + esc(r.name || '(no name)') + (r.attempt ? ', attempt ' + r.attempt : '') + '</dd>' +
+        (r.total != null ? '<dt>Reported score</dt><dd>' + r.scores.map(v => v.toFixed(2)).join(' + ') + ' = ' + r.total.toFixed(2) + ' / 100</dd>' : '') +
+        '</dl><p class="small">' + verifyLine + '</p></div>' +
+        '<div class="btn-row no-print" style="margin-top:0"><button type="button" class="btn btn-small" id="prev"' + (i ? '' : ' disabled') + '>&larr; Previous</button>' +
+        '<button type="button" class="btn btn-small" id="next"' + (i < rows.length - 1 ? '' : ' disabled') + '>Next &rarr;</button>' +
+        '<button type="button" class="btn btn-small btn-primary" id="print">Print key</button></div></div>' +
+        '<div class="tabs no-print" role="tablist">' + tabs.map(t => '<button type="button" role="tab" class="tab' + (t[0] === tab ? ' on' : '') + '" data-tab="' + t[0] + '">' + esc(t[1]) + '</button>').join('') + '</div>' +
+        Object.keys(panels).map(k => '<div class="tab-panel" data-panel="' + k + '"' + (k === tab ? '' : ' style="display:none"') + '>' + panels[k] + '</div>').join('');
+      $('keyCard').querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => renderKey(i, b.dataset.tab)));
+      $('prev').addEventListener('click', () => renderKey(i - 1, tab));
+      $('next').addEventListener('click', () => renderKey(i + 1, tab));
+      $('print').addEventListener('click', () => window.print());
+    }
+
+    function downloadCsv() {
+      const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const head = ['Row', 'Student', 'Attempt', 'Version code', 'Section A', 'Section B', 'Total', 'Check code', 'Check result', 'Flags',
+        'NPM 2024', 'NPM 2025', 'Working capital 2025', 'Current ratio 2025', 'Debt ratio 2025'];
+      const lines = rows.map((r, i) => {
+        const D = r.exam.data;
+        return [i + 1, r.name, r.attempt || '', r.code, r.scores ? r.scores[0] : '', r.scores ? r.scores[1] : '', r.total != null ? r.total : '', r.check,
+          r.verify === 'match' ? 'Match' : r.verify === 'mismatch' ? 'Mismatch' : 'Not checked', flagsOf(r, false).join('; '),
+          E.pct(E.share(D.IS.ni1, D.IS.rev.a1)), E.pct(E.share(D.IS.ni2, D.IS.rev.a2)), D.BS.wc2, E.ratio(D.BS.cr2), E.pct(D.BS.dr2 * 100)].map(q).join(',');
+      });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([[head.map(q).join(',')].concat(lines).join('\r\n')], { type: 'text/csv' }));
+      a.download = 'ACC211_Midterm_Part2_Roster.csv';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    function run() {
+      const text = $('input').value;
+      try { localStorage.setItem(STORE, text); } catch (e) { /* storage unavailable */ }
+      rows = analyze(text); activeRow = -1; $('keyCard').hidden = true;
+      renderRoster();
+      if (rows.length === 1) renderKey(0);
+    }
+    $('run').addEventListener('click', run);
+    $('clear').addEventListener('click', () => {
+      $('input').value = '';
+      try { localStorage.removeItem(STORE); } catch (e) { /* ignore */ }
+      rows = []; $('rosterCard').hidden = true; $('keyCard').hidden = true;
+    });
+    $('csv').addEventListener('click', downloadCsv);
+    $('roster').addEventListener('click', ev => {
+      const b = ev.target.closest('[data-view]');
+      if (b) { renderKey(Number(b.dataset.view)); $('keyCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+    try { const saved = localStorage.getItem(STORE); if (saved) { $('input').value = saved; run(); } } catch (e) { /* ignore */ }
+  })();
+  </script>
+</body>
+</html>
