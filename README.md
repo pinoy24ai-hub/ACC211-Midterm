@@ -73,3 +73,27 @@ node tests/engine.test.js
 ```
 
 Generates 3,000 random versions and confirms every entry and trial balance balances, adjustments never exceed the balances they reduce, the closing routine zeroes all temporary accounts, and a perfect set of answers scores exactly 100.
+
+---
+
+# Part 2: Financial Statement Analysis (prototype)
+
+Folder: **`part2-site/`** (deploy it as its own Netlify site, separately from `site/`).
+
+**Status: fixed-values prototype.** Every student sees the same statements for *Blue Harbor Mobile Detailing* (owner Camila Reyes, 2024 and 2025). Only the order of multiple-choice options changes per version code. Randomized values come next; the questions already compute every number from the statement data, so only `buildData()` in `part2-site/js/engine.js` needs to change.
+
+| Stage | Section | Topic | Points |
+|---|---|---|---|
+| A1 | Income statement | Percent of Revenue (vertical analysis) | 15 |
+| A2 | Income statement | Year-over-Year Changes (horizontal analysis) | 15 |
+| A3 | Income statement | Profit Margin vs Industry (24.0% benchmark) | 15 |
+| B1 | Balance sheet | Sort and Total | 15 |
+| B2 | Balance sheet | Working Capital and Current Ratio (1.50 benchmark) | 15 |
+| B3 | Balance sheet | Debt Ratio (50% benchmark) | 12.5 |
+| B4 | Both | The Bank's Decision (scorecard, loan rules, 2 written answers) | 12.5 |
+
+- 40 questions, 2.5 points each. Question types follow the review games: multiple choice, true/false, click a line, build-the-total boards (partial credit per item) and formula builders (all or nothing).
+- Hints are always free, and each stage has a quick refresher. No right/wrong feedback; stages lock on submit.
+- The two written answers in the final stage are required but not scored; they print in the PDF.
+- Same shell as Part 1: name first, saved progress, unlimited retakes (highest counts), and a PDF report per attempt (`ACC211_Midterm_Part2_<Name>_AttemptN.pdf`) with a check code. The report also lists hints used.
+- Tests: `node tests/part2.test.js`.
