@@ -123,3 +123,44 @@ Open `instructor/part2-inspector.html` (self-contained; double-click it). Paste 
 node tests/part2.test.js        # practice version
 node tests/part2-exam.test.js   # 3,000 randomized exam versions, plus build checks
 ```
+
+---
+
+# Bright Mart General Ledger (practice set)
+
+`gl-practice-site/` is a separate static site that goes with the two merchandising videos (`video/merch-perpetual/` and `video/merch-sales/`). Deploy it the same way: drag the **`gl-practice-site`** folder onto [Netlify Drop](https://app.netlify.com/drop).
+
+Students journalize all 15 November transactions of Bright Mart under the **perpetual inventory system**:
+
+| # | Date | Transaction |
+|---|---|---|
+| 1 | Nov 1 | Purchase for cash, $5,000 |
+| 2 | Nov 3 | Purchase on account, $10,000, 2/10, n/30, FOB shipping point |
+| 3 | Nov 4 | Freight-in, $300 |
+| 4 | Nov 6 | Purchase return, $1,000 |
+| 5 | Nov 8 | Purchase allowance, $500 |
+| 6 | Nov 13 | Payment within the discount period ($170 discount, $8,330 cash) |
+| 7 | Nov 15 | Cash sale, $3,000 (cost $1,800) |
+| 8 | Nov 18 | Sale on account, $8,000 (cost $4,800), 2/10, n/30, FOB destination |
+| 9 | Nov 18 | Freight-out, $200 |
+| 10 | Nov 21 | Sales return, $1,000 (cost $600) |
+| 11 | Nov 23 | Sales allowance, $500 |
+| 12 | Nov 28 | Collection within the discount period ($130 discount, $6,370 cash) |
+| 13 to 15 | Nov 30 | Salaries $1,200, rent $900 and interest $70, paid in cash |
+
+The ledger opens on Nov 1 with Cash and Owner's Capital of $20,000 each (given, not journalized).
+
+## How it works
+
+- **Name first.** The name prints on the certificate.
+- **Check and retry.** "Check entry" marks each line correct or incorrect without revealing the answer; students fix and recheck with no penalty. Lines may be in any order, and a two-entry sale may be entered as one compound entry.
+- The chart of accounts includes periodic-system accounts (Purchases, Freight-In, Purchase Returns and Allowances, Purchase Discounts) as distractors; choosing one is marked incorrect.
+- **Correct entries lock and post** to the general ledger (running balances), trial balance and multi-step income statement, which update live.
+- **Certificate of Completion** (PDF) unlocks when all 15 entries are posted. It shows the student's name, completion date, a certificate ID, and the multi-step income statement (net income $1,000, matching the sales video).
+- Progress is saved in the browser. Add `#reset` to the URL to clear it on a shared computer.
+
+```
+node tests/gl-practice.test.js
+```
+
+Confirms every key entry balances and avoids periodic accounts, the checker accepts any line order and formatting and rejects wrong, partial, unbalanced and extra lines, and the ledger and statement tie to both videos (inventory $13,630 after purchases and $7,630 at month end, COGS $6,000, net income $1,000).

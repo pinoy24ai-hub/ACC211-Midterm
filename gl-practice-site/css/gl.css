@@ -1,0 +1,88 @@
+/* Bright Mart General Ledger: additions to the shared midterm styles. */
+:root { --ok-soft: #e4f3ea; --bad: #b3261e; --bad-soft: #fbe9e7; --warn: #a15c00; --warn-soft: #fff1d6; }
+
+/* ---------- View tabs ---------- */
+.view-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.view-tabs button {
+  border: 0; background: rgba(255, 255, 255, .12); color: #fff; padding: 6px 12px; border-radius: 999px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.view-tabs button:hover:not(:disabled) { background: rgba(255, 255, 255, .22); }
+.view-tabs button.active, .view-tabs button.active:hover { background: #fff; color: var(--brand); }
+.view-tabs button:disabled { opacity: .55; cursor: not-allowed; }
+.view-tabs button:focus-visible { outline: 3px solid #9cc3ea; outline-offset: 1px; }
+
+/* ---------- Progress and navigator ---------- */
+.progress { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.progress-bar { height: 100%; background: var(--ok); transition: width .3s ease; }
+.progress-label { font-size: 13px; color: var(--muted); margin: 6px 0 12px; }
+.nav-pill.done:not(.current) { background: var(--ok-soft); border-color: #9fd0b3; color: var(--ok); }
+.nav-pill.done.current { background: var(--ok); border-color: var(--ok); }
+.badge-posted { margin-left: auto; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--ok); background: var(--ok-soft); padding: 3px 10px; border-radius: 999px; }
+
+/* ---------- Journal marks and feedback ---------- */
+.journal td.mark-cell { width: 64px; white-space: nowrap; text-align: right; }
+.mark { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; font-weight: 800; font-size: 14px; vertical-align: middle; }
+.mark.ok { background: var(--ok-soft); color: var(--ok); }
+.mark.bad { background: var(--bad-soft); color: var(--bad); }
+.mark.incomplete { background: var(--warn-soft); color: var(--warn); }
+.journal tr.st-ok select, .journal tr.st-ok input { border-color: #9fd0b3; background: #f6fbf8; }
+.journal tr.st-bad select, .journal tr.st-bad input { border-color: #e6a39c; background: #fff8f7; }
+.journal tr.st-incomplete select, .journal tr.st-incomplete input { border-color: #e7c27c; }
+.journal.locked select, .journal.locked input { background: #f6fbf8; color: var(--ink); opacity: 1; -webkit-text-fill-color: var(--ink); }
+.journal.locked select { appearance: none; -webkit-appearance: none; }
+.feedback { margin-top: 14px; padding: 10px 14px; border-radius: 8px; font-weight: 600; }
+.feedback.ok { background: var(--ok-soft); color: var(--ok); }
+.feedback.bad { background: var(--bad-soft); color: var(--bad); }
+.restart-row { margin-top: 12px; }
+
+.opening { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; font-size: 13px; background: var(--brand-soft);
+  border-radius: 8px; padding: 8px 10px; margin-bottom: 12px; }
+.opening b { grid-column: 1 / -1; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--brand); }
+.opening span:nth-child(odd) { font-family: var(--mono); text-align: right; }
+
+.done-card { display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  border-color: #9fd0b3; background: var(--ok-soft); margin-bottom: 16px; }
+.done-card h2 { color: var(--ok); }
+.done-card p { margin: 0; }
+
+/* ---------- Ledger ---------- */
+.pending-note { background: #fff8e6; border: 1px solid #f0d9a6; color: #6b4a00; border-radius: 8px; padding: 9px 14px; margin-bottom: 16px; font-size: 14px; }
+.ledger-group { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); margin: 18px 0 10px; }
+.ledger-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 14px; }
+.ledger-grid .card + .card { margin-top: 0; }
+.ledger-acct { padding: 14px 16px; min-width: 0; overflow-x: auto; }
+.ledger-head { display: flex; gap: 8px; align-items: baseline; margin-bottom: 6px; }
+.ledger-head .no { font-family: var(--mono); color: var(--muted); font-size: 13px; }
+.ledger-bal { margin-left: auto; font-family: var(--mono); font-weight: 700; color: var(--brand); }
+.drcr { font-family: system-ui, sans-serif; font-size: 11px; color: var(--muted); font-weight: 600; }
+
+.narrow { max-width: 640px; }
+
+/* ---------- Income statement ---------- */
+.is-table td { border-bottom: 0; padding: 4px 8px; }
+.is-table td.num { width: 110px; }
+.is-table tr.in td:first-child { padding-left: 28px; }
+.is-table tr.in2 td:first-child { padding-left: 52px; }
+.is-table td.u { box-shadow: inset 0 -1.5px 0 var(--ink-2); }
+.is-table td.dbl { border-bottom: 3px double var(--ink-2); }
+.is-table tr.key td { font-weight: 700; }
+.is-table tr.key td:first-child { color: var(--brand); }
+.is-table tr.head td { padding-top: 10px; }
+.is-table tr.final td { font-weight: 800; font-size: 1.05rem; padding-top: 8px; }
+.steps-list { padding-left: 1.2rem; margin: 0 0 12px; display: grid; gap: 8px; }
+
+/* ---------- Certificate preview ---------- */
+.cert-preview { max-width: 760px; margin: 0 auto; text-align: center; border: 3px solid var(--brand); outline: 1px solid var(--accent); outline-offset: -10px; padding: 36px 28px; }
+.cert-kicker { font-family: Georgia, 'Times New Roman', serif; font-size: 2rem; font-weight: 700; color: var(--brand); }
+.cert-name { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: 700; font-size: 2.1rem;
+  margin: 14px auto 10px; padding-bottom: 6px; border-bottom: 1px solid var(--accent); display: inline-block; min-width: 50%; }
+.cert-preview > p { max-width: 58ch; margin: 0 auto 10px; color: var(--ink-2); }
+.cert-meta { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+.cert-statement { max-width: 460px; margin: 0 auto; text-align: left; }
+
+@media (max-width: 640px) {
+  .journal td.mark-cell { width: auto; grid-column: 1 / -1; text-align: right; }
+  .topbar { position: static; }
+}
