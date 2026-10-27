@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const root = path.join(__dirname, '..');
 const BUILDS = [
-  { src: 'tools/version-inspector.src.html', engine: 'site/js/engine.js', out: 'instructor/version-inspector.html' },
+  { src: 'tools/version-inspector.src.html', engine: 'netlify/midterm-exam/js/engine.js', out: 'instructor/version-inspector.html' },
   { src: 'tools/part2-inspector.src.html', engine: 'part2-site/js/engine.js', out: 'instructor/part2-inspector.html' }
 ];
 for (const b of BUILDS) {

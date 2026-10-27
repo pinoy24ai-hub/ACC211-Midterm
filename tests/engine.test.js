@@ -1,7 +1,7 @@
 // Run with: node tests/engine.test.js
 // Checks many random exam versions for balanced entries, balanced trial balances,
 // sensible amounts, deterministic rebuilds, and correct grading.
-const E = require('../site/js/engine.js');
+const E = require('../netlify/midterm-exam/js/engine.js');
 const assert = require('assert');
 
 function checkBalanced(lines, label) {
@@ -86,6 +86,6 @@ console.log('OK: check codes');
 // the self-contained instructor inspector must carry the current engine
 const fs = require('fs');
 const inspector = fs.readFileSync(__dirname + '/../instructor/version-inspector.html', 'utf8');
-assert(inspector.includes(fs.readFileSync(__dirname + '/../site/js/engine.js', 'utf8')),
+assert(inspector.includes(fs.readFileSync(__dirname + '/../netlify/midterm-exam/js/engine.js', 'utf8')),
   'instructor/version-inspector.html is out of date: run node tools/build-instructor.js');
 console.log('OK: version inspector up to date');
