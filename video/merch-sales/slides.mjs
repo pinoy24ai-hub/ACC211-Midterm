@@ -35,6 +35,26 @@ const txn = (text) => `<div class="txn"><div class="txn-label">Transaction</div>
 const note = (text, kind = '') => `<div class="note ${kind}">${text}</div>`;
 const two = (left, right) => `<div class="two"><div>${left}</div><div>${right}</div></div>`;
 
+// T-account. dr/cr: [label, amount]; `newest` ('d2', 'c0', ...) highlights the latest posting.
+function taccount(name, dr, cr, { newest = null, big = false } = {}) {
+  const rows = (items, s) => items.map(([l, a], i) =>
+    `<div class="t-row ${newest === `${s}${i}` ? 'new' : ''} ${l.startsWith('Beg') ? 'beg' : ''}"><span>${l}</span><span>${fmt(a)}</span></div>`).join('');
+  const sum = (items) => items.reduce((t, [, a]) => t + a, 0);
+  return `
+    <div class="t ${big ? 'big' : ''}">
+      <div class="t-title">${name}</div>
+      <div class="t-body">
+        <div class="t-side"><div class="t-head">Debit</div>${rows(dr, 'd')}</div>
+        <div class="t-side"><div class="t-head">Credit</div>${rows(cr, 'c')}</div>
+      </div>
+      <div class="t-bal"><span>Balance</span><span>${fmt(sum(dr) - sum(cr))}</span></div>
+    </div>`;
+}
+
+// Postings to Merchandise Inventory (opening balance carried from the purchases video) and Cost of Goods Sold.
+const MI = { beg: ['Beg. bal. (Nov 13)', 13630], a: ['Nov 15 Cash sale', 1800], b: ['Nov 18 Sale on acct.', 4800], r: ['Nov 21 Return', 600] };
+const CG = { a: ['Nov 15 Cash sale', 1800], b: ['Nov 18 Sale on acct.', 4800], r: ['Nov 21 Return', 600] };
+
 // Selling price vs cost box for a sale.
 const margin = (price, cost) => `
   <table class="calc">
@@ -128,14 +148,17 @@ export const steps = [
         journal('Nov 15', [['Cash', 3000], ['Sales Revenue', 0, 3000]], 'To record cash sale.') +
         side('2 · Cost side, at cost', 'cost') +
         journal('Nov 15', [['Cost of Goods Sold', 1800], ['Merchandise Inventory', 0, 1800]], 'To record cost of merchandise sold.'),
-        margin(3000, 1800) +
-        note('Notice that the two entries use <b>different amounts</b>. The difference is the profit on the sale before expenses.', 'tip')),
+        taccount('Merchandise Inventory', [MI.beg], [MI.a], { newest: 'c0' }) +
+        margin(3000, 1800)),
     }),
     say: `Transaction A, a cash sale. On November fifteenth, Bright Mart sells merchandise for three thousand dollars
       cash. First, the revenue side at selling price: debit Cash for three thousand, and credit Sales Revenue for
       three thousand. Second, the cost side at cost: debit Cost of Goods Sold for eighteen hundred, and credit
-      Merchandise Inventory for eighteen hundred, because those goods have left the shelf. Notice that the two entries
-      use different amounts. The twelve hundred dollar difference is the gross profit on this sale.`,
+      Merchandise Inventory for eighteen hundred, because those goods have left the shelf. On the right is the
+      Merchandise Inventory T account. It starts with the thirteen thousand six hundred thirty dollar balance we
+      ended with in the purchases video. The sale is posted as a credit, so inventory drops to eleven thousand eight
+      hundred thirty. Notice that the two entries use different amounts. The twelve hundred dollar difference is the
+      gross profit on this sale.`,
   },
   // (b)
   {
@@ -146,13 +169,15 @@ export const steps = [
         journal('Nov 18', [['Accounts Receivable', 8000], ['Sales Revenue', 0, 8000]], "To record sale on account to Rosa's Shop, terms 2/10, n/30.") +
         side('2 · Cost side, at cost', 'cost') +
         journal('Nov 18', [['Cost of Goods Sold', 4800], ['Merchandise Inventory', 0, 4800]], 'To record cost of merchandise sold.'),
-        note('Record the <b>full invoice price</b>. The discount is recorded only if the customer actually pays within 10 days.', 'tip') +
-        `<div class="mini-terms"><div><b>2/10</b> 2% off if paid by <b>Nov 28</b></div><div><b>n/30</b> full amount due by <b>Dec 18</b></div></div>`),
+        taccount('Merchandise Inventory', [MI.beg], [MI.a, MI.b], { newest: 'c1' }) +
+        `<div class="mini-terms"><div><b>2/10</b> 2% off if paid by <b>Nov 28</b></div><div><b>n/30</b> full amount due by <b>Dec 18</b></div></div>` +
+        note('Record the <b>full invoice price</b>. Any discount is recorded only when the customer pays early.', 'tip')),
     }),
     say: `Transaction B, a sale on account. On November eighteenth, Bright Mart sells eight thousand dollars of goods
       to Rosa's Shop on credit. The revenue side: debit Accounts Receivable for eight thousand, and credit Sales
       Revenue for eight thousand. The cost side: debit Cost of Goods Sold for four thousand eight hundred, and credit
-      Merchandise Inventory for four thousand eight hundred. Just like with purchases, we record the full invoice
+      Merchandise Inventory for four thousand eight hundred. In the T account, that second credit brings inventory
+      down to seven thousand thirty. Just like with purchases, we record the full invoice
       price. The customer can take a two percent discount by paying on or before November twenty eighth. Otherwise,
       the full amount is due on December eighteenth.`,
   },
@@ -193,14 +218,16 @@ export const steps = [
         journal('Nov 21', [['Sales Returns and Allowances', 1000], ['Accounts Receivable', 0, 1000]], "To record goods returned by Rosa's Shop.") +
         side('2 · Put the goods back, at cost', 'cost') +
         journal('Nov 21', [['Merchandise Inventory', 600], ['Cost of Goods Sold', 0, 600]], 'To restore returned goods to inventory.'),
-        note('Why not debit Sales Revenue directly? Using the contra account <b>keeps a record of returns</b>, so managers can see how often customers are unhappy.', 'tip') +
-        note('If the returned goods were damaged and could not be resold, skip entry 2.')),
+        taccount('Merchandise Inventory', [MI.beg, MI.r], [MI.a, MI.b], { newest: 'd1' }) +
+        note('Why not debit Sales Revenue directly? The contra account <b>keeps a record of returns</b> for managers.', 'tip') +
+        note('Goods damaged and worthless? Skip entry 2.')),
     }),
     say: `Now a sales return. On November twenty first, Rosa's Shop returns one thousand dollars of goods that cost
       six hundred. Because the goods come back, we need two entries again. First, reverse the revenue at selling
       price: debit Sales Returns and Allowances for one thousand, and credit Accounts Receivable for one thousand,
       because the customer owes us less. Second, put the goods back on the shelf at cost: debit Merchandise Inventory
-      for six hundred, and credit Cost of Goods Sold for six hundred. Why not just debit Sales Revenue? Using the
+      for six hundred, and credit Cost of Goods Sold for six hundred. This is the first debit in the T account since
+      the beginning balance, and inventory rises to seven thousand six hundred thirty. Why not just debit Sales Revenue? Using the
       contra account keeps a separate record of returns, so managers can track them. And if the returned goods were
       damaged and worthless, we would skip the second entry.`,
   },
@@ -252,6 +279,32 @@ export const steps = [
       debit Cash and credit Accounts Receivable for six thousand five hundred. And there is no cost entry, because
       collecting cash does not move any goods.`,
   },
+  // Ledger: Merchandise Inventory and Cost of Goods Sold
+  {
+    html: slide({
+      tag: 'The ledger', title: 'Merchandise Inventory and Cost of Goods Sold',
+      body: `<div class="ledger2">
+        ${taccount('Merchandise Inventory', [MI.beg, MI.r], [MI.a, MI.b], { big: true })}
+        <div class="mirror"><span>←</span><b>Mirror<br>images</b><span>→</span></div>
+        ${taccount('Cost of Goods Sold', [CG.a, CG.b], [CG.r], { big: true })}
+      </div>
+      <div class="three">
+        ${note('Each sale <b>moves cost</b> out of Merchandise Inventory (credit) and into Cost of Goods Sold (debit).', 'tip')}
+        ${note('A return moves it <b>back</b>: debit Merchandise Inventory, credit Cost of Goods Sold.', 'tip')}
+        ${note('<b>$7,630</b> goes to the balance sheet as an asset. <b>$6,000</b> goes to the income statement as an expense.')}
+      </div>`,
+    }),
+    say: `Now let's look at the ledger for the cost side of every sale. On the left is Merchandise Inventory. It
+      starts with the thirteen thousand six hundred thirty dollar balance from the purchases video. The two sales are
+      credits of eighteen hundred and four thousand eight hundred, and the return adds back six hundred. The ending
+      balance is seven thousand six hundred thirty. On the right is Cost of Goods Sold. It has the same three amounts,
+      on the opposite sides: debits of eighteen hundred and four thousand eight hundred, and a credit of six hundred
+      for the return. Its balance is six thousand. The two accounts are mirror images. Each sale moves cost out of
+      inventory and into cost of goods sold, and a return moves it back. Notice where each balance goes. The seven
+      thousand six hundred thirty of inventory still on hand is an asset on the balance sheet. The six thousand of
+      cost of goods sold is an expense on the income statement, as we'll see next. And remember, the sales allowance,
+      the freight out, and the collection never touch either account, because no goods moved.`,
+  },
   // Net sales & gross profit
   {
     html: slide({
@@ -264,7 +317,7 @@ export const steps = [
           <tr><td>Less: sales discounts</td><td>(130)</td></tr>
           <tr class="sub"><td>Net sales</td><td>9,370</td></tr>
           <tr class="head"><td colspan="2">Cost of goods sold</td></tr>
-          <tr><td>Cash sale + sale on account: 1,800 + 4,800</td><td>6,600</td></tr>
+          <tr><td>COGS debits for the two sales: 1,800 + 4,800</td><td>6,600</td></tr>
           <tr><td>Less: cost of goods returned</td><td>(600)</td></tr>
           <tr class="sub"><td>Cost of goods sold</td><td>6,000</td></tr>
           <tr class="tot"><td>Gross profit: 9,370 − 6,000</td><td>$3,370</td></tr>
