@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recording Merchandise Purchases</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: a fixed 1920x1080 slide stage scaled to fit, with a presenter control bar underneath. */
+:root {
+  --font: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --app: #e4e8ef; --chrome: #ffffff; --chrome-line: #d3d9e3;
+  --slide: #f7f8fb; --card: #ffffff; --ink: #1d2433; --muted: #5b6475; --line: #d9dee8; --zebra: #f3f5f9;
+  --brand: #1f4e8c; --on-brand: #ffffff; --brand-soft: #e7eef9; --brand-edge: #c4d4ee;
+  --up: #1d7a4f; --up-soft: #e3f4ea; --down: #b4442c; --down-soft: #fbe9e4;
+  --gold: #9a6516; --gold-soft: #fdf3e1; --gold-edge: #b7791f;
+  --hero-a: #16365f; --hero-b: #1f4e8c; --hero-c: #2b6cb0; --on-hero: #ffffff; --hero-chip: rgba(255,255,255,.16);
+  --seg-full: #cfd8e6; --shadow: 0 10px 40px rgba(20, 35, 60, .18);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --app: #0b0f16; --chrome: #121822; --chrome-line: #263042;
+  --slide: #141a24; --card: #1b2330; --ink: #e6eaf2; --muted: #9aa4b6; --line: #2c3646; --zebra: #18202c;
+  --brand: #7fb0f0; --on-brand: #0d1520; --brand-soft: #1d2b42; --brand-edge: #2d4466;
+  --up: #5cc493; --up-soft: #16302a; --down: #f08a73; --down-soft: #3a201b;
+  --gold: #e0ad5a; --gold-soft: #33281a; --gold-edge: #b7791f;
+  --hero-a: #0d1f38; --hero-b: #15365f; --hero-c: #1d4a80; --on-hero: #f2f6fc; --hero-chip: rgba(255,255,255,.12);
+  --seg-full: #2f3a4c; --shadow: 0 10px 40px rgba(0, 0, 0, .5); color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --app: #0b0f16; --chrome: #121822; --chrome-line: #263042;
+  --slide: #141a24; --card: #1b2330; --ink: #e6eaf2; --muted: #9aa4b6; --line: #2c3646; --zebra: #18202c;
+  --brand: #7fb0f0; --on-brand: #0d1520; --brand-soft: #1d2b42; --brand-edge: #2d4466;
+  --up: #5cc493; --up-soft: #16302a; --down: #f08a73; --down-soft: #3a201b;
+  --gold: #e0ad5a; --gold-soft: #33281a; --gold-edge: #b7791f;
+  --hero-a: #0d1f38; --hero-b: #15365f; --hero-c: #1d4a80; --on-hero: #f2f6fc; --hero-chip: rgba(255,255,255,.12);
+  --seg-full: #2f3a4c; --shadow: 0 10px 40px rgba(0, 0, 0, .5); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--app); color: var(--ink); font-family: var(--font); overflow: hidden;
+  display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+
+/* ---------- Stage ---------- */
+#viewport { flex: 1; min-height: 0; position: relative; overflow: hidden;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px; }
+#stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center;
+  background: var(--slide); box-shadow: var(--shadow); border-radius: 6px; overflow: hidden; }
+.slide { position: absolute; inset: 0; display: none; }
+.slide.active { display: block; }
+
+/* Step builds: an element with data-step="n" appears at part n; data-until="n" shows only before part n. */
+[data-step], [data-until] { transition: opacity .35s ease, transform .35s ease; }
+[data-step].off { opacity: 0; transform: translateY(14px); pointer-events: none; }
+[data-until].off { display: none; }
+.t-row[data-step].off, .list tr[data-step].off, .sum tr[data-step].off, .calc tr[data-step].off, .je tr[data-step].off { transform: none; }
+@media (prefers-reduced-motion: reduce) { [data-step], [data-until] { transition: none; } [data-step].off { transform: none; } }
+
+/* ---------- Slide content (1920x1080 coordinates) ---------- */
+.frame { width: 1920px; height: 1080px; display: flex; flex-direction: column; padding: 64px 100px 36px;
+  font-size: 30px; line-height: 1.4; color: var(--ink); }
+.frame b { font-weight: 700; }
+.frame header .tag { display: inline-block; background: var(--brand-soft); color: var(--brand); font-weight: 700;
+  font-size: 24px; letter-spacing: .05em; text-transform: uppercase; padding: 8px 18px; border-radius: 8px; margin-bottom: 14px; }
+.frame header h1 { margin: 0; font-size: 60px; font-weight: 800; letter-spacing: -.015em; text-wrap: balance; }
+.frame main { flex: 1; padding-top: 36px; min-height: 0; }
+.frame footer { display: flex; justify-content: space-between; color: var(--muted); font-size: 22px;
+  border-top: 2px solid var(--line); padding-top: 16px; }
+
+.hero { justify-content: center; background: linear-gradient(135deg, var(--hero-a), var(--hero-b) 60%, var(--hero-c)); color: var(--on-hero); }
+.kicker { font-size: 28px; letter-spacing: .12em; text-transform: uppercase; opacity: .85; margin-bottom: 20px; }
+.big-title { margin: 0; font-size: 96px; font-weight: 800; line-height: 1.04; letter-spacing: -.02em; text-wrap: balance; }
+.hero h2 { font-weight: 500; font-size: 42px; opacity: .92; margin: 22px 0 60px; }
+.agenda { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 60px; font-size: 34px; }
+.agenda li { display: flex; align-items: center; gap: 20px; }
+.agenda .chip { flex: none; width: 56px; height: 56px; display: grid; place-items: center; border-radius: 50%; background: var(--hero-chip); font-weight: 800; }
+.q { font-size: 42px; margin: 34px 0 0; max-width: 1560px; }
+.ans { display: grid; gap: 14px; margin-top: 44px; font-size: 36px; background: var(--hero-chip); padding: 30px 36px; border-radius: 14px; max-width: 1560px; }
+
+.two { display: grid; grid-template-columns: 1.15fr 1fr; gap: 64px; align-items: start; }
+.lead { font-size: 34px; margin: 0 0 26px; }
+.bul { margin: 0; padding-left: 36px; display: grid; gap: 20px; }
+
+.rule-card { background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 34px; display: grid; gap: 10px; }
+.rule { border-radius: 12px; padding: 22px 28px; font-size: 34px; }
+.rule span { display: block; font-size: 28px; font-weight: 600; }
+.rule.up { background: var(--up-soft); color: var(--up); } .rule.down { background: var(--down-soft); color: var(--down); }
+.rule-ex { color: var(--muted); font-size: 26px; margin: 0 4px 16px; }
+
+.txn { background: var(--gold-soft); border-left: 8px solid var(--gold-edge); border-radius: 10px; padding: 16px 26px; margin-bottom: 24px; }
+.txn-label { font-size: 20px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .08em; }
+.txn p { margin: 4px 0 0; }
+
+.frame table { border-collapse: collapse; width: 100%; }
+.je { background: var(--card); border: 2px solid var(--line); margin-bottom: 22px; font-size: 28px; }
+.je th { background: var(--brand); color: var(--on-brand); font-size: 20px; text-transform: uppercase; letter-spacing: .05em;
+  padding: 11px 16px; text-align: left; white-space: nowrap; }
+.je th:nth-child(n+3) { text-align: right; }
+.je td { padding: 11px 16px; border-top: 1px solid var(--line); white-space: nowrap; }
+.je .date { width: 130px; color: var(--muted); }
+.je .num { text-align: right; width: 140px; font-variant-numeric: tabular-nums; font-weight: 700; }
+.je .cr-acct { padding-left: 70px; }
+.je .memo td { color: var(--muted); font-style: italic; font-size: 22px; white-space: normal; }
+
+.note { background: var(--card); border: 2px solid var(--line); border-radius: 12px; padding: 16px 24px; font-size: 26px; margin-top: 16px; }
+.note.tip { background: var(--brand-soft); border-color: var(--brand-edge); }
+
+.t { background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 22px 28px; font-size: 26px; }
+.t-title { text-align: center; font-weight: 800; font-size: 32px; padding-bottom: 12px; border-bottom: 4px solid var(--ink); }
+.t-body { display: grid; grid-template-columns: 1fr 1fr; min-height: 280px; }
+.t-side { min-width: 0; }
+.t-side:first-child { border-right: 4px solid var(--ink); padding-right: 14px; }
+.t-side:last-child { padding-left: 14px; }
+.t-head { color: var(--muted); font-size: 19px; text-transform: uppercase; letter-spacing: .05em; margin: 10px 0 8px; }
+.t-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 7px 10px; border-radius: 8px; font-variant-numeric: tabular-nums; }
+.t-row span:first-child { color: var(--muted); font-size: 20px; white-space: nowrap; }
+.t-row span:last-child { font-weight: 700; }
+.t-side:first-child .t-row.new { background: var(--up-soft); box-shadow: inset 0 0 0 3px var(--up); }
+.t-side:last-child .t-row.new { background: var(--down-soft); box-shadow: inset 0 0 0 3px var(--down); }
+.t-bal { display: flex; justify-content: space-between; border-top: 3px double var(--ink); margin-top: 10px; padding: 12px 10px 0;
+  font-weight: 800; font-size: 30px; width: 50%; font-variant-numeric: tabular-nums; }
+.t.big { font-size: 30px; } .t.big .t-row span:first-child { font-size: 24px; } .t.big .t-body { min-height: 360px; } .t.big .t-row { padding: 10px; }
+
+.list td { padding: 17px 20px; border-bottom: 2px solid var(--line); font-size: 32px; vertical-align: top; }
+.list td:first-child { width: 160px; color: var(--brand); font-weight: 700; }
+
+.terms { display: flex; align-items: center; justify-content: center; gap: 30px; margin: 6px 0 54px; }
+.term { text-align: center; background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 22px 40px; color: var(--muted); font-size: 26px; }
+.term .big { font-size: 90px; font-weight: 800; color: var(--brand); line-height: 1.1; }
+.sep { font-size: 90px; font-weight: 800; color: var(--muted); }
+.timeline { display: grid; grid-template-columns: 1fr 2fr; height: 90px; border-radius: 14px; overflow: hidden; font-weight: 700; }
+.seg { display: flex; align-items: center; justify-content: center; font-size: 28px; }
+.seg.disc { background: var(--up); color: var(--on-brand); } .seg.full { background: var(--seg-full); color: var(--ink); }
+.tl-labels { display: grid; grid-template-columns: 1fr 2fr; color: var(--muted); font-size: 24px; margin: 12px 0 26px; }
+.tl-labels div { display: flex; justify-content: space-between; }
+
+.ship { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; font-size: 24px; }
+.ship .box, .ship .truck { border-radius: 12px; padding: 12px 18px; text-align: center; font-weight: 700; }
+.ship small { display: block; font-weight: 500; font-size: 19px; }
+.ship .seller { background: var(--zebra); border: 2px solid var(--line); } .ship .buyer { background: var(--up-soft); color: var(--up); }
+.ship .truck { background: var(--gold-soft); color: var(--gold); flex: 1; }
+.ship .line { width: 50px; height: 6px; background: var(--ink); flex: none; }
+.ship .pass { position: relative; }
+.ship .pass span { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); width: 170px; font-size: 18px; color: var(--down); font-weight: 700; text-align: center; line-height: 1.2; }
+
+.cmp { background: var(--card); border: 2px solid var(--line); font-size: 26px; margin-top: 4px; }
+.cmp th, .cmp td { padding: 11px 18px; border: 1px solid var(--line); text-align: left; }
+.cmp th { background: var(--brand-soft); } .cmp .same { font-weight: 700; color: var(--brand); }
+
+.calc { background: var(--card); border: 2px solid var(--line); margin-bottom: 22px; font-size: 28px; }
+.calc td { padding: 6px 22px; } .calc td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.calc .sub td { border-top: 2px solid var(--ink); font-weight: 700; }
+.calc .tot td { border-top: 3px double var(--ink); font-weight: 800; color: var(--brand); }
+.calc .head td { color: var(--muted); font-size: 20px; text-transform: uppercase; letter-spacing: .06em; padding-top: 14px; }
+
+.sum { background: var(--card); border: 2px solid var(--line); font-size: 27px; }
+.sum th { background: var(--brand); color: var(--on-brand); text-align: left; padding: 14px 18px; font-size: 21px; text-transform: uppercase; letter-spacing: .04em; }
+.sum td { padding: 13px 18px; border-top: 1px solid var(--line); }
+.sum tbody tr:nth-child(even) td { background: var(--zebra); }
+.sum .up { color: var(--up); font-weight: 700; } .sum .down { color: var(--down); font-weight: 700; }
+
+/* ---------- Presenter controls ---------- */
+#bar { flex: none; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--chrome); border-top: 1px solid var(--chrome-line);
+  padding-block: 10px calc(10px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.btn { border: 1px solid var(--chrome-line); background: var(--chrome); border-radius: 10px; padding: 9px 16px; cursor: pointer; font-size: 15px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 8px; }
+.btn:hover { background: var(--brand-soft); }
+.btn:disabled { opacity: .4; cursor: default; background: var(--chrome); }
+.btn.primary { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn[aria-pressed="true"] { background: var(--brand-soft); border-color: var(--brand-edge); color: var(--brand); }
+#where { flex: 1; min-width: 180px; display: grid; gap: 6px; }
+#where .label { font-size: 14px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#where .label b { color: var(--ink); }
+#dots { display: flex; gap: 6px; flex-wrap: wrap; }
+#dots i { width: 22px; height: 6px; border-radius: 3px; background: var(--chrome-line); }
+#dots i.on { background: var(--brand); }
+#progress { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: transparent; }
+#progress div { height: 100%; background: var(--brand); width: 0; transition: width .25s ease; }
+.tools { display: flex; gap: 8px; }
+
+#notes { flex: none; max-height: 30vh; overflow: auto; background: var(--chrome); border-top: 1px solid var(--chrome-line);
+  padding-block: 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#notes h3 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+#notes p { margin: 0; font-size: 17px; line-height: 1.55; max-width: 110ch; }
+
+#menu { position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 100%); background: var(--chrome); border-left: 1px solid var(--chrome-line);
+  box-shadow: var(--shadow); z-index: 20; display: flex; flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px); padding-right: env(safe-area-inset-right, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+#menu header { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; border-bottom: 1px solid var(--chrome-line); }
+#menu h2 { margin: 0; font-size: 17px; }
+#menu ol { list-style: none; margin: 0; padding: 8px; overflow: auto; flex: 1; }
+#menu li button { width: 100%; text-align: left; border: 0; background: none; padding: 10px 12px; border-radius: 8px; cursor: pointer; display: flex; gap: 12px; font-size: 15px; }
+#menu li button:hover { background: var(--brand-soft); }
+#menu li button[aria-current="true"] { background: var(--brand-soft); color: var(--brand); font-weight: 700; }
+#menu li .n { width: 26px; color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+#menu li .tagline { display: block; font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+.keys { border-top: 1px solid var(--chrome-line); padding: 14px 18px; font-size: 13px; color: var(--muted); display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; }
+.keys kbd { font-family: inherit; font-size: 12px; background: var(--app); border: 1px solid var(--chrome-line); border-radius: 5px; padding: 1px 6px; color: var(--ink); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .btn { padding: 8px 12px; }
+  .btn .txt { display: none; }
+  #where { order: -1; flex-basis: 100%; }
+}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage" aria-live="polite"></div><div id="progress"><div></div></div></div>
+<section id="notes" hidden aria-label="Speaker notes"><h3>Speaker notes</h3><p id="notes-text"></p></section>
+<nav id="bar" aria-label="Presentation controls">
+  <button class="btn" id="prev" title="Previous part (Left arrow)">← <span class="txt">Previous</span></button>
+  <button class="btn primary" id="next" title="Next part (Right arrow or Space)"><span class="txt">Next</span> →</button>
+  <div id="where"><div class="label" id="label"></div><div id="dots" aria-hidden="true"></div></div>
+  <div class="tools">
+    <button class="btn" id="btn-menu" title="All slides (M)">☰ <span class="txt">Slides</span></button>
+    <button class="btn" id="btn-notes" aria-pressed="false" title="Speaker notes (N)">✎ <span class="txt">Notes</span></button>
+    <button class="btn" id="btn-full" title="Full screen (F)">⤢ <span class="txt">Full screen</span></button>
+  </div>
+</nav>
+<aside id="menu" hidden aria-label="All slides">
+  <header><h2>All slides</h2><button class="btn" id="menu-close">Close</button></header>
+  <ol id="menu-list"></ol>
+  <div class="keys">
+    <kbd>→ Space PgDn</kbd><span>Next part</span>
+    <kbd>← PgUp</kbd><span>Previous part</span>
+    <kbd>↓ / ↑</kbd><span>Next / previous slide</span>
+    <kbd>Home / End</kbd><span>First / last slide</span>
+    <kbd>A</kbd><span>Show all parts of this slide</span>
+    <kbd>N · M · F</kbd><span>Notes · slide list · full screen</span>
+  </div>
+</aside>
+
+<script>
+const fmt = (n) => n.toLocaleString('en-US');
+const st = (n) => (n ? ` data-step="${n}"` : '');
+
+// Journal entry whose lines build one per part, starting at part `from`; the memo comes with the last line.
+function journal(date, lines, memo, from) {
+  const rows = lines.map(([acct, dr, cr], i) => `
+    <tr${st(from + i)}>
+      <td class="date">${i === 0 ? date : ''}</td>
+      <td class="${cr ? 'cr-acct' : ''}">${acct}</td>
+      <td class="num">${dr ? fmt(dr) : ''}</td>
+      <td class="num">${cr ? fmt(cr) : ''}</td>
+    </tr>`).join('');
+  return `<table class="je">
+    <thead><tr><th>Date</th><th>Account Titles and Explanation</th><th>Debit</th><th>Credit</th></tr></thead>
+    <tbody>${rows}<tr class="memo"${st(from + lines.length - 1)}><td></td><td colspan="3">${memo}</td></tr></tbody></table>`;
+}
+
+// Merchandise Inventory T-account. `post` = { side: 'd' | 'c', at: part } posts the last row on that side at that part.
+// `rowSteps` instead gives every row its own part (for the ledger build).
+function taccount(dr, cr, { post = null, big = false, rowSteps = null, balanceAt = 0, balance = true } = {}) {
+  const sum = (xs) => xs.reduce((t, [, a]) => t + a, 0);
+  const side = (xs, s) => xs.map(([l, a], i) => {
+    const isPost = post && post.side === s && i === xs.length - 1;
+    const step = rowSteps ? rowSteps[s][i] : isPost ? post.at : 0;
+    return `<div class="t-row ${isPost ? 'new' : ''}"${st(step)}><span>${l}</span><span>${fmt(a)}</span></div>`;
+  }).join('');
+  let bal = '';
+  if (balance) {
+    const after = sum(dr) - sum(cr);
+    if (post) {
+      const before = after + (post.side === 'd' ? -1 : 1) * (post.side === 'd' ? dr : cr).at(-1)[1];
+      bal = `<div class="t-bal" data-until="${post.at}"><span>Balance</span><span>${fmt(before)}</span></div>
+             <div class="t-bal"${st(post.at)}><span>Balance</span><span>${fmt(after)}</span></div>`;
+    } else {
+      bal = `<div class="t-bal"${st(balanceAt)}><span>Balance</span><span>${fmt(after)}</span></div>`;
+    }
+  }
+  return `<div class="t ${big ? 'big' : ''}">
+    <div class="t-title">Merchandise Inventory</div>
+    <div class="t-body">
+      <div class="t-side"><div class="t-head">Debit (increase)</div>${side(dr, 'd')}</div>
+      <div class="t-side"><div class="t-head">Credit (decrease)</div>${side(cr, 'c')}</div>
+    </div>${bal}</div>`;
+}
+
+const frame = (tag, title, body) => `<div class="frame">
+  <header><div class="tag">${tag}</div><h1>${title}</h1></header>
+  <main>${body}</main>
+  <footer><span>ACC 211 · Merchandising Operations</span><span>Perpetual Inventory System</span></footer></div>`;
+const txn = (text, at = 0) => `<div class="txn"${st(at)}><div class="txn-label">Transaction</div><p>${text}</p></div>`;
+const note = (text, kind = '', at = 0) => `<div class="note ${kind}"${st(at)}>${text}</div>`;
+const two = (l, r) => `<div class="two"><div>${l}</div><div>${r}</div></div>`;
+
+// Postings to Merchandise Inventory, in date order.
+const D = { a: ['Nov 1 Cash purchase', 5000], b: ['Nov 3 On account', 10000], c: ['Nov 4 Freight-in', 300] };
+const C = { d: ['Nov 6 Return', 1000], e: ['Nov 8 Allowance', 500], f: ['Nov 13 Discount', 170] };
+
+const SLIDES = [
+  { tag: 'Title', title: 'Recording Purchases of Merchandise',
+    html: `<div class="frame hero">
+      <div class="kicker">ACC 211 · Merchandising Operations</div>
+      <h1 class="big-title">Recording Purchases of Merchandise</h1>
+      <h2>Journal entries under the perpetual inventory system</h2>
+      <ul class="agenda"${st(1)}>
+        <li><span class="chip">a</span>Purchase for cash</li><li><span class="chip">b</span>Purchase on account, 2/10, n/30</li>
+        <li><span class="chip">c</span>Freight, FOB shipping point</li><li><span class="chip">d</span>Purchase returns</li>
+        <li><span class="chip">e</span>Purchase allowances</li><li><span class="chip">+</span>The Merchandise Inventory ledger</li>
+      </ul></div>`,
+    notes: `Today we journalize five kinds of purchase transactions under the perpetual inventory system: a purchase for cash, a purchase on account with terms 2/10, n/30, freight under FOB shipping point, purchase returns, and purchase allowances. At the end we post everything to the Merchandise Inventory T-account and find its balance.` },
+
+  { tag: 'The big idea', title: 'What "perpetual" means',
+    html: frame('The big idea', 'What "perpetual" means', two(`
+      <p class="lead">Under a <b>perpetual</b> system, the company updates the <b>Merchandise Inventory</b> account every time goods come in or go out.</p>
+      <ul class="bul">
+        <li${st(1)}>Anything that changes the <b>cost of goods bought</b> is recorded directly in Merchandise Inventory.</li>
+        <li${st(2)}>There is <b>no Purchases account</b>, no Freight-In account, and no Purchase Returns account.</li>
+        <li${st(3)}>Inventory is an <b>asset</b>: debit to increase, credit to decrease.</li>
+      </ul>`, `
+      <div class="rule-card">
+        <div${st(4)}><div class="rule up">Cost goes <b>up</b><span>Debit Merchandise Inventory</span></div><div class="rule-ex">purchases · freight-in</div></div>
+        <div${st(5)}><div class="rule down">Cost goes <b>down</b><span>Credit Merchandise Inventory</span></div><div class="rule-ex">returns · allowances · discounts</div></div>
+      </div>`)),
+    notes: `Under a perpetual system, Merchandise Inventory is updated every time goods come in or go out. Anything that changes the cost of goods bought goes straight to Merchandise Inventory. There is no Purchases, Freight-In, or Purchase Returns account; those belong to the periodic system. Inventory is an asset: when cost goes up (purchases, freight-in) we debit it; when cost goes down (returns, allowances, discounts) we credit it.` },
+
+  { tag: 'Our example', title: 'Bright Mart, November transactions',
+    html: frame('Our example', 'Bright Mart, November transactions', `<table class="list">
+      <tr${st(1)}><td>Nov 1</td><td><b>(a)</b> Bought merchandise for <b>$5,000 cash</b>.</td></tr>
+      <tr${st(2)}><td>Nov 3</td><td><b>(b)</b> Bought merchandise from Ace Supply on account, <b>$10,000</b>, terms <b>2/10, n/30</b>, FOB shipping point.</td></tr>
+      <tr${st(3)}><td>Nov 4</td><td><b>(c)</b> Paid <b>$300</b> freight to the carrier for the Nov 3 shipment.</td></tr>
+      <tr${st(4)}><td>Nov 6</td><td><b>(d)</b> Returned <b>$1,000</b> of the Nov 3 goods to Ace Supply.</td></tr>
+      <tr${st(5)}><td>Nov 8</td><td><b>(e)</b> Received a <b>$500 allowance</b> from Ace Supply for slightly damaged goods we kept.</td></tr>
+      <tr${st(6)}><td>Nov 13</td><td><b>(b, continued)</b> Paid Ace Supply the balance due, within the discount period.</td></tr>
+    </table>`),
+    notes: `Bright Mart is a small retailer. Walk through each date: Nov 1 cash purchase $5,000; Nov 3 purchase on account from Ace Supply $10,000, 2/10, n/30, FOB shipping point; Nov 4 freight $300; Nov 6 return $1,000; Nov 8 allowance $500 for damaged goods kept; Nov 13 payment within the discount period.` },
+
+  { tag: '(a) Purchase for cash', title: 'Buying merchandise with cash',
+    html: frame('(a) Purchase for cash', 'Buying merchandise with cash', two(
+      txn('Nov 1: Bright Mart bought merchandise for <b>$5,000 cash</b>.') +
+      journal('Nov 1', [['Merchandise Inventory', 5000], ['Cash', 0, 5000]], 'To record purchase of merchandise for cash.', 1) +
+      note('Two assets trade places: inventory goes up, cash goes down.', '', 3),
+      taccount([D.a], [], { post: { side: 'd', at: 4 } }))),
+    notes: `Ask the class first: which accounts change? Inventory increases, so debit Merchandise Inventory $5,000. Cash decreases, so credit Cash $5,000. One asset trades places with another. Then post the debit to the T-account.` },
+
+  { tag: '(b) Purchase on account', title: 'Buying on credit: 2/10, n/30',
+    html: frame('(b) Purchase on account', 'Buying on credit: 2/10, n/30', two(
+      txn('Nov 3: Bought merchandise from Ace Supply on account, <b>$10,000</b>, terms <b>2/10, n/30</b>, FOB shipping point.') +
+      journal('Nov 3', [['Merchandise Inventory', 10000], ['Accounts Payable', 0, 10000]], 'To record purchase on account from Ace Supply, terms 2/10, n/30.', 1) +
+      note('Record the <b>full invoice price</b> now. Any discount is recorded only if and when we pay early.', 'tip', 3),
+      taccount([D.a, D.b], [], { post: { side: 'd', at: 4 } }))),
+    notes: `Debit Merchandise Inventory $10,000, credit Accounts Payable $10,000 because we now owe the supplier. Key point: record the full invoice price (gross method). We don't know yet whether we will pay early, so the discount is recorded only if and when we take it.` },
+
+  { tag: '(b) Reading the terms', title: 'What does 2/10, n/30 mean?',
+    html: frame('(b) Reading the terms', 'What does 2/10, n/30 mean?', `
+      <div class="terms">
+        <div class="term"${st(1)}><div class="big">2</div><div>percent<br>discount</div></div>
+        <div class="sep"${st(2)}>/</div>
+        <div class="term"${st(2)}><div class="big">10</div><div>if paid within<br>10 days</div></div>
+        <div class="sep"${st(3)}>,</div>
+        <div class="term"${st(3)}><div class="big">n/30</div><div>otherwise, the net<br>amount is due in 30 days</div></div>
+      </div>
+      <div${st(4)}>
+        <div class="timeline"><div class="seg disc">Days 1 to 10: take the 2% discount</div><div class="seg full">Days 11 to 30: pay the full balance</div></div>
+        <div class="tl-labels"><div><span>Nov 3 invoice</span><span>Nov 13</span></div><div><span></span><span>Dec 3 final due date</span></div></div>
+      </div>
+      ${note('The discount applies to the cost of the goods <b>after returns and allowances</b>, never to freight.', 'tip', 5)}`),
+    notes: `2/10, n/30: a 2% discount if paid within 10 days of the invoice date; otherwise the full net amount is due in 30 days. For a Nov 3 invoice, the last discount day is Nov 13 and the final due date is Dec 3. The discount applies to the cost of goods after returns and allowances, never to freight. Quick question for the class: what is the last day to pay if the invoice is dated Nov 20?` },
+
+  { tag: '(c) Freight', title: 'FOB shipping point: the buyer pays freight',
+    html: frame('(c) Freight', 'FOB shipping point: the buyer pays freight', two(`
+      <div class="ship"${st(1)}>
+        <div class="box seller">Seller<small>Ace Supply</small></div>
+        <div class="line pass"><span>ownership passes here</span></div>
+        <div class="truck">In transit<small>freight paid by <b>buyer</b></small></div>
+        <div class="line"></div>
+        <div class="box buyer">Buyer<small>Bright Mart</small></div>
+      </div>` +
+      txn('Nov 4: Paid <b>$300</b> freight to the carrier for the Nov 3 shipment.', 2) +
+      journal('Nov 4', [['Merchandise Inventory', 300], ['Cash', 0, 300]], 'To record freight paid on goods purchased, FOB shipping point.', 3),
+      taccount([D.a, D.b, D.c], [], { post: { side: 'd', at: 5 } }) +
+      note('Freight-in is part of the <b>cost of the inventory</b>, so it is debited to Merchandise Inventory.', 'tip', 6) +
+      note('<b>FOB destination?</b> The seller pays freight. The buyer makes <b>no entry</b>.', '', 7))),
+    notes: `FOB shipping point: ownership passes to the buyer when goods leave the seller's dock, so the buyer pays freight. Freight-in is a cost of getting inventory ready for sale, so it is part of inventory cost: debit Merchandise Inventory $300, credit Cash $300. Contrast FOB destination: the seller owns the goods in transit and pays freight; the buyer makes no entry.` },
+
+  { tag: '(d) Purchase return', title: 'Sending goods back to the supplier',
+    html: frame('(d) Purchase return', 'Sending goods back to the supplier', two(
+      txn('Nov 6: Returned <b>$1,000</b> of the Nov 3 merchandise to Ace Supply.') +
+      journal('Nov 6', [['Accounts Payable', 1000], ['Merchandise Inventory', 0, 1000]], 'To record return of merchandise to Ace Supply.', 1) +
+      note('We owe less, and we have fewer goods. <b>Debit</b> Accounts Payable, <b>credit</b> Merchandise Inventory.', '', 3),
+      taccount([D.a, D.b, D.c], [C.d], { post: { side: 'c', at: 4 } }))),
+    notes: `Two things happen: we owe less (debit Accounts Payable $1,000) and we no longer have the goods (credit Merchandise Inventory $1,000). If the original purchase had been for cash, debit Cash or a receivable from the supplier instead. This is the first credit in the T-account.` },
+
+  { tag: '(e) Purchase allowance', title: 'Keeping the goods for a lower price',
+    html: frame('(e) Purchase allowance', 'Keeping the goods for a lower price', two(
+      txn('Nov 8: Received a <b>$500 allowance</b> from Ace Supply for slightly damaged goods that Bright Mart kept.') +
+      journal('Nov 8', [['Accounts Payable', 500], ['Merchandise Inventory', 0, 500]], 'To record allowance received for damaged merchandise.', 1) +
+      `<table class="cmp"${st(4)}><tr><th></th><th>Return</th><th>Allowance</th></tr>
+        <tr><td>Goods</td><td>Sent back</td><td>Kept</td></tr>
+        <tr><td>Entry</td><td colspan="2" class="same">Same: Dr Accounts Payable, Cr Merchandise Inventory</td></tr></table>`,
+      taccount([D.a, D.b, D.c], [C.d, C.e], { post: { side: 'c', at: 3 } }))),
+    notes: `The goods arrived slightly damaged; instead of returning them, Bright Mart keeps them for a $500 price reduction. Same entry as a return: debit Accounts Payable $500, credit Merchandise Inventory $500. The only difference is physical: with a return the goods go back; with an allowance we keep them at a lower cost.` },
+
+  { tag: '(b) continued: paying within 10 days', title: 'Taking the purchase discount',
+    html: frame('(b) continued: paying within 10 days', 'Taking the purchase discount', two(`
+      <table class="calc">
+        <tr${st(1)}><td>Original invoice</td><td>$10,000</td></tr>
+        <tr${st(2)}><td>Less: return (Nov 6)</td><td>(1,000)</td></tr>
+        <tr${st(2)}><td>Less: allowance (Nov 8)</td><td>(500)</td></tr>
+        <tr class="sub"${st(3)}><td>Balance owed</td><td>$8,500</td></tr>
+        <tr${st(4)}><td>Discount: $8,500 × 2%</td><td>(170)</td></tr>
+        <tr class="tot"${st(5)}><td>Cash paid</td><td>$8,330</td></tr>
+      </table>` +
+      journal('Nov 13', [['Accounts Payable', 8500], ['Merchandise Inventory', 0, 170], ['Cash', 0, 8330]], 'To record payment to Ace Supply within the discount period.', 6),
+      taccount([D.a, D.b, D.c], [C.d, C.e, C.f], { post: { side: 'c', at: 9 } }) +
+      note('Paid late (after Nov 13)? No discount: <b>Dr</b> Accounts Payable 8,500, <b>Cr</b> Cash 8,500.', '', 10))),
+    notes: `Nov 13 is day 10, so the discount applies. Build the computation with the class: $10,000 less the $1,000 return and $500 allowance leaves $8,500 owed. 2% of $8,500 is $170, so cash paid is $8,330. Entry: debit Accounts Payable $8,500 (clears the debt), credit Merchandise Inventory $170 (the goods cost less), credit Cash $8,330. If paid after Nov 13: debit Accounts Payable and credit Cash for $8,500, no discount.` },
+
+  { tag: 'The ledger', title: 'Posting to Merchandise Inventory',
+    html: frame('The ledger', 'Posting to Merchandise Inventory', two(
+      taccount([D.a, D.b, D.c], [C.d, C.e, C.f], { big: true, rowSteps: { d: [1, 2, 3], c: [5, 6, 7] }, balanceAt: 9 }), `
+      <table class="calc">
+        <tr class="head"${st(1)}><td colspan="2">Increases (debits)</td></tr>
+        <tr${st(1)}><td>Cash purchase</td><td>5,000</td></tr>
+        <tr${st(2)}><td>Purchase on account</td><td>10,000</td></tr>
+        <tr${st(3)}><td>Freight-in</td><td>300</td></tr>
+        <tr class="sub"${st(4)}><td>Total debits</td><td>15,300</td></tr>
+        <tr class="head"${st(5)}><td colspan="2">Decreases (credits)</td></tr>
+        <tr${st(5)}><td>Purchase return</td><td>1,000</td></tr>
+        <tr${st(6)}><td>Purchase allowance</td><td>500</td></tr>
+        <tr${st(7)}><td>Purchase discount</td><td>170</td></tr>
+        <tr class="sub"${st(8)}><td>Total credits</td><td>1,670</td></tr>
+        <tr class="tot"${st(9)}><td>Debit balance: 15,300 − 1,670</td><td>$13,630</td></tr>
+      </table>
+      ${note('This is the <b>net cost</b> of the goods on hand. When Bright Mart sells them, the cost moves to <b>Cost of Goods Sold</b>.', 'tip', 10)}`)),
+    notes: `Rebuild the whole account. Debits are everything that increased cost: the $5,000 cash purchase, the $10,000 purchase on account, $300 freight-in, total $15,300. Credits are every reduction: the $1,000 return, $500 allowance, $170 discount, total $1,670. Debit balance $13,630: the net cost of goods on hand. When the goods are sold, that cost moves to Cost of Goods Sold (next lesson).` },
+
+  { tag: 'Summary', title: 'Purchase entries at a glance',
+    html: frame('Summary', 'Purchase entries at a glance', `<table class="sum">
+      <thead><tr><th>Transaction</th><th>Debit</th><th>Credit</th><th>Effect on inventory</th></tr></thead>
+      <tbody>
+      <tr${st(1)}><td>(a) Purchase for cash</td><td>Merchandise Inventory</td><td>Cash</td><td class="up">Increase</td></tr>
+      <tr${st(2)}><td>(b) Purchase on account</td><td>Merchandise Inventory</td><td>Accounts Payable</td><td class="up">Increase</td></tr>
+      <tr${st(3)}><td>(c) Freight, FOB shipping point</td><td>Merchandise Inventory</td><td>Cash</td><td class="up">Increase</td></tr>
+      <tr${st(4)}><td>(d) Purchase return</td><td>Accounts Payable (or Cash)</td><td>Merchandise Inventory</td><td class="down">Decrease</td></tr>
+      <tr${st(5)}><td>(e) Purchase allowance</td><td>Accounts Payable (or Cash)</td><td>Merchandise Inventory</td><td class="down">Decrease</td></tr>
+      <tr${st(6)}><td>(b) Pay within discount period</td><td>Accounts Payable</td><td>Merchandise Inventory, Cash</td><td class="down">Decrease</td></tr>
+      <tr${st(7)}><td>(b) Pay after discount period</td><td>Accounts Payable</td><td>Cash</td><td>No effect</td></tr>
+      </tbody></table>`),
+    notes: `Before revealing each row, ask the class for the debit and credit. Purchases and freight under FOB shipping point increase inventory (debit Merchandise Inventory). Returns, allowances, and discounts decrease it (credit Merchandise Inventory). Paying after the discount period only settles the payable.` },
+
+  { tag: 'Your turn', title: 'Quick check',
+    html: `<div class="frame hero">
+      <div class="kicker">Your turn</div>
+      <h1 class="big-title">Quick check</h1>
+      <p class="q">A company buys $4,000 of goods on account, terms 2/10, n/30, FOB destination. It returns $400 of goods, then pays within 10 days.<br><br>
+      How much cash does it pay, and what is the credit to Merchandise Inventory on the payment date?</p>
+      <div class="ans"${st(1)}>
+        <div>$4,000 − $400 = <b>$3,600</b> owed</div>
+        <div${st(2)}>Discount: $3,600 × 2% = <b>$72</b>, credited to Merchandise Inventory</div>
+        <div${st(3)}>Cash paid: $3,600 − $72 = <b>$3,528</b></div>
+        <div${st(4)}>FOB destination, so the buyer makes <b>no freight entry</b></div>
+      </div></div>`,
+    notes: `Give students a minute to work it. Reveal step by step: balance owed $3,600; discount $72 (credit Merchandise Inventory); cash paid $3,528; FOB destination means no freight entry for the buyer.` },
+];
+
+// ---------- Presenter engine ----------
+const stage = document.getElementById('stage');
+const slides = SLIDES.map((s, i) => {
+  const el = document.createElement('section');
+  el.className = 'slide';
+  el.setAttribute('aria-label', `Slide ${i + 1}: ${s.title}`);
+  el.innerHTML = s.html;
+  stage.appendChild(el);
+  const nums = [...el.querySelectorAll('[data-step],[data-until]')].map((n) => +(n.dataset.step || n.dataset.until));
+  return { el, parts: Math.max(0, ...nums) };
+});
+
+let cur = 0, part = 0;
+
+function render() {
+  slides.forEach((s, i) => s.el.classList.toggle('active', i === cur));
+  const { el, parts } = slides[cur];
+  el.querySelectorAll('[data-step]').forEach((n) => n.classList.toggle('off', +n.dataset.step > part));
+  el.querySelectorAll('[data-until]').forEach((n) => n.classList.toggle('off', part >= +n.dataset.until));
+
+  document.getElementById('label').innerHTML =
+    `Slide <b>${cur + 1}</b> of ${slides.length} · <b>${SLIDES[cur].title}</b>` + (parts ? ` · part ${part + 1} of ${parts + 1}` : '');
+  document.getElementById('dots').innerHTML = parts ? Array.from({ length: parts + 1 }, (_, i) => `<i class="${i <= part ? 'on' : ''}"></i>`).join('') : '';
+  document.getElementById('prev').disabled = cur === 0 && part === 0;
+  document.getElementById('next').disabled = cur === slides.length - 1 && part === parts;
+  document.getElementById('notes-text').textContent = SLIDES[cur].notes;
+  document.querySelectorAll('#menu-list button').forEach((b, i) => b.setAttribute('aria-current', i === cur ? 'true' : 'false'));
+
+  const total = slides.reduce((t, s) => t + s.parts + 1, 0);
+  const done = slides.slice(0, cur).reduce((t, s) => t + s.parts + 1, 0) + part + 1;
+  document.querySelector('#progress div').style.width = `${(done / total) * 100}%`;
+
+  const hash = `#slide-${cur + 1}`;
+  if (location.hash !== hash) history.replaceState(null, '', hash);
+}
+
+function go(i, p = 0) {
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  part = p === 'end' ? slides[cur].parts : Math.max(0, Math.min(slides[cur].parts, p));
+  render();
+}
+function next() { part < slides[cur].parts ? go(cur, part + 1) : cur < slides.length - 1 && go(cur + 1, 0); }
+function prev() { part > 0 ? go(cur, part - 1) : cur > 0 && go(cur - 1, 'end'); }
+
+function fit() {
+  const vp = document.getElementById('viewport');
+  const cs = getComputedStyle(vp);
+  const w = vp.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const h = vp.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const scale = Math.max(0.1, Math.min(w / 1920, h / 1080));
+  const dx = (parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) / 2;
+  stage.style.transform = `translate(calc(-50% + ${dx}px), -50%) scale(${scale})`;
+}
+
+const menu = document.getElementById('menu');
+document.getElementById('menu-list').innerHTML = SLIDES.map((s, i) =>
+  `<li><button data-go="${i}"><span class="n">${i + 1}</span><span>${s.title}<span class="tagline">${s.tag}</span></span></button></li>`).join('');
+document.getElementById('menu-list').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-go]'); if (!b) return;
+  go(+b.dataset.go, 0); menu.hidden = true;
+});
+const toggleMenu = () => { menu.hidden = !menu.hidden; if (!menu.hidden) menu.querySelector('[aria-current="true"]')?.focus(); };
+const notesEl = document.getElementById('notes');
+function toggleNotes() {
+  notesEl.hidden = !notesEl.hidden;
+  document.getElementById('btn-notes').setAttribute('aria-pressed', String(!notesEl.hidden));
+  try { localStorage.setItem('merch-notes', notesEl.hidden ? '0' : '1'); } catch (e) {}
+  fit();
+}
+function toggleFull() {
+  try {
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+    else document.documentElement.requestFullscreen?.().catch(() => {});
+  } catch (e) {}
+}
+
+document.getElementById('next').addEventListener('click', next);
+document.getElementById('prev').addEventListener('click', prev);
+document.getElementById('btn-menu').addEventListener('click', toggleMenu);
+document.getElementById('menu-close').addEventListener('click', () => { menu.hidden = true; });
+document.getElementById('btn-notes').addEventListener('click', toggleNotes);
+document.getElementById('btn-full').addEventListener('click', toggleFull);
+
+document.addEventListener('keydown', (e) => {
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
+  const k = e.key;
+  if (k === 'Escape') { menu.hidden = true; return; }
+  if (!menu.hidden && k !== 'm' && k !== 'M') return;
+  if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(k)) {
+    if (k === 'Enter' && e.target.closest('button')) return;
+    if (k === ' ' && e.target.closest('button')) e.target.blur();
+    e.preventDefault(); next();
+  } else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); prev(); }
+  else if (k === 'ArrowDown') { e.preventDefault(); go(cur + 1, 0); }
+  else if (k === 'ArrowUp') { e.preventDefault(); go(cur - 1, 0); }
+  else if (k === 'Home') go(0, 0);
+  else if (k === 'End') go(slides.length - 1, 0);
+  else if (k === 'a' || k === 'A') go(cur, 'end');
+  else if (k === 'n' || k === 'N') toggleNotes();
+  else if (k === 'm' || k === 'M') toggleMenu();
+  else if (k === 'f' || k === 'F') toggleFull();
+});
+
+// Swipe on touch screens: left for next, right for previous.
+let touchX = null;
+stage.parentElement.addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+stage.parentElement.addEventListener('touchend', (e) => {
+  if (touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX; touchX = null;
+  if (Math.abs(dx) > 50) (dx < 0 ? next : prev)();
+});
+
+window.addEventListener('resize', fit);
+document.addEventListener('fullscreenchange', fit);
+window.addEventListener('hashchange', () => {
+  const m = /^#slide-(\d+)$/.exec(location.hash);
+  if (m && +m[1] - 1 !== cur) go(+m[1] - 1, 0);
+});
+
+try { if (localStorage.getItem('merch-notes') === '1') { notesEl.hidden = false; document.getElementById('btn-notes').setAttribute('aria-pressed', 'true'); } } catch (e) {}
+const start = /^#slide-(\d+)$/.exec(location.hash);
+go(start ? +start[1] - 1 : 0, 0);
+fit();
+</script>
+</body>
+</html>
