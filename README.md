@@ -164,3 +164,28 @@ node tests/gl-practice.test.js
 ```
 
 Confirms every key entry balances and avoids periodic accounts, the checker accepts any line order and formatting and rejects wrong, partial, unbalanced and extra lines, and the ledger and statement tie to both videos (inventory $13,630 after purchases and $7,630 at month end, COGS $6,000, net income $1,000).
+
+---
+
+# Merchandising General Ledger Workshop (scored, with hints)
+
+`workshop-site/` is a third static site, rebuilt from the instructor's original single-file workshop (Elmwood Hardware) but using **the same 15 Bright Mart transactions as the two videos and the practice set** (opening Cash and Owner's Capital of $20,000; net income $1,000). Deploy it by dragging the **`workshop-site`** folder onto [Netlify Drop](https://app.netlify.com/drop).
+
+| Feature | How it works |
+|---|---|
+| Name first | Shown in the header and printed on the certificate |
+| Journal entry screen | One entry per transaction (a sale and a sales return are one 4-line entry). Accounts payable and receivable lines need the vendor or customer (subsidiary ledger). Live debit and credit totals. |
+| Feedback | "Check my entry" marks lines green or red with a reason (wrong account, wrong side, wrong vendor/customer, wrong amount) without revealing the answer |
+| Hints | Three per entry, each more specific |
+| Scoring | 1 point per entry; -0.25 per wrong check, -0.1 per hint, minimum 0.25 once solved; "Show me the answer" (after 2 misses) earns 0. Incomplete lines are not counted as attempts. |
+| After each entry | A "why" explanation; the entry posts to the general journal, T-accounts, subsidiary ledgers and the live income statement (changed lines flash) |
+| T-accounts | Focus accounts (Merchandise inventory, Cost of goods sold, Accounts payable) first; vendor and customer subsidiary ledgers reconcile to their control accounts |
+| Income statement | Multi-step, with gross profit margin, income from operations, other expenses (interest) and net profit margin |
+| Certificate | 70% or higher unlocks a direct PDF download (no print dialog). Page 1: certificate with name, score, date, Prof. Elf signature line, certificate ID and the student's income statement. Page 2: points per entry. |
+| Saved progress | Every action is saved in the browser, including wrong attempts and hints, so reloading cannot reset a penalty. "Start over with a different name" clears it; `#reset` in the URL does the same on a shared computer. |
+
+```
+node tests/workshop.test.js
+```
+
+Confirms every entry balances and has 3 hints, the checker accepts any line order and flags wrong vendors, missing cost entries and reversed sides, the scoring rules, and that the ledger, subsidiary ledgers and income statement tie to the videos (inventory $7,630, COGS $6,000, net income $1,000, gross margin 36%, net margin 10.7%).
