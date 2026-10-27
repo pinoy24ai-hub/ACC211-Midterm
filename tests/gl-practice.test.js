@@ -1,6 +1,6 @@
 // Run with: node tests/gl-practice.test.js
 // Checks the Bright Mart General Ledger practice set against the numbers in the two videos.
-const E = require('../netlify/gl-practice/js/engine.js');
+const E = require('../src/gl-practice/js/engine.js');
 const assert = require('assert');
 
 const rowsOf = (lines) => lines.map((l) => ({ acct: l.acct, dr: l.side === 'dr' ? String(l.amount) : '', cr: l.side === 'cr' ? String(l.amount) : '' }));

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bright Mart General Ledger</title>
+  <meta name="description" content="ACC 211 practice set: journalize Bright Mart's merchandising transactions under the perpetual inventory system and generate a multi-step income statement.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231f4e79'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%24%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/gl.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">$</span>
+        <div>
+          <div class="brand-title">Bright Mart General Ledger</div>
+          <div class="brand-sub">ACC 211 · Perpetual Inventory System</div>
+        </div>
+      </div>
+      <nav class="view-tabs" id="viewTabs" aria-label="Views" hidden></nav>
+      <div class="student-chip" id="studentChip" hidden></div>
+    </div>
+  </header>
+
+  <main id="app" class="container" aria-live="polite"></main>
+
+  <dialog id="dialog" class="dialog">
+    <form method="dialog">
+      <h2 id="dialogTitle"></h2>
+      <div id="dialogBody"></div>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn btn-ghost" id="dialogCancel">Cancel</button>
+        <button value="ok" class="btn btn-primary" id="dialogOk">OK</button>
+      </div>
+    </form>
+  </dialog>
+
+  <noscript><p class="container">This practice set requires JavaScript. Please enable it and reload the page.</p></noscript>
+
+  <script src="vendor/jspdf.umd.min.js"></script>
+  <script src="vendor/jspdf.plugin.autotable.min.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/report.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

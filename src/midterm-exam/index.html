@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ACC 211 Midterm Exam</title>
+  <meta name="description" content="ACC 211 Principles of Accounting midterm: journal entries, adjusting entries, and closing entries.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231f4e79'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%24%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">$</span>
+        <div>
+          <div class="brand-title">ACC 211 Midterm Exam</div>
+          <div class="brand-sub" id="brandSub">Principles of Accounting</div>
+        </div>
+      </div>
+      <ol class="phase-steps" id="phaseSteps" aria-label="Exam progress">
+        <li data-phase="p1"><span>1</span> Journal Entries</li>
+        <li data-phase="p2"><span>2</span> Adjusting Entries</li>
+        <li data-phase="p3"><span>3</span> Closing Entries</li>
+      </ol>
+      <div class="student-chip" id="studentChip" hidden></div>
+    </div>
+  </header>
+
+  <main id="app" class="container" aria-live="polite"></main>
+
+  <dialog id="dialog" class="dialog">
+    <form method="dialog">
+      <h2 id="dialogTitle"></h2>
+      <div id="dialogBody"></div>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn btn-ghost" id="dialogCancel">Cancel</button>
+        <button value="ok" class="btn btn-primary" id="dialogOk">OK</button>
+      </div>
+    </form>
+  </dialog>
+
+  <noscript><p class="container">This exam requires JavaScript. Please enable it and reload the page.</p></noscript>
+
+  <script src="vendor/jspdf.umd.min.js"></script>
+  <script src="vendor/jspdf.plugin.autotable.min.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/report.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

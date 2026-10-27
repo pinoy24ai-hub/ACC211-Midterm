@@ -13,11 +13,13 @@ Each phase supplies its own data, so mistakes never carry over from one phase to
 ## Deploying to Netlify
 
 1. Go to [app.netlify.com/drop](https://app.netlify.com/drop) (or **Sites > Add new site > Deploy manually**).
-2. Drag the **`netlify/midterm-exam`** folder onto the page. That's it.
+2. Drag the **`netlify/midterm-exam`** folder (it holds a single `index.html`) onto the page. That's it.
 
 Only drag `netlify/midterm-exam/`. Do **not** upload the `instructor/` folder, since it contains the answer key.
 
-The app is fully static and has no external dependencies: the PDF library is bundled in `netlify/midterm-exam/vendor/`.
+The app is fully static and has no external dependencies: the PDF library is built into the single `index.html`.
+
+**Editing:** the source files live in `src/midterm-exam/` (and `src/gl-practice/`, `src/gl-workshop/`). After any change, run `node tools/build-netlify.js` to rebuild the single-file `netlify/<site>/index.html`. `node tests/netlify.test.js` fails if you forget.
 
 ## How the exam behaves
 
@@ -58,7 +60,7 @@ Open `instructor/version-inspector.html` (double-click it). It is a single self-
 - Paste one report per line: either a bare version code, or a full row copied from a spreadsheet in this order: `Name, Attempt, Version code, Phase 1, Phase 2, Phase 3, Check code` (commas or tabs). Header rows are skipped.
 - The roster verifies every check code and flags **shared codes** (the same version under different names, which usually means a copied report), **repeats**, **impossible codes**, and scores above the maximum.
 - Click **View key** for the full answer key for any row, with Previous/Next and Print. **Download CSV** exports the roster with results, net income and ending capital.
-- After changing `netlify/midterm-exam/js/engine.js`, rebuild it with `node tools/build-instructor.js`. The test suite fails if you forget.
+- After changing `src/midterm-exam/js/engine.js`, rebuild it with `node tools/build-instructor.js`. The test suite fails if you forget.
 
 **Shared lab computer?** Open the exam with `#reset` at the end of the URL (for example `https://your-site.netlify.app/#reset`) to clear a finished exam so the next student can start.
 
@@ -128,7 +130,7 @@ node tests/part2-exam.test.js   # 3,000 randomized exam versions, plus build che
 
 # Bright Mart General Ledger (practice set)
 
-`netlify/gl-practice/` is a separate static site that goes with the two merchandising videos (`video/merch-perpetual/` and `video/merch-sales/`). Deploy it the same way: drag the **`netlify/gl-practice`** folder onto [Netlify Drop](https://app.netlify.com/drop).
+`netlify/gl-practice/index.html` (source in `src/gl-practice/`) is a separate single-file site that goes with the two merchandising videos (`video/merch-perpetual/` and `video/merch-sales/`). Deploy it the same way: drag the **`netlify/gl-practice`** folder onto [Netlify Drop](https://app.netlify.com/drop).
 
 Students journalize all 15 November transactions of Bright Mart under the **perpetual inventory system**:
 
@@ -169,7 +171,7 @@ Confirms every key entry balances and avoids periodic accounts, the checker acce
 
 # Merchandising General Ledger Workshop (scored, with hints)
 
-`netlify/gl-workshop/` is a third static site, rebuilt from the instructor's original single-file workshop (Elmwood Hardware) but using **the same 15 Bright Mart transactions as the two videos and the practice set** (opening Cash and Owner's Capital of $20,000; net income $1,000). Deploy it by dragging the **`netlify/gl-workshop`** folder onto [Netlify Drop](https://app.netlify.com/drop).
+`netlify/gl-workshop/index.html` (source in `src/gl-workshop/`) is a third single-file site, rebuilt from the instructor's original single-file workshop (Elmwood Hardware) but using **the same 15 Bright Mart transactions as the two videos and the practice set** (opening Cash and Owner's Capital of $20,000; net income $1,000). Deploy it by dragging the **`netlify/gl-workshop`** folder onto [Netlify Drop](https://app.netlify.com/drop).
 
 | Feature | How it works |
 |---|---|

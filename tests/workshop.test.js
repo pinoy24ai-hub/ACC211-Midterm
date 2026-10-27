@@ -1,6 +1,6 @@
 // Run with: node tests/workshop.test.js
 // Checks the Merchandising General Ledger Workshop (Bright Mart) against the numbers in the two videos.
-const W = require('../netlify/gl-workshop/js/engine.js');
+const W = require('../src/gl-workshop/js/engine.js');
 const assert = require('assert');
 
 const rowsOf = (lines) => lines.map((l) => ({ a: l.a, p: l.p || '', d: l.dr ? String(l.dr) : '', c: l.cr ? String(l.cr) : '' }));

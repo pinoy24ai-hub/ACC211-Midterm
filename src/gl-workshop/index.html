@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Merchandising General Ledger Workshop</title>
+<meta name="description" content="ACC 211 workshop: journalize Bright Mart's merchandising transactions under the perpetual inventory system, post to T-accounts and subsidiary ledgers, and build a multi-step income statement.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2312355b'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%24%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/workshop.css">
+</head>
+<body>
+
+<div id="nameModal" hidden>
+  <form class="box" id="nameForm" novalidate>
+    <h2>Merchandising General Ledger Workshop</h2>
+    <p>You are the bookkeeper for Bright Mart, the store from the two videos. Record each transaction in the journal, watch the ledgers fill in, and see the multi-step income statement build itself. Score 70% or higher to earn a Certificate of Completion.</p>
+    <label for="nameIn">Enter your full name (first and last). It will appear on your certificate.</label>
+    <input id="nameIn" type="text" autocomplete="name" placeholder="First and last name" maxlength="60">
+    <div class="err" id="nameErr" hidden>Please enter your first and last name to begin.</div>
+    <div class="modal-actions"><button class="btn" type="submit">Start the workshop</button></div>
+  </form>
+</div>
+
+<header>
+  <div>
+    <h1>Merchandising General Ledger Workshop</h1>
+    <div class="sub">Bright Mart (a fictional retailer) &middot; Perpetual inventory &middot; November</div>
+  </div>
+  <div class="hstats">
+    <span>Student: <b id="hName">-</b></span>
+    <span>Entries posted: <b id="hPosted">0</b> / <span id="hTotal">15</span></span>
+    <span>Score so far: <b id="hScore">-</b></span>
+  </div>
+</header>
+
+<div class="progress" id="progress"></div>
+
+<nav aria-label="Workshop screens">
+  <button type="button" id="tab-journal" class="active" data-tab="journal"><span class="tabno">1</span>Journal Entry</button>
+  <button type="button" id="tab-tacc" data-tab="tacc"><span class="tabno">2</span>T-Accounts &amp; Subsidiary Ledgers</button>
+  <button type="button" id="tab-is" data-tab="is"><span class="tabno">3</span>Live Income Statement</button>
+</nav>
+
+<div class="layout">
+  <main>
+    <section id="screen-journal">
+      <div id="introArea"></div>
+      <div id="entryArea"></div>
+      <div id="resultsArea"></div>
+      <h3 class="sec">General Journal (posted entries)</h3>
+      <div id="postedJournal"></div>
+    </section>
+    <section id="screen-tacc" hidden>
+      <h2>T-Accounts</h2>
+      <p class="lead">Every account that has a posting appears here. The teal-outlined accounts are the merchandising focus accounts. The newest postings are highlighted.</p>
+      <div id="taccArea"></div>
+    </section>
+    <section id="screen-is" hidden>
+      <div id="isBig"></div>
+    </section>
+  </main>
+  <aside id="sideAside"><div id="isSide"></div></aside>
+</div>
+
+<noscript><p style="padding:20px">This workshop requires JavaScript. Please enable it and reload the page.</p></noscript>
+
+<script src="vendor/jspdf.umd.min.js"></script>
+<script src="vendor/jspdf.plugin.autotable.min.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/report.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
