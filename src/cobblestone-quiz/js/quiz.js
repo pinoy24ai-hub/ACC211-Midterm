@@ -1,9 +1,9 @@
-/* Cobblestone Entry Quiz: one question per transaction, retry until correct, free hints. Progress is saved in the browser. */
+/* Journal entry quiz (shared by the Cobblestone and Larkin quizzes): one question per transaction, retry until correct, free hints. Progress is saved in the browser. */
 (function () {
   'use strict';
 
-  const Q = window.QuizData.Q, OPENING = window.QuizData.OPENING, N = Q.length;
-  const STORE_KEY = 'acc211-cobblestone-quiz-v2';
+  const Q = window.QuizData.Q, OPENING = window.QuizData.OPENING, META = window.QuizData.META, N = Q.length;
+  const STORE_KEY = META.storeKey;
   const LETTERS = ['A', 'B'];
   const $ = function (id) { return document.getElementById(id); };
   const esc = function (s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
@@ -78,7 +78,7 @@
     const i = S.cur, q = Q[i], tries = S.tries[i], done = solved(i), hints = S.hints[i];
     const lastWrong = !done && tries.length ? tries[tries.length - 1] : null;
     let h = '<article class="qcard' + (shown !== i ? ' enter' : '') + '" aria-labelledby="qask">' +
-      '<div class="qmeta"><span class="chip">Question ' + (i + 1) + ' of ' + N + '</span><span class="chip date">' + esc(q.date) + ', 2026</span></div>' +
+      '<div class="qmeta"><span class="chip">Question ' + (i + 1) + ' of ' + N + '</span><span class="chip date">' + esc(q.date) + ', ' + META.year + '</span></div>' +
       '<p class="qtext">' + hl(q.text) + '</p>' +
       (q.note ? '<p class="qnote"><b>Note:</b> ' + hl(q.note) + '</p>' : '') +
       '<h2 class="qask" id="qask">Which journal entry correctly records this transaction?</h2>' +
@@ -165,15 +165,15 @@
           '<span class="tag">' + (firstTry(i) ? 'First try' : extra + ' wrong choice' + (extra > 1 ? 's' : '')) + (S.hints[i] ? ', ' + S.hints[i] + ' hint' + (S.hints[i] > 1 ? 's' : '') : '') + '</span></li>';
       }).join('') + '</ul>' +
       '<div class="key-top"><div><h3 class="key-title">The correct entries</h3>' +
-      '<p class="key-sub">Every November transaction, journalized. Sales and sales returns take two entries: revenue first, then cost.</p></div>' +
+      '<p class="key-sub">Every ' + META.month + ' transaction, journalized. Sales and sales returns take two entries: revenue first, then cost.</p></div>' +
       '<button type="button" class="btn" id="savePdf">Save the correct entries (PDF)</button></div>' +
       '<div class="keylist">' + Q.map(function (q, i) {
-        return '<section class="keyitem"><div class="keyhead"><span class="dotk ' + (firstTry(i) ? 'first' : 'later') + '">' + (i + 1) + '</span><div><b>' + esc(q.date) + ', 2026</b> ' + hl(q.text) + (q.note ? ' <i>' + hl(q.note) + '</i>' : '') + '</div></div>' +
+        return '<section class="keyitem"><div class="keyhead"><span class="dotk ' + (firstTry(i) ? 'first' : 'later') + '">' + (i + 1) + '</span><div><b>' + esc(q.date) + ', ' + META.year + '</b> ' + hl(q.text) + (q.note ? ' <i>' + hl(q.note) + '</i>' : '') + '</div></div>' +
           entryHtml(q.correct) + '</section>';
       }).join('') + '</div></article>';
     if ($('review')) $('review').onclick = function () { go(missed[0]); };
     $('savePdf').onclick = function () {
-      try { window.QuizPdf.save(Q, OPENING); }
+      try { window.QuizPdf.save(Q, OPENING, META); }
       catch (err) { this.insertAdjacentHTML('afterend', '<p class="key-sub">The PDF could not be created in this browser. Try Chrome, Edge, Safari or Firefox.</p>'); }
     };
     $('again').onclick = restart;
@@ -184,15 +184,12 @@
   // ---------- Reference ----------
 
   function renderRef() {
+    const bold = function (t) { return hl(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); };
     $('refBody').innerHTML =
-      '<div><table><thead><tr><th>Opening balances, Nov 1</th><th class="n">Debit</th><th class="n">Credit</th></tr></thead><tbody>' +
+      '<div><table><thead><tr><th>Opening balances, ' + esc(META.openingDate) + '</th><th class="n">Debit</th><th class="n">Credit</th></tr></thead><tbody>' +
       OPENING.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td class="n">' + (r[1] ? num(r[1]) : '') + '</td><td class="n">' + (r[2] ? num(r[2]) : '') + '</td></tr>'; }).join('') +
       '</tbody></table></div>' +
-      '<div><b>Perpetual system reminders</b><ul>' +
-      '<li>Purchases, freight-in, returns, allowances and purchase discounts all go through <b>Merchandise Inventory</b>.</li>' +
-      '<li>' + hl('FOB shipping point') + ': the buyer pays freight. ' + hl('FOB destination') + ': the seller pays.</li>' +
-      '<li>Every sale takes two entries: revenue at selling price, then Cost of goods sold / Merchandise Inventory at cost.</li>' +
-      '<li>Payables and receivables use the vendor or customer account, for example <i>Accounts payable (Ridgeline Wholesale)</i>.</li></ul></div>';
+      '<div><b>Reminders</b><ul>' + META.reminders.map(function (t) { return '<li>' + bold(t) + '</li>'; }).join('') + '</ul></div>';
   }
 
   // ---------- Wiring ----------

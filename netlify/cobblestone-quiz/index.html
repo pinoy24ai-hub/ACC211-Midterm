@@ -745,14 +745,28 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       why: 'Salaries are an operating expense. With this last entry, November net income is $1,830.' }
   ];
 
-  const api = { Q: Q, OPENING: OPENING };
+  // Business details used by the shared quiz and PDF code.
+  const META = {
+    business: 'Cobblestone Sports & Outdoor', owner: 'R. Delgado', month: 'November', year: 2026,
+    quiz: 'Cobblestone Entry Quiz', storeKey: 'acc211-cobblestone-quiz-v2',
+    pdfName: 'Cobblestone_November_Correct_Entries.pdf', practice: 'the Cobblestone November Ledger practice',
+    openingDate: 'November 1, 2026',
+    // **text** is shown in bold; FOB terms are colored automatically.
+    reminders: [
+      'Purchases, freight-in, returns, allowances and purchase discounts all go through **Merchandise Inventory**.',
+      'FOB shipping point: the buyer pays freight. FOB destination: the seller pays.',
+      'Every sale takes two entries: revenue at selling price, then Cost of goods sold / Merchandise Inventory at cost.',
+      'Payables and receivables use the vendor or customer account, for example Accounts payable (Ridgeline Wholesale).']
+  };
+
+  const api = { Q: Q, OPENING: OPENING, META: META };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.QuizData = api;
 })(typeof window !== 'undefined' ? window : globalThis);
 
 </script>
 <script>
-/* Cobblestone Entry Quiz: save the correct entries as a PDF (jsPDF + AutoTable, bundled in /vendor). */
+/* Journal entry quiz: save the correct entries as a PDF (jsPDF + AutoTable, bundled in /vendor). */
 (function () {
   'use strict';
 
@@ -786,7 +800,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     return rows;
   }
 
-  function save(Q, OPENING) {
+  function save(Q, OPENING, META) {
     const jsPDF = window.jspdf.jsPDF;
     const doc = new jsPDF({ unit: 'pt', format: 'letter' });
     const W = doc.internal.pageSize.getWidth();
@@ -794,18 +808,18 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
     doc.setFillColor.apply(doc, NAVY).rect(0, 0, W, 64, 'F');
     doc.setTextColor(255, 255, 255).setFont('helvetica', 'bold').setFontSize(16);
-    doc.text('Cobblestone Sports & Outdoor: Correct Journal Entries', M, 32);
+    doc.text(t(META.business) + ': Correct Journal Entries', M, 32);
     doc.setFont('helvetica', 'normal').setFontSize(10);
-    doc.text('November 2026  |  Perpetual inventory system  |  R. Delgado, owner', M, 49);
+    doc.text(META.month + ' ' + META.year + '  |  Perpetual inventory system  |  ' + t(META.owner) + ', owner', M, 49);
 
     doc.setTextColor.apply(doc, INK).setFontSize(10);
-    doc.text(doc.splitTextToSize('Use these entries to complete the Cobblestone November Ledger practice. Sales and sales returns are recorded as two entries: revenue at selling price first, then cost of goods sold at cost.', W - 2 * M), M, 86);
+    doc.text(doc.splitTextToSize('Use these entries to complete ' + t(META.practice) + '. Sales and sales returns are recorded as two entries: revenue at selling price first, then cost of goods sold at cost.', W - 2 * M), M, 86);
 
     doc.autoTable({
       startY: 112, margin: { left: M, right: M }, theme: 'grid', tableWidth: 330,
-      head: [['Opening balances, November 1, 2026 (given)', 'Debit', 'Credit']],
+      head: [['Opening balances, ' + META.openingDate + ' (given)', 'Debit', 'Credit']],
       body: OPENING.map(function (r) { return [t(r[0]), num(r[1]), num(r[2])]; }),
-      foot: [['Totals', '29,000', '29,000']],
+      foot: [['Totals', num(OPENING.reduce(function (s, r) { return s + r[1]; }, 0)), num(OPENING.reduce(function (s, r) { return s + r[2]; }, 0))]],
       headStyles: { fillColor: NAVY, textColor: [255, 255, 255] },
       footStyles: { fillColor: [238, 242, 247], textColor: INK, fontStyle: 'bold' },
       styles: { fontSize: 9, textColor: INK, cellPadding: 3 },
@@ -839,9 +853,9 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     for (let p = 1; p <= pages; p++) {
       doc.setPage(p);
       doc.setTextColor.apply(doc, MUTE).setFontSize(8);
-      doc.text('ACC 211  |  Cobblestone Entry Quiz answer key  |  Page ' + p + ' of ' + pages, W / 2, doc.internal.pageSize.getHeight() - 24, { align: 'center' });
+      doc.text('ACC 211  |  ' + t(META.quiz) + ' answer key  |  Page ' + p + ' of ' + pages, W / 2, doc.internal.pageSize.getHeight() - 24, { align: 'center' });
     }
-    doc.save('Cobblestone_November_Correct_Entries.pdf');
+    doc.save(META.pdfName);
   }
 
   window.QuizPdf = { save: save, journalRows: journalRows };
@@ -849,12 +863,12 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
 </script>
 <script>
-/* Cobblestone Entry Quiz: one question per transaction, retry until correct, free hints. Progress is saved in the browser. */
+/* Journal entry quiz (shared by the Cobblestone and Larkin quizzes): one question per transaction, retry until correct, free hints. Progress is saved in the browser. */
 (function () {
   'use strict';
 
-  const Q = window.QuizData.Q, OPENING = window.QuizData.OPENING, N = Q.length;
-  const STORE_KEY = 'acc211-cobblestone-quiz-v2';
+  const Q = window.QuizData.Q, OPENING = window.QuizData.OPENING, META = window.QuizData.META, N = Q.length;
+  const STORE_KEY = META.storeKey;
   const LETTERS = ['A', 'B'];
   const $ = function (id) { return document.getElementById(id); };
   const esc = function (s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
@@ -929,7 +943,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     const i = S.cur, q = Q[i], tries = S.tries[i], done = solved(i), hints = S.hints[i];
     const lastWrong = !done && tries.length ? tries[tries.length - 1] : null;
     let h = '<article class="qcard' + (shown !== i ? ' enter' : '') + '" aria-labelledby="qask">' +
-      '<div class="qmeta"><span class="chip">Question ' + (i + 1) + ' of ' + N + '</span><span class="chip date">' + esc(q.date) + ', 2026</span></div>' +
+      '<div class="qmeta"><span class="chip">Question ' + (i + 1) + ' of ' + N + '</span><span class="chip date">' + esc(q.date) + ', ' + META.year + '</span></div>' +
       '<p class="qtext">' + hl(q.text) + '</p>' +
       (q.note ? '<p class="qnote"><b>Note:</b> ' + hl(q.note) + '</p>' : '') +
       '<h2 class="qask" id="qask">Which journal entry correctly records this transaction?</h2>' +
@@ -1016,15 +1030,15 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
           '<span class="tag">' + (firstTry(i) ? 'First try' : extra + ' wrong choice' + (extra > 1 ? 's' : '')) + (S.hints[i] ? ', ' + S.hints[i] + ' hint' + (S.hints[i] > 1 ? 's' : '') : '') + '</span></li>';
       }).join('') + '</ul>' +
       '<div class="key-top"><div><h3 class="key-title">The correct entries</h3>' +
-      '<p class="key-sub">Every November transaction, journalized. Sales and sales returns take two entries: revenue first, then cost.</p></div>' +
+      '<p class="key-sub">Every ' + META.month + ' transaction, journalized. Sales and sales returns take two entries: revenue first, then cost.</p></div>' +
       '<button type="button" class="btn" id="savePdf">Save the correct entries (PDF)</button></div>' +
       '<div class="keylist">' + Q.map(function (q, i) {
-        return '<section class="keyitem"><div class="keyhead"><span class="dotk ' + (firstTry(i) ? 'first' : 'later') + '">' + (i + 1) + '</span><div><b>' + esc(q.date) + ', 2026</b> ' + hl(q.text) + (q.note ? ' <i>' + hl(q.note) + '</i>' : '') + '</div></div>' +
+        return '<section class="keyitem"><div class="keyhead"><span class="dotk ' + (firstTry(i) ? 'first' : 'later') + '">' + (i + 1) + '</span><div><b>' + esc(q.date) + ', ' + META.year + '</b> ' + hl(q.text) + (q.note ? ' <i>' + hl(q.note) + '</i>' : '') + '</div></div>' +
           entryHtml(q.correct) + '</section>';
       }).join('') + '</div></article>';
     if ($('review')) $('review').onclick = function () { go(missed[0]); };
     $('savePdf').onclick = function () {
-      try { window.QuizPdf.save(Q, OPENING); }
+      try { window.QuizPdf.save(Q, OPENING, META); }
       catch (err) { this.insertAdjacentHTML('afterend', '<p class="key-sub">The PDF could not be created in this browser. Try Chrome, Edge, Safari or Firefox.</p>'); }
     };
     $('again').onclick = restart;
@@ -1035,15 +1049,12 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   // ---------- Reference ----------
 
   function renderRef() {
+    const bold = function (t) { return hl(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); };
     $('refBody').innerHTML =
-      '<div><table><thead><tr><th>Opening balances, Nov 1</th><th class="n">Debit</th><th class="n">Credit</th></tr></thead><tbody>' +
+      '<div><table><thead><tr><th>Opening balances, ' + esc(META.openingDate) + '</th><th class="n">Debit</th><th class="n">Credit</th></tr></thead><tbody>' +
       OPENING.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td class="n">' + (r[1] ? num(r[1]) : '') + '</td><td class="n">' + (r[2] ? num(r[2]) : '') + '</td></tr>'; }).join('') +
       '</tbody></table></div>' +
-      '<div><b>Perpetual system reminders</b><ul>' +
-      '<li>Purchases, freight-in, returns, allowances and purchase discounts all go through <b>Merchandise Inventory</b>.</li>' +
-      '<li>' + hl('FOB shipping point') + ': the buyer pays freight. ' + hl('FOB destination') + ': the seller pays.</li>' +
-      '<li>Every sale takes two entries: revenue at selling price, then Cost of goods sold / Merchandise Inventory at cost.</li>' +
-      '<li>Payables and receivables use the vendor or customer account, for example <i>Accounts payable (Ridgeline Wholesale)</i>.</li></ul></div>';
+      '<div><b>Reminders</b><ul>' + META.reminders.map(function (t) { return '<li>' + bold(t) + '</li>'; }).join('') + '</ul></div>';
   }
 
   // ---------- Wiring ----------

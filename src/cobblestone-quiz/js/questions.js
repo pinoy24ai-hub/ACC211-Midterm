@@ -152,7 +152,21 @@
       why: 'Salaries are an operating expense. With this last entry, November net income is $1,830.' }
   ];
 
-  const api = { Q: Q, OPENING: OPENING };
+  // Business details used by the shared quiz and PDF code.
+  const META = {
+    business: 'Cobblestone Sports & Outdoor', owner: 'R. Delgado', month: 'November', year: 2026,
+    quiz: 'Cobblestone Entry Quiz', storeKey: 'acc211-cobblestone-quiz-v2',
+    pdfName: 'Cobblestone_November_Correct_Entries.pdf', practice: 'the Cobblestone November Ledger practice',
+    openingDate: 'November 1, 2026',
+    // **text** is shown in bold; FOB terms are colored automatically.
+    reminders: [
+      'Purchases, freight-in, returns, allowances and purchase discounts all go through **Merchandise Inventory**.',
+      'FOB shipping point: the buyer pays freight. FOB destination: the seller pays.',
+      'Every sale takes two entries: revenue at selling price, then Cost of goods sold / Merchandise Inventory at cost.',
+      'Payables and receivables use the vendor or customer account, for example Accounts payable (Ridgeline Wholesale).']
+  };
+
+  const api = { Q: Q, OPENING: OPENING, META: META };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.QuizData = api;
 })(typeof window !== 'undefined' ? window : globalThis);

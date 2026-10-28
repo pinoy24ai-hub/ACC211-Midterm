@@ -221,3 +221,13 @@ node tests/cobblestone.test.js
 - No name, no score sent anywhere; progress is saved in the browser (`#reset` clears it).
 
 `node tests/cobblestone-quiz.test.js` checks every correct answer against the Cobblestone ledger's answer key, that sales and returns are two separate balanced entries, and that every wrong choice is distinct, balanced and explained.
+
+---
+
+# Larkin Entry Quiz (multiple choice, practice only)
+
+`netlify/larkin-quiz/index.html` (source in `src/larkin-quiz/`) uses the same quiz format as the Cobblestone Entry Quiz for the **16 transactions of the Larkin Craft & Hobby Supply general ledger workshop** (J. Morales, owner; December 2026): purchases and a purchase discount, a cash sale, collections inside and outside the discount window, an order that needs no entry, credit sales, a sales return and a sales allowance, rent and salaries, and the year-end bad debt adjustment (5% of $7,600 ending receivables, less the existing $210 allowance = $170).
+
+The two quizzes share one engine: `src/cobblestone-quiz/js/quiz.js`, `js/pdf.js`, `css/quiz.css` and the PDF library. Each quiz's `js/questions.js` holds its questions, opening balances and a `META` block (business, owner, month and year, reminders, PDF file name, saved-progress key). To make a quiz for another business, copy `src/larkin-quiz/`, replace its `questions.js`, add the folder to `SITES` in `tools/build-netlify.js`, and rebuild.
+
+`node tests/larkin-quiz.test.js` checks every correct answer against the workshop's answer key, re-derives the $7,600 ending receivables and the $170 adjustment from the entries, and checks that every wrong choice is distinct, balanced and explained.
