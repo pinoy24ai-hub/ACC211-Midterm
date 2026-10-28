@@ -1,6 +1,7 @@
 /* Cobblestone Sports & Outdoor: November multiple-choice practice. One question per transaction.
    Each question has one correct entry and three wrong entries built from common mistakes; every wrong
-   choice says why it is wrong. An entry of null means "No entry required". */
+   choice says why it is wrong. An entry is a list of lines; null means "No entry required"; a list of
+   lists is two separate journal entries (sales and sales returns: the revenue entry, then the cost entry). */
 (function (root) {
   'use strict';
 
@@ -23,6 +24,7 @@
       why: 'A purchase on account increases Merchandise Inventory and the amount owed to that vendor. The 2/10, n/30 terms do not change today’s entry.' },
 
     { date: 'Nov 3', text: 'Ridgeline Wholesale delivered the November 2 order and paid the $240 freight bill.',
+      note: 'The November 2 shipment was FOB destination.',
       hints: ['Re-read the November 2 shipping terms: FOB shipping point or FOB destination?', 'Who paid the $240? Did any of Cobblestone’s accounts change?'],
       correct: null,
       wrong: [
@@ -41,6 +43,7 @@
       why: 'Same entry as November 2, with a different vendor. Bayfront’s subsidiary account now shows $2,500 + $3,000 = $5,500.' },
 
     { date: 'Nov 5', text: 'Paid $180 cash to the freight carrier for the Bayfront Supply Co. shipment.',
+      note: 'The November 4 shipment from Bayfront Supply Co. was FOB shipping point.',
       hints: ['The November 4 terms were FOB shipping point. Who pays the freight?', 'Is freight-in part of the cost of the goods, or an expense?'],
       correct: [dr(MI, 180), cr('Cash', 180)],
       wrong: [
@@ -77,31 +80,31 @@
       why: 'Debit Accounts payable (Ridgeline Wholesale) for the full $5,600 to clear it. Cash ($5,488) and Merchandise Inventory ($112) share the credit side.' },
 
     { date: 'Nov 15', text: 'Sold merchandise for $5,000 cash. Cost was $3,000.',
-      hints: ['A perpetual sale has two parts: revenue at selling price and cost at cost.', 'Look for an entry with four lines and two different amounts.'],
-      correct: [dr('Cash', 5000), dr(COGS, 3000), cr(SALES, 5000), cr(MI, 3000)],
+      hints: ['A perpetual sale needs two entries: one for revenue at selling price and one for cost at cost.', 'The two entries use two different amounts.'],
+      correct: [[dr('Cash', 5000), cr(SALES, 5000)], [dr(COGS, 3000), cr(MI, 3000)]],
       wrong: [
-        { e: [dr('Cash', 5000), cr(SALES, 5000)], why: 'This records only the revenue part. Under the perpetual system, also move the $3,000 cost from Merchandise Inventory to Cost of goods sold.' },
+        { e: [dr('Cash', 5000), cr(SALES, 5000)], why: 'This records only the revenue entry. Under the perpetual system, a second entry moves the $3,000 cost from Merchandise Inventory to Cost of goods sold.' },
         { e: [dr('Cash', 5000), cr(MI, 5000)], why: 'This skips revenue entirely and removes inventory at selling price. Revenue goes to Sales revenue; inventory leaves at cost ($3,000).' },
-        { e: [dr('Cash', 5000), dr(COGS, 5000), cr(SALES, 5000), cr(MI, 5000)], why: 'The cost part must use cost ($3,000), not the selling price.' }],
-      why: 'Revenue is recorded at the selling price and the cost of the goods at cost, in one entry. The $2,000 difference is the gross profit on this sale.' },
+        { e: [[dr('Cash', 5000), cr(SALES, 5000)], [dr(COGS, 5000), cr(MI, 5000)]], why: 'The cost entry must use cost ($3,000), not the selling price.' }],
+      why: 'The first entry records revenue at the selling price; the second moves the cost of the goods sold out of inventory. The $2,000 difference is the gross profit on this sale.' },
 
     { date: 'Nov 17', text: 'Sold merchandise to Kenmore Rec League for $4,000 on account, terms 2/10, n/30. Cost was $2,400.',
-      hints: ['Who owes Cobblestone now?', 'Every sale needs the cost part too.'],
-      correct: [dr(ARK, 4000), dr(COGS, 2400), cr(SALES, 4000), cr(MI, 2400)],
+      hints: ['Who owes Cobblestone now?', 'Every sale needs a second entry for the cost of the goods.'],
+      correct: [[dr(ARK, 4000), cr(SALES, 4000)], [dr(COGS, 2400), cr(MI, 2400)]],
       wrong: [
-        { e: [dr(ARK, 3920), dr(COGS, 2400), cr(SALES, 3920), cr(MI, 2400)], why: 'Record the full $4,000. The sales discount is recorded only if Kenmore pays within 10 days.' },
-        { e: [dr(ARP, 4000), dr(COGS, 2400), cr(SALES, 4000), cr(MI, 2400)], why: 'Wrong customer. Kenmore Rec League owes this amount.' },
-        { e: [dr(ARK, 4000), cr(SALES, 4000)], why: 'This is missing the cost part: debit Cost of goods sold $2,400 and credit Merchandise Inventory $2,400.' }],
-      why: 'A sale on account is revenue today. The cost part is recorded at the same time, and Kenmore’s own account tracks what it owes.' },
+        { e: [[dr(ARK, 3920), cr(SALES, 3920)], [dr(COGS, 2400), cr(MI, 2400)]], why: 'Record the full $4,000. The sales discount is recorded only if Kenmore pays within 10 days.' },
+        { e: [[dr(ARP, 4000), cr(SALES, 4000)], [dr(COGS, 2400), cr(MI, 2400)]], why: 'Wrong customer. Kenmore Rec League owes this amount.' },
+        { e: [dr(ARK, 4000), cr(SALES, 4000)], why: 'This is missing the cost entry: debit Cost of goods sold $2,400 and credit Merchandise Inventory $2,400.' }],
+      why: 'A sale on account is revenue today. The cost entry is recorded at the same time, and Kenmore’s own account tracks what it owes.' },
 
     { date: 'Nov 19', text: 'Kenmore Rec League returned $500 of merchandise sold on November 17 (cost $300).',
-      hints: ['The goods came back, so both parts of the sale reverse.', 'The revenue side uses selling price; the inventory side uses cost.'],
-      correct: [dr(SRA, 500), dr(MI, 300), cr(ARK, 500), cr(COGS, 300)],
+      hints: ['The goods came back, so both entries from the sale reverse.', 'The revenue entry uses selling price; the inventory entry uses cost.'],
+      correct: [[dr(SRA, 500), cr(ARK, 500)], [dr(MI, 300), cr(COGS, 300)]],
       wrong: [
-        { e: [dr(SRA, 500), cr(ARK, 500)], why: 'This would be correct for an allowance, but here the goods came back. Also debit Merchandise Inventory $300 and credit Cost of goods sold $300.' },
-        { e: [dr(SALES, 500), dr(MI, 300), cr(ARK, 500), cr(COGS, 300)], why: 'Use the contra-revenue account, Sales returns & allowances, so the business keeps a record of returns.' },
-        { e: [dr(SRA, 500), dr(MI, 500), cr(ARK, 500), cr(COGS, 500)], why: 'The goods return to inventory at cost ($300), not at the $500 selling price.' }],
-      why: 'A sales return reverses both parts of the sale: the revenue part at selling price and the cost part at cost.' },
+        { e: [dr(SRA, 500), cr(ARK, 500)], why: 'This would be correct for an allowance, but here the goods came back. A second entry debits Merchandise Inventory $300 and credits Cost of goods sold $300.' },
+        { e: [[dr(SALES, 500), cr(ARK, 500)], [dr(MI, 300), cr(COGS, 300)]], why: 'Use the contra-revenue account, Sales returns & allowances, so the business keeps a record of returns.' },
+        { e: [[dr(SRA, 500), cr(ARK, 500)], [dr(MI, 500), cr(COGS, 500)]], why: 'The goods return to inventory at cost ($300), not at the $500 selling price.' }],
+      why: 'A sales return reverses both entries of the sale: the revenue entry at selling price and the cost entry at cost.' },
 
     { date: 'Nov 25', text: 'Kenmore Rec League paid within the discount period. Balance: $4,000 − $500 return = $3,500 × 2% = $70 discount.',
       hints: ['Clear the whole receivable, even though less cash comes in.', 'A discount Cobblestone gives a customer reduces sales.'],
@@ -122,12 +125,12 @@
       why: 'No discount, so cash paid equals the full balance: $2,500 + $3,000 − $300 = $5,200. Bayfront’s account is now zero.' },
 
     { date: 'Nov 28', text: 'Sold merchandise to Parkside Rentals for $2,000 on account, terms n/30. Cost was $1,200.',
-      hints: ['A new customer: who owes Cobblestone?', 'n/30 means no discount is offered, but every sale still needs its cost part.'],
-      correct: [dr(ARP, 2000), dr(COGS, 1200), cr(SALES, 2000), cr(MI, 1200)],
+      hints: ['A new customer: who owes Cobblestone?', 'n/30 means no discount is offered, but every sale still needs its cost entry.'],
+      correct: [[dr(ARP, 2000), cr(SALES, 2000)], [dr(COGS, 1200), cr(MI, 1200)]],
       wrong: [
-        { e: [dr(ARP, 2000), cr(SALES, 2000)], why: 'This is missing the cost part: debit Cost of goods sold $1,200 and credit Merchandise Inventory $1,200.' },
-        { e: [dr(ARK, 2000), dr(COGS, 1200), cr(SALES, 2000), cr(MI, 1200)], why: 'Wrong customer. Parkside Rentals bought these goods.' },
-        { e: [dr(ARP, 1960), dr(COGS, 1200), cr(SALES, 1960), cr(MI, 1200)], why: 'Terms n/30 offer no discount, and sales are recorded at the full price anyway. Use $2,000.' }],
+        { e: [dr(ARP, 2000), cr(SALES, 2000)], why: 'This is missing the cost entry: debit Cost of goods sold $1,200 and credit Merchandise Inventory $1,200.' },
+        { e: [[dr(ARK, 2000), cr(SALES, 2000)], [dr(COGS, 1200), cr(MI, 1200)]], why: 'Wrong customer. Parkside Rentals bought these goods.' },
+        { e: [[dr(ARP, 1960), cr(SALES, 1960)], [dr(COGS, 1200), cr(MI, 1200)]], why: 'Terms n/30 offer no discount, and sales are recorded at the full price anyway. Use $2,000.' }],
       why: 'Parkside will still owe $2,000 on November 30. It is the only receivable on the balance sheet.' },
 
     { date: 'Nov 30', text: 'Paid $1,000 store rent for November.',

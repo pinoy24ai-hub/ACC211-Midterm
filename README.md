@@ -213,11 +213,11 @@ node tests/cobblestone.test.js
 
 # Cobblestone Entry Quiz (multiple choice, practice only)
 
-`netlify/cobblestone-quiz/index.html` (source in `src/cobblestone-quiz/`) is a fifth single-file site using the same 15 Cobblestone transactions. Each question shows one transaction and asks **"Which journal entry correctly records this transaction?"** with four complete entries (or "No entry required") as choices.
+`netlify/cobblestone-quiz/index.html` (source in `src/cobblestone-quiz/`) is a fifth single-file site using the same 15 Cobblestone transactions. Each question shows one transaction and asks **"Which journal entry correctly records this transaction?"** with two choices: the correct entry and one wrong entry (or "No entry required"). Sales and sales returns are shown as two separate entries (revenue, then cost). **FOB destination** is bold red and **FOB shipping point** bold blue everywhere, and the Nov 3 and Nov 5 questions carry a note naming the shipment's FOB terms.
 
-- The three wrong choices are common mistakes (periodic accounts such as Purchases, wrong vendor or customer, net-of-discount amounts, a missing cost entry, ignoring a return or allowance, reversed sides, freight-in as an expense). Each wrong choice explains why it is wrong when picked.
-- Students retry until correct; the correct answer shows the explanation. Free hints (1 or 2 per question). Keys: A to D or 1 to 4 to answer, H for a hint, arrows to move.
-- Questions stay in date order; answer choices are shuffled for each attempt. A progress ring, a first-try count and a streak track progress; the results screen lists every question and offers "Review the ones I missed" and "Try again (new answer order)".
+- Each question has three prepared wrong entries; every attempt shows one of them at random, so retakes differ. They are common mistakes (periodic accounts such as Purchases, wrong vendor or customer, net-of-discount amounts, a missing cost entry, ignoring a return or allowance, reversed sides, freight-in as an expense). Each wrong choice explains why it is wrong when picked.
+- Students retry until correct; the correct answer shows the explanation. Free hints (1 or 2 per question). Keys: A/B or 1/2 to answer, H for a hint, arrows to move.
+- Questions stay in date order; the choice order and the wrong entry shown change on each attempt. A progress ring, a first-try count and a streak track progress. The results screen lists every question, offers "Review the ones I missed" and "Try again", and shows **all 15 correct entries** with a **Save the correct entries (PDF)** button (opening balances plus the full general journal), which students use to complete the Cobblestone November Ledger practice.
 - No name, no score sent anywhere; progress is saved in the browser (`#reset` clears it).
 
-`node tests/cobblestone-quiz.test.js` checks every correct answer against the Cobblestone ledger's answer key, and that every wrong choice is distinct, balanced and explained.
+`node tests/cobblestone-quiz.test.js` checks every correct answer against the Cobblestone ledger's answer key, that sales and returns are two separate balanced entries, and that every wrong choice is distinct, balanced and explained.

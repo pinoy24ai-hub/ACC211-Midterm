@@ -3,27 +3,32 @@
   'use strict';
 
   const Q = window.QuizData.Q, OPENING = window.QuizData.OPENING, N = Q.length;
-  const STORE_KEY = 'acc211-cobblestone-quiz-v1';
-  const LETTERS = ['A', 'B', 'C', 'D'];
+  const STORE_KEY = 'acc211-cobblestone-quiz-v2';
+  const LETTERS = ['A', 'B'];
   const $ = function (id) { return document.getElementById(id); };
   const esc = function (s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
   const num = function (n) { return n.toLocaleString('en-US'); };
+  // Escape text, then make the FOB terms stand out: destination in red, shipping point in blue.
+  const hl = function (s) {
+    return esc(s).replace(/FOB destination/g, '<strong class="fob-d">FOB destination</strong>')
+      .replace(/FOB shipping point/g, '<strong class="fob-s">FOB shipping point</strong>');
+  };
 
   let S = load() || fresh();
   let shakeK = null; // the wrong choice just picked, so only it animates
   let shown = null;  // the question or summary on screen, so the card animates only when it changes
   if (location.hash === '#reset') { S = fresh(); save(); history.replaceState(null, '', location.pathname); }
 
-  // Choice 0 is the correct entry; 1 to 3 are the wrong ones. Each question gets its own shuffled order per attempt.
-  function shuffled() {
-    const a = [0, 1, 2, 3];
-    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
-    return a;
+  // Choice 0 is the correct entry; 1 to 3 are the prepared wrong ones. Each attempt shows the correct entry and
+  // one randomly chosen wrong entry, in random order.
+  function pair() {
+    const wrong = 1 + Math.floor(Math.random() * 3);
+    return Math.random() < 0.5 ? [0, wrong] : [wrong, 0];
   }
   function fresh() {
-    return { v: 1, cur: 0, order: Q.map(shuffled), tries: Q.map(function () { return []; }), hints: Q.map(function () { return 0; }), summary: false };
+    return { v: 2, cur: 0, order: Q.map(pair), tries: Q.map(function () { return []; }), hints: Q.map(function () { return 0; }), summary: false };
   }
-  function load() { try { const s = JSON.parse(localStorage.getItem(STORE_KEY)); return s && s.v === 1 && s.order.length === N ? s : null; } catch (e) { return null; } }
+  function load() { try { const s = JSON.parse(localStorage.getItem(STORE_KEY)); return s && s.v === 2 && s.order.length === N ? s : null; } catch (e) { return null; } }
   function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) { /* storage unavailable */ } }
 
   const solved = function (i) { return S.tries[i].indexOf(0) >= 0; };
@@ -55,13 +60,17 @@
 
   // ---------- Question ----------
 
+  // An entry is a list of lines, null (no entry required) or a list of separate entries shown one under the other.
   function entryHtml(e) {
     if (e === null) return '<span class="noentry">No entry required</span>';
-    const ordered = e.filter(function (l) { return l.dr; }).concat(e.filter(function (l) { return l.cr; }));
-    return '<table class="entry"><tr class="hd"><td>Account</td><td class="n">Debit</td><td class="n">Credit</td></tr>' +
-      ordered.map(function (l) {
-        return '<tr><td class="' + (l.cr ? 'cr' : '') + '">' + esc(l.a) + '</td><td class="n">' + (l.dr ? num(l.dr) : '') + '</td><td class="n">' + (l.cr ? num(l.cr) : '') + '</td></tr>';
-      }).join('') + '</table>';
+    const parts = Array.isArray(e[0]) ? e : [e];
+    return parts.map(function (lines, p) {
+      const ordered = lines.filter(function (l) { return l.dr; }).concat(lines.filter(function (l) { return l.cr; }));
+      return '<table class="entry' + (p ? ' next' : '') + '">' + (p ? '' : '<tr class="hd"><td>Account</td><td class="n">Debit</td><td class="n">Credit</td></tr>') +
+        ordered.map(function (l) {
+          return '<tr><td class="' + (l.cr ? 'cr' : '') + '">' + esc(l.a) + '</td><td class="n">' + (l.dr ? num(l.dr) : '') + '</td><td class="n">' + (l.cr ? num(l.cr) : '') + '</td></tr>';
+        }).join('') + '</table>';
+    }).join('');
   }
   function choiceEntry(q, k) { return k === 0 ? q.correct : q.wrong[k - 1].e; }
 
@@ -70,7 +79,8 @@
     const lastWrong = !done && tries.length ? tries[tries.length - 1] : null;
     let h = '<article class="qcard' + (shown !== i ? ' enter' : '') + '" aria-labelledby="qask">' +
       '<div class="qmeta"><span class="chip">Question ' + (i + 1) + ' of ' + N + '</span><span class="chip date">' + esc(q.date) + ', 2026</span></div>' +
-      '<p class="qtext">' + esc(q.text) + '</p>' +
+      '<p class="qtext">' + hl(q.text) + '</p>' +
+      (q.note ? '<p class="qnote"><b>Note:</b> ' + hl(q.note) + '</p>' : '') +
       '<h2 class="qask" id="qask">Which journal entry correctly records this transaction?</h2>' +
       '<div class="choices">' + S.order[i].map(function (k, pos) {
         const tried = tries.indexOf(k) >= 0;
@@ -82,21 +92,21 @@
         return '<button type="button" class="' + cls.join(' ') + '" data-k="' + k + '"' + (done || tried ? ' disabled' : '') +
           ' aria-label="Choice ' + LETTERS[pos] + (tried && k !== 0 ? ', incorrect' : '') + (done && k === 0 ? ', correct' : '') + '">' +
           '<span class="letter">' + LETTERS[pos] + '</span>' + entryHtml(choiceEntry(q, k)) +
-          (tried && k !== 0 ? '<div class="why-wrong">' + esc(q.wrong[k - 1].why) + '</div>' : '') + '</button>';
+          (tried && k !== 0 ? '<div class="why-wrong">' + hl(q.wrong[k - 1].why) + '</div>' : '') + '</button>';
       }).join('') + '</div>';
 
-    if (hints) h += '<div class="hintbox">' + q.hints.slice(0, hints).map(function (t, j) { return '<p><b>Hint ' + (j + 1) + ':</b> ' + esc(t) + '</p>'; }).join('') + '</div>';
+    if (hints) h += '<div class="hintbox">' + q.hints.slice(0, hints).map(function (t, j) { return '<p><b>Hint ' + (j + 1) + ':</b> ' + hl(t) + '</p>'; }).join('') + '</div>';
     if (done) {
-      h += '<div class="feedback ok" role="status"><b>' + (firstTry(i) ? 'Correct on the first try!' : 'Correct!') + '</b> ' + esc(q.why) + '</div>';
+      h += '<div class="feedback ok" role="status"><b>' + (firstTry(i) ? 'Correct on the first try!' : 'Correct!') + '</b> ' + hl(q.why) + '</div>';
     } else if (lastWrong !== null) {
-      h += '<div class="feedback try" role="status">Not quite. Read why that entry is wrong, then try another choice.</div>';
+      h += '<div class="feedback try" role="status">Not quite. Read why that entry is wrong, then choose the other entry.</div>';
     }
     const allDone = Q.every(function (_, j) { return solved(j); });
     h += '<div class="tools">' +
       '<button type="button" class="btn ghost" id="prev"' + (i === 0 ? ' disabled' : '') + '>← Back</button>' +
       (done ? '' : '<button type="button" class="btn hint" id="hint"' + (hints >= q.hints.length ? ' disabled' : '') + '>' +
         (hints >= q.hints.length ? 'No more hints' : 'Hint' + (q.hints.length > 1 ? ' (' + (hints + 1) + ' of ' + q.hints.length + ')' : '')) + '</button>') +
-      '<span class="spacer"></span><span class="keys">Keys: A–D to answer, H for a hint, → next</span>' +
+      '<span class="spacer"></span><span class="keys">Keys: A or B to answer, H for a hint, → next</span>' +
       (i < N - 1 ? '<button type="button" class="btn' + (done ? '' : ' ghost') + '" id="next">Next →</button>'
         : '<button type="button" class="btn" id="finish"' + (allDone ? '' : ' disabled title="Answer every question to see your results"') + '>See my results</button>') +
       '</div></article>';
@@ -151,10 +161,21 @@
       '<button type="button" class="btn ghost" id="again">Try again (new answer order)</button></div>' +
       '<ul class="reslist">' + Q.map(function (q, i) {
         const extra = S.tries[i].length - 1;
-        return '<li><span class="dotk ' + (firstTry(i) ? 'first' : 'later') + '">' + (i + 1) + '</span><span class="t"><b>' + esc(q.date) + '</b> ' + esc(q.text) + '</span>' +
+        return '<li><span class="dotk ' + (firstTry(i) ? 'first' : 'later') + '">' + (i + 1) + '</span><span class="t"><b>' + esc(q.date) + '</b> ' + hl(q.text) + '</span>' +
           '<span class="tag">' + (firstTry(i) ? 'First try' : extra + ' wrong choice' + (extra > 1 ? 's' : '')) + (S.hints[i] ? ', ' + S.hints[i] + ' hint' + (S.hints[i] > 1 ? 's' : '') : '') + '</span></li>';
-      }).join('') + '</ul></article>';
+      }).join('') + '</ul>' +
+      '<div class="key-top"><div><h3 class="key-title">The correct entries</h3>' +
+      '<p class="key-sub">Every November transaction, journalized. Sales and sales returns take two entries: revenue first, then cost.</p></div>' +
+      '<button type="button" class="btn" id="savePdf">Save the correct entries (PDF)</button></div>' +
+      '<div class="keylist">' + Q.map(function (q, i) {
+        return '<section class="keyitem"><div class="keyhead"><span class="dotk ' + (firstTry(i) ? 'first' : 'later') + '">' + (i + 1) + '</span><div><b>' + esc(q.date) + ', 2026</b> ' + hl(q.text) + (q.note ? ' <i>' + hl(q.note) + '</i>' : '') + '</div></div>' +
+          entryHtml(q.correct) + '</section>';
+      }).join('') + '</div></article>';
     if ($('review')) $('review').onclick = function () { go(missed[0]); };
+    $('savePdf').onclick = function () {
+      try { window.QuizPdf.save(Q, OPENING); }
+      catch (err) { this.insertAdjacentHTML('afterend', '<p class="key-sub">The PDF could not be created in this browser. Try Chrome, Edge, Safari or Firefox.</p>'); }
+    };
     $('again').onclick = restart;
   }
 
@@ -169,8 +190,8 @@
       '</tbody></table></div>' +
       '<div><b>Perpetual system reminders</b><ul>' +
       '<li>Purchases, freight-in, returns, allowances and purchase discounts all go through <b>Merchandise Inventory</b>.</li>' +
-      '<li><b>FOB shipping point</b>: the buyer pays freight. <b>FOB destination</b>: the seller pays.</li>' +
-      '<li>Every sale has a revenue part (selling price) and a cost part (Cost of goods sold / Merchandise Inventory, at cost).</li>' +
+      '<li>' + hl('FOB shipping point') + ': the buyer pays freight. ' + hl('FOB destination') + ': the seller pays.</li>' +
+      '<li>Every sale takes two entries: revenue at selling price, then Cost of goods sold / Merchandise Inventory at cost.</li>' +
       '<li>Payables and receivables use the vendor or customer account, for example <i>Accounts payable (Ridgeline Wholesale)</i>.</li></ul></div>';
   }
 
@@ -179,7 +200,7 @@
   document.addEventListener('keydown', function (ev) {
     if (S.summary || ev.altKey || ev.ctrlKey || ev.metaKey) return;
     const key = ev.key.toUpperCase();
-    const pos = LETTERS.indexOf(key) >= 0 ? LETTERS.indexOf(key) : ['1', '2', '3', '4'].indexOf(key);
+    const pos = LETTERS.indexOf(key) >= 0 ? LETTERS.indexOf(key) : ['1', '2'].indexOf(key);
     if (pos >= 0) { ev.preventDefault(); answer(S.order[S.cur][pos]); }
     else if (key === 'H') { ev.preventDefault(); hint(); }
     else if (ev.key === 'ArrowRight') { ev.preventDefault(); go(S.cur + 1); }
