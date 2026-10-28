@@ -42,12 +42,13 @@
     doc.setTextColor(255, 255, 255).setFont('helvetica', 'bold').setFontSize(16);
     doc.text(t(META.business) + ': Correct Journal Entries', M, 32);
     doc.setFont('helvetica', 'normal').setFontSize(10);
-    doc.text(META.month + ' ' + META.year + '  |  Perpetual inventory system  |  ' + t(META.owner) + ', owner', M, 49);
+    doc.text(META.month + ' ' + META.year + '  |  Perpetual inventory system' + (META.owner ? '  |  ' + t(META.owner) + ', owner' : ''), M, 49);
 
     doc.setTextColor.apply(doc, INK).setFontSize(10);
-    doc.text(doc.splitTextToSize('Use these entries to complete ' + t(META.practice) + '. Sales and sales returns are recorded as two entries: revenue at selling price first, then cost of goods sold at cost.', W - 2 * M), M, 86);
+    doc.text(doc.splitTextToSize('Use these entries to complete ' + t(META.practice) + '. Sales and sales returns are recorded as two entries: revenue at selling price first, then cost of goods sold at cost.' +
+      (OPENING.length ? '' : ' The books start with no opening balances.'), W - 2 * M), M, 86);
 
-    doc.autoTable({
+    if (OPENING.length) doc.autoTable({
       startY: 112, margin: { left: M, right: M }, theme: 'grid', tableWidth: 330,
       head: [['Opening balances, ' + META.openingDate + ' (given)', 'Debit', 'Credit']],
       body: OPENING.map(function (r) { return [t(r[0]), num(r[1]), num(r[2])]; }),
@@ -61,7 +62,7 @@
 
     const rows = journalRows(Q);
     doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 18, margin: { left: M, right: M }, theme: 'plain',
+      startY: OPENING.length ? doc.lastAutoTable.finalY + 18 : 120, margin: { left: M, right: M }, theme: 'plain',
       head: [['Date', 'Account Titles and Explanation', 'Debit', 'Credit']],
       body: rows.map(function (r) { return r.slice(0, 4); }),
       headStyles: { fillColor: NAVY, textColor: [255, 255, 255] },

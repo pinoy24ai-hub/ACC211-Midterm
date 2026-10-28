@@ -186,9 +186,11 @@
   function renderRef() {
     const bold = function (t) { return hl(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); };
     $('refBody').innerHTML =
-      '<div><table><thead><tr><th>Opening balances, ' + esc(META.openingDate) + '</th><th class="n">Debit</th><th class="n">Credit</th></tr></thead><tbody>' +
-      OPENING.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td class="n">' + (r[1] ? num(r[1]) : '') + '</td><td class="n">' + (r[2] ? num(r[2]) : '') + '</td></tr>'; }).join('') +
-      '</tbody></table></div>' +
+      (OPENING.length
+        ? '<div><table><thead><tr><th>Opening balances, ' + esc(META.openingDate) + '</th><th class="n">Debit</th><th class="n">Credit</th></tr></thead><tbody>' +
+          OPENING.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td class="n">' + (r[1] ? num(r[1]) : '') + '</td><td class="n">' + (r[2] ? num(r[2]) : '') + '</td></tr>'; }).join('') +
+          '</tbody></table></div>'
+        : '<div><b>Opening balances</b><p>None. The books start empty, so focus on each entry rather than account balances.</p></div>') +
       '<div><b>Reminders</b><ul>' + META.reminders.map(function (t) { return '<li>' + bold(t) + '</li>'; }).join('') + '</ul></div>';
   }
 

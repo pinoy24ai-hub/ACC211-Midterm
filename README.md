@@ -231,3 +231,11 @@ node tests/cobblestone.test.js
 The two quizzes share one engine: `src/cobblestone-quiz/js/quiz.js`, `js/pdf.js`, `css/quiz.css` and the PDF library. Each quiz's `js/questions.js` holds its questions, opening balances and a `META` block (business, owner, month and year, reminders, PDF file name, saved-progress key). To make a quiz for another business, copy `src/larkin-quiz/`, replace its `questions.js`, add the folder to `SITES` in `tools/build-netlify.js`, and rebuild.
 
 `node tests/larkin-quiz.test.js` checks every correct answer against the workshop's answer key, re-derives the $7,600 ending receivables and the $170 adjustment from the entries, and checks that every wrong choice is distinct, balanced and explained.
+
+---
+
+# Elmwood Entry Quiz (multiple choice, practice only)
+
+`netlify/elmwood-quiz/index.html` (source in `src/elmwood-quiz/`) uses the same shared quiz engine for the **12 transactions of the original Elmwood Hardware & Supply general ledger workshop** (May 2025): a cash purchase, a purchase on account from Alpha Co., a purchase return, freight-in (FOB shipping point), payment within the discount period, a cash sale, a sale on account to Beta Co., a sales return, collection within the discount period, and rent, salaries and utilities. The workshop starts with empty books, so the quiz and its PDF show no opening balances (the shared engine now handles a quiz with no opening balances or owner name).
+
+`node tests/elmwood-quiz.test.js` checks every correct answer against the workshop's answer key and that every wrong choice is distinct, balanced and explained.
