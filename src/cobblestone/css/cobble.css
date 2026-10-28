@@ -1,0 +1,88 @@
+/* Cobblestone November Ledger: additions to the workshop styles (base.css). */
+[hidden]{display:none!important}
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #9cc3ea;outline-offset:1px}
+.lead{color:var(--mute);margin:4px 0 0}
+body.tab-fs .layout{grid-template-columns:minmax(0,1fr)}
+body.tab-fs aside{display:none}
+
+/* mode switch */
+.modes{display:flex;background:rgba(255,255,255,.12);border-radius:999px;padding:3px}
+.modes button{border:0;background:none;color:#fff;padding:7px 16px;border-radius:999px;font-weight:600;font-size:.9rem}
+.modes button.on{background:#fff;color:var(--navy)}
+.progress .dot{cursor:pointer}
+.dot.open{border-style:dashed}
+
+/* intro */
+.intro-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:820px){.intro-grid{grid-template-columns:1fr}}
+.opening{width:100%;border-collapse:collapse;font-size:.92rem;background:#fff;border:1px solid var(--line);border-radius:10px}
+.opening td,.opening th{padding:6px 10px;border-bottom:1px solid #edf1f5}
+.opening th{text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mute)}
+.opening td.n,.opening th.n{text-align:right;font-variant-numeric:tabular-nums}
+.opening tfoot td{font-weight:700;border-top:2px solid var(--ink)}
+.choice{display:grid;gap:12px;margin-top:14px}
+.choice .card{padding:14px 16px}
+.choice h3{font-size:1.05rem;margin-bottom:4px}
+.choice p{margin:0 0 10px;color:var(--mute);font-size:.93rem}
+
+/* walkthrough */
+.steps-bar{display:flex;gap:6px;align-items:center;margin:4px 0 10px;flex-wrap:wrap}
+.steps-bar span{font-size:.75rem;padding:3px 10px;border-radius:999px;background:#e6edf5;color:var(--mute);font-weight:600}
+.steps-bar span.on{background:var(--teal);color:#fff}
+.steps-bar span.done{background:var(--teal-l);color:var(--teal)}
+.think{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px}
+.think li{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:#fff}
+.think li b{display:block;color:var(--navy);margin-bottom:2px}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.think li,.reveal{animation:none}}
+.reveal{animation:rise .3s ease}
+.noentry{border:2px dashed var(--amber);background:var(--amber-l);color:#6d4a00;border-radius:10px;padding:14px 16px;font-weight:600}
+.effect{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:8px}
+.effect td,.effect th{padding:5px 8px;border-bottom:1px solid #edf1f5;text-align:left}
+.effect th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mute)}
+.effect td.n,.effect th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.effect .up{color:var(--ok);font-weight:700}
+.effect .down{color:var(--bad);font-weight:700}
+.guide-nav{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.guide-nav .spacer{flex:1}
+.kbd{font-size:.78rem;color:var(--mute)}
+.btn.toggle[aria-pressed="true"]{background:var(--teal-l);color:var(--teal);border-color:var(--teal)}
+
+/* practice */
+.navgrid{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
+.navgrid button{min-width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:#fff;font-weight:700;color:var(--navy)}
+.navgrid button.cur{background:var(--navy);color:#fff;border-color:var(--navy)}
+.navgrid button.done:not(.cur){background:var(--ok-l);border-color:#9fd8bc;color:var(--ok)}
+.pjgrid{display:grid;grid-template-columns:minmax(150px,2.4fr) 110px 110px 34px 30px;gap:6px;align-items:center}
+.pjgrid.head{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);font-weight:700;padding:0 2px 4px}
+.prow{margin-bottom:6px}
+.prow select,.prow input{width:100%;padding:8px;border:2px solid var(--line);border-radius:8px;font:inherit;background:#fff}
+.prow input{text-align:right}
+.prow.iscr select{width:calc(100% - 28px);margin-left:28px}
+.prow.ok select,.prow.ok input{border-color:var(--ok);background:var(--ok-l)}
+.prow.bad select,.prow.bad input{border-color:var(--bad);background:var(--bad-l)}
+.prow select:disabled,.prow input:disabled{color:var(--ink);opacity:1;-webkit-text-fill-color:var(--ink)}
+.mark{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;font-weight:800;font-size:.85rem}
+.mark.ok{background:var(--ok-l);color:var(--ok)} .mark.bad{background:var(--bad-l);color:var(--bad)}
+.ne-toggle{display:flex;gap:8px;align-items:center;margin:10px 0 0;font-weight:600;color:var(--navy)}
+.ne-toggle input{width:18px;height:18px}
+.rows-off{opacity:.45;pointer-events:none}
+.done-banner{background:var(--ok-l);border:1px solid #9fd8bc;border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.done-banner h3{color:var(--ok)}
+.linkbtn{border:none;background:none;color:var(--navy2);font-weight:600;text-decoration:underline;padding:4px}
+@media(max-width:720px){
+  .pjgrid.head{display:none}
+  .pjgrid{grid-template-columns:1fr 1fr 34px 30px}
+  .prow .acct{grid-column:1/-1}
+  .prow.iscr select{width:calc(100% - 20px);margin-left:20px}
+  .prow{padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line)}
+  .modes{width:100%}
+  .modes button{flex:1}
+}
+
+/* statements */
+.fs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:18px;margin-top:14px;align-items:start}
+.side-stack{display:grid;gap:14px}
+.is tr.chk td{font-size:.85rem;color:var(--ok);font-weight:600;padding-top:8px}
+.is tr.chk.bad td{color:var(--bad)}
+.ta .tl.open .lab{font-style:italic}

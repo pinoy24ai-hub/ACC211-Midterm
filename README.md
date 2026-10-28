@@ -191,3 +191,20 @@ node tests/workshop.test.js
 ```
 
 Confirms every entry balances and has 3 hints, the checker accepts any line order and flags wrong vendors, missing cost entries and reversed sides, the scoring rules, and that the ledger, subsidiary ledgers and income statement tie to the videos (inventory $7,630, COGS $6,000, net income $1,000, gross margin 36%, net margin 10.7%).
+
+---
+
+# Cobblestone Sports & Outdoor: November Ledger (guided walkthrough + practice)
+
+`netlify/cobblestone/index.html` (source in `src/cobblestone/`) is a fourth single-file site. Cobblestone Sports & Outdoor (R. Delgado, owner) opens November 2026 with Cash $25,000, Merchandise Inventory $4,000, Accounts payable (Bayfront Supply Co.) $2,500 and Capital $26,500, then records 15 transactions, including a **No entry required** case (Nov 3, freight paid by the seller under FOB destination) and a late payment with no discount (Nov 27).
+
+- **Guided walkthrough:** each transaction in four steps (read, analyze with 1 to 3 questions, journalize, post) with a "what changed" table of balances, net income and total assets. Back/Next buttons or arrow keys; the progress dots jump to any transaction; optional **Read aloud** uses the browser's built-in voice.
+- **Practice:** students journalize all 15 with unlimited, no-penalty checks, free hints (the walkthrough's analysis questions) and a No entry required checkbox. Lines may be in any order. Feedback flags wrong accounts, sides, amounts and vendor or customer. No name and no certificate.
+- **Live ledgers and statements** (for whichever mode is active): the posted general journal, T-accounts with Accounts payable and Accounts receivable control accounts and their subsidiary ledgers (with reconciliation), a multi-step income statement and a balance sheet that balances after every entry (net income to date is included in owner's equity).
+- Progress in both modes is saved in the browser; `#reset` in the URL clears it.
+
+Final results: net sales $10,430, COGS $6,300, gross profit $4,130, net income $1,830; Cash $20,262, Accounts receivable (Parkside Rentals) $2,000, Merchandise Inventory $6,068, Accounts payable $0, total assets $28,330.
+
+```
+node tests/cobblestone.test.js
+```

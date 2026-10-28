@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cobblestone November Ledger</title>
+<meta name="description" content="ACC 211 guided walkthrough and practice: journalize Cobblestone Sports & Outdoor's November transactions under the perpetual inventory system and watch the T-accounts, income statement and balance sheet change.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2312355b'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%24%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/cobble.css">
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Cobblestone Sports &amp; Outdoor: November Ledger</h1>
+    <div class="sub">R. Delgado, owner (sole proprietorship) &middot; Buffalo-area retailer &middot; Perpetual inventory &middot; November 2026</div>
+  </div>
+  <div class="modes" role="group" aria-label="Mode">
+    <button type="button" data-mode="guided">Guided walkthrough</button>
+    <button type="button" data-mode="practice">Practice</button>
+  </div>
+</header>
+
+<div class="progress" id="progress"></div>
+
+<nav aria-label="Screens">
+  <button type="button" id="tab-journal" class="active" data-tab="journal"><span class="tabno">1</span><span id="tab1label">Walkthrough</span></button>
+  <button type="button" id="tab-tacc" data-tab="tacc"><span class="tabno">2</span>T-Accounts &amp; Subsidiary Ledgers</button>
+  <button type="button" id="tab-fs" data-tab="fs"><span class="tabno">3</span>Financial Statements</button>
+</nav>
+
+<div class="layout">
+  <main>
+    <section id="screen-journal">
+      <div id="workArea"></div>
+      <h3 class="sec">General Journal (posted entries)</h3>
+      <div id="postedJournal"></div>
+    </section>
+    <section id="screen-tacc" hidden>
+      <h2>T-Accounts</h2>
+      <p class="lead">Every account with a posting appears here, starting with the opening balances. Teal-outlined accounts are the merchandising focus accounts. Accounts payable and Accounts receivable are control accounts: their subsidiary ledgers show each vendor and customer. The newest postings are highlighted.</p>
+      <div id="taccArea"></div>
+    </section>
+    <section id="screen-fs" hidden>
+      <h2>Financial Statements</h2>
+      <p class="lead">Both statements rebuild after every posted entry. Lines that just changed flash yellow. The balance sheet includes net income to date in owner&rsquo;s equity, so it balances at every step.</p>
+      <div class="fs-grid" id="fsBig"></div>
+    </section>
+  </main>
+  <aside id="sideAside"><div id="fsSide"></div></aside>
+</div>
+
+<noscript><p style="padding:20px">This activity requires JavaScript. Please enable it and reload the page.</p></noscript>
+
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

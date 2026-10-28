@@ -11,6 +11,7 @@ Each sub-folder here holds one file, `index.html`: a complete, self-contained st
 | `midterm-exam/` | ACC 211 Midterm (journal, adjusting and closing entries) | PDF score report |
 | `gl-practice/` | Bright Mart General Ledger: untimed practice, check and retry | Certificate when all 15 entries are correct |
 | `gl-workshop/` | Merchandising General Ledger Workshop: scored, with hints | Certificate at 70% or higher |
+| `cobblestone/` | Cobblestone Sports & Outdoor November Ledger: guided walkthrough plus no-penalty practice, with live T-accounts, income statement and balance sheet | None (no name, no certificate) |
 
 To update a site later, open it in Netlify, go to **Deploys**, and drag the updated folder onto the deploy area. The link stays the same.
 
