@@ -1,0 +1,355 @@
+<title>Cellar or Taproom</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: a single bar-top column. A split wine|beer meter sits above one question card at a time. */
+:root{
+  --bg:#ECEFE8;        /* bottle-glass chalk */
+  --surface:#F8FAF5;
+  --ink:#1D2420;
+  --muted:#5D6A62;
+  --line:#CBD3CB;
+  --wine:#7A1F2B;
+  --wine-soft:#E9D3D3;
+  --beer:#B87A08;
+  --beer-soft:#F1E3BF;
+  --good:#2F6B45;
+  --bad:#9A2E22;
+  --f-display:"Rozha One", "Didot", Georgia, serif;
+  --f-body:"Work Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121815; --surface:#1A221E; --ink:#E7ECE6; --muted:#9AA79F; --line:#2E3A33;
+    --wine:#D7677A; --wine-soft:#3A1E24; --beer:#E8B23A; --beer-soft:#3A2E14;
+    --good:#7CC496; --bad:#EE8A7C; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121815; --surface:#1A221E; --ink:#E7ECE6; --muted:#9AA79F; --line:#2E3A33;
+  --wine:#D7677A; --wine-soft:#3A1E24; --beer:#E8B23A; --beer-soft:#3A2E14;
+  --good:#7CC496; --bad:#EE8A7C; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:28px 40px;
+}
+.wrap{max-width:720px; margin:0 auto; display:flex; flex-direction:column; gap:22px}
+header{display:flex; flex-direction:column; gap:6px}
+.eyebrow{font-family:var(--f-mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+h1{font-family:var(--f-display); font-weight:400; font-size:clamp(40px, 9vw, 68px); line-height:1; margin:0; text-wrap:balance}
+h1 .w{color:var(--wine)} h1 .b{color:var(--beer)} h1 .or{font-size:.5em; color:var(--muted); vertical-align:middle; padding:0 .15em}
+.lede{margin:0; color:var(--muted); max-width:58ch}
+
+/* Meter */
+.meter{display:flex; flex-direction:column; gap:8px}
+.meter-labels{display:flex; justify-content:space-between; font-family:var(--f-mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase}
+.meter-labels .w{color:var(--wine)} .meter-labels .b{color:var(--beer)}
+.bar{position:relative; height:22px; border-radius:11px; overflow:hidden; background:var(--beer); border:1px solid var(--line)}
+.bar .fill{position:absolute; inset:0 auto 0 0; width:50%; background:var(--wine); transition:width .6s cubic-bezier(.3,.9,.3,1)}
+.bar .fill::after{content:""; position:absolute; right:-6px; top:0; bottom:0; width:12px; border-radius:50%; background:var(--wine)}
+.bar .mid{position:absolute; left:50%; top:-2px; bottom:-2px; width:2px; background:var(--surface); opacity:.85}
+.meter-read{font-family:var(--f-mono); font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; text-align:center}
+
+/* Card */
+.card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px; display:flex; flex-direction:column; gap:16px}
+.step{display:flex; justify-content:space-between; align-items:center; gap:12px; font-family:var(--f-mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.dots{display:flex; gap:5px}
+.dots i{width:8px; height:8px; border-radius:50%; background:var(--line)}
+.dots i.on{background:var(--ink)}
+h2{font-family:var(--f-display); font-weight:400; font-size:clamp(24px, 5vw, 32px); line-height:1.15; margin:0; text-wrap:balance}
+.opts{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+@media (max-width:520px){ .opts{grid-template-columns:1fr} }
+.opt{
+  font:inherit; color:var(--ink); text-align:left; cursor:pointer;
+  background:var(--bg); border:1.5px solid var(--line); border-radius:10px; padding:12px 14px;
+  transition:border-color .15s, transform .15s, background .15s; min-width:0;
+}
+.opt:hover{border-color:var(--ink); transform:translateY(-1px)}
+.opt:focus-visible, .btn:focus-visible{outline:3px solid var(--beer); outline-offset:2px}
+.opt[disabled]{cursor:default; transform:none}
+.opt.correct{border-color:var(--good); background:color-mix(in srgb, var(--good) 12%, var(--surface))}
+.opt.wrong{border-color:var(--bad); background:color-mix(in srgb, var(--bad) 10%, var(--surface))}
+.opt.dim{opacity:.55}
+.explain{border-left:3px solid var(--beer); padding:4px 0 4px 12px; color:var(--ink); margin:0}
+.explain b{font-weight:600}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+.btn{font:inherit; font-weight:600; cursor:pointer; border-radius:999px; padding:11px 20px; border:1.5px solid var(--ink); background:var(--ink); color:var(--surface)}
+.btn.ghost{background:transparent; color:var(--ink)}
+.btn:hover{opacity:.9}
+
+/* Result */
+.verdict{display:grid; grid-template-columns:auto 1fr; gap:18px; align-items:center}
+@media (max-width:520px){ .verdict{grid-template-columns:1fr} }
+.glass{width:92px; height:132px; max-width:100%}
+.tag{display:inline-block; font-family:var(--f-mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; padding:3px 10px; border-radius:999px}
+.tag.wine{background:var(--wine-soft); color:var(--wine)}
+.tag.beer{background:var(--beer-soft); color:var(--beer)}
+.tag.both{background:var(--line); color:var(--ink)}
+.result-title{font-family:var(--f-display); font-size:clamp(30px,7vw,44px); line-height:1.05; margin:6px 0 4px; font-weight:400}
+.pair{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+@media (max-width:520px){ .pair{grid-template-columns:1fr} }
+.pair div{background:var(--bg); border-radius:10px; padding:12px 14px; min-width:0}
+.pair .k{font-family:var(--f-mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+.score{font-family:var(--f-display); font-size:56px; line-height:1; font-variant-numeric:tabular-nums}
+footer{font-size:13px; color:var(--muted); text-align:center}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important; animation:none!important} }
+.pop{animation:pop .35s ease-out}
+@keyframes pop{from{opacity:.4; transform:translateY(6px)} to{opacity:1; transform:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">A two-round tasting game</span>
+    <h1><span class="w">Cellar</span><span class="or">or</span><span class="b">Taproom?</span></h1>
+    <p class="lede">Round one reads your habits and pours you toward red wine or beer. Round two checks whether you know your bottle. Answer honestly, nobody is carding you here.</p>
+  </header>
+
+  <section class="meter" aria-label="Wine versus beer meter">
+    <div class="meter-labels"><span class="w">Red wine</span><span class="b">Beer</span></div>
+    <div class="bar" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" id="bar">
+      <div class="fill" id="fill"></div><div class="mid"></div>
+    </div>
+    <div class="meter-read" id="read">Dead even: 50 / 50</div>
+  </section>
+
+  <main id="stage" class="card" aria-live="polite"></main>
+
+  <footer>For adults of legal drinking age. Enjoy either one in good company, and get a ride home.</footer>
+</div>
+
+<script>
+// ---------- Round 1: personality. w = wine points, b = beer points ----------
+const QUIZ = [
+  { q:"It is Friday, 7 pm. Your group chat lights up. What are you hoping for?",
+    a:[["A long dinner that runs past midnight",3,0],["The game on and a pile of wings",0,3],["A backyard grill, cooler by the door",0,2],["A gallery opening with small plates",2,0]]},
+  { q:"Pick the snack you would fight for.",
+    a:[["Aged cheddar and a slice of salami",2,0],["Soft pretzel with spicy mustard",0,3],["A square of dark chocolate",2,0],["Fish tacos with lime",0,2]]},
+  { q:"A fresh pour arrives. What do you notice first?",
+    a:[["The aroma when you swirl it",3,0],["The foam and the little bubbles",0,3],["The color against the light",1,1],["Whether it is cold enough",0,2]]},
+  { q:"Which sentence sounds most like you?",
+    a:[["“Soft tannins, long finish.”",3,0],["“Crisp and very sessionable.”",0,3],["“I like it. Is there more?”",1,1],["“It reminds me of that trip.”",1,1]]},
+  { q:"You have $40 to spend on drinks for a get-together.",
+    a:[["One great bottle to open slowly",3,0],["A mixed 12-pack so everyone tries something",0,3],["Two decent bottles of red",2,0],["A local growler and some chips",0,2]]},
+  { q:"Dream trip, all expenses paid.",
+    a:[["Tuscany at harvest time",3,0],["Munich in late September",0,3],["Napa, with a bike tour",2,0],["A Belgian abbey town",0,2]]},
+  { q:"Glassware says a lot. What are you reaching for?",
+    a:[["A big bowl glass, held by the stem",3,0],["A frosted mug straight from the freezer",0,3],["A tulip glass, for either",1,1],["Whatever is clean",0,1]]},
+  { q:"Steak night. What goes next to the plate?",
+    a:[["A Cabernet, no question",3,0],["A dark stout or a porter",0,2],["An ice-cold lager to cut the richness",0,3],["Whatever my host opened",1,1]]},
+];
+
+const PROFILES = [
+  { min:75, cls:"wine", tag:"Strong red", name:"The Cellar Keeper",
+    blurb:"You swirl before you sip and you probably own a decanter. Dinner is an event, and the bottle is part of the conversation.",
+    try:"A Washington State Cabernet, like the 2023 on your table: dark fruit with firm structure.",
+    stretch:"A Belgian dubbel. Dried fruit and spice, so it will feel familiar." },
+  { min:58, cls:"wine", tag:"Leans red", name:"The Weekend Sommelier",
+    blurb:"Red is your default, but you will happily take a cold beer at a ballgame. You care about the pairing more than the label.",
+    try:"A Pinot Noir or a lighter Sangiovese for weeknights.",
+    stretch:"An Italian pilsner. Clean, crisp, and easy with pizza." },
+  { min:43, cls:"both", tag:"Dead center", name:"The Bridge Drinker",
+    blurb:"You order what fits the moment: beer on the patio, red at the dinner table. Every group needs one of you.",
+    try:"Order one of each and run a side-by-side with your plate.",
+    stretch:"A barrel-aged beer. It picks up oak and vanilla, just like wine." },
+  { min:25, cls:"beer", tag:"Leans beer", name:"The Taproom Regular",
+    blurb:"You know the bartender's name and what is on rotation. You like it cold and social, with good food nearby.",
+    try:"A classic Italian lager like the 1859-founded one in your photo: light, malty, easy.",
+    stretch:"A chilled Beaujolais. Light, fruity red that drinks almost like a beer." },
+  { min:0, cls:"beer", tag:"Strong beer", name:"The Hop Head",
+    blurb:"You have opinions on IBUs and you can spot a skunked bottle from across the room. Foam is a feature, not a bug.",
+    try:"A West Coast IPA, or a hazy one if you want it softer.",
+    stretch:"A Zinfandel. Bold, jammy, and big enough to stand up to hop lovers." },
+];
+
+// ---------- Round 2: trivia ----------
+const TRIVIA = [
+  { q:"Cabernet Sauvignon is a natural cross of which two grapes?",
+    a:["Merlot and Syrah","Cabernet Franc and Sauvignon Blanc","Pinot Noir and Chardonnay","Malbec and Riesling"], c:1,
+    e:"UC Davis researchers confirmed it with DNA testing in 1997. The parents are one red grape and one white grape." },
+  { q:"The beer label in your photo says “Dal 1859.” What does that mean?",
+    a:["Brewed at 1,859 meters","Batch number 1859","Since 1859","Best before 1859 days"], c:2,
+    e:"<b>Dal</b> is Italian for “since.” The neck also says <b>in buona compagnia</b>: best enjoyed “in good company.”" },
+  { q:"A 5 oz pour of 13.3% red wine or a 12 oz bottle of 4.6% lager. Which has more pure alcohol?",
+    a:["The wine","The beer","Exactly the same","Can't tell"], c:0,
+    e:"Wine: 5 × 0.133 = <b>0.67 oz</b>. Beer: 12 × 0.046 = <b>0.55 oz</b>. Close, but the glass of red edges it out. That is why both count as roughly one standard drink." },
+  { q:"Where do most of a red wine's tannins come from?",
+    a:["Added sugar","The yeast","Grape skins, seeds and stems","Sulfites"], c:2,
+    e:"Red wine ferments with the skins on. That contact gives it color and the drying grip you feel on your gums. Oak barrels add a bit more." },
+  { q:"What makes a lager a lager?",
+    a:["It is always light in color","Bottom-fermenting yeast at cooler temperatures","It uses no hops","It is aged in wine barrels"], c:1,
+    e:"Lager yeast works slowly in the cold, which gives clean, crisp flavors. Ales use top-fermenting yeast at warmer temperatures. Color has nothing to do with it." },
+  { q:"Why are so many beers sold in brown bottles?",
+    a:["Brown glass is cheaper","Tradition only","It blocks light that can “skunk” the beer","It keeps beer colder"], c:2,
+    e:"Light breaks down hop compounds into a sulfur compound that smells like a skunk. Brown glass blocks most of that light. Green and clear glass block much less." },
+  { q:"About how many 5 oz glasses are in a standard 750 mL bottle of wine?",
+    a:["3","4","5","8"], c:2,
+    e:"5 oz is about 148 mL. 750 ÷ 148 ≈ <b>5.1 glasses</b>. Good to know when you are planning a dinner party budget." },
+  { q:"“2023 Vintage” on the red wine label tells you...",
+    a:["The year the winery opened","The year the grapes were harvested","The year it was bottled","The year it should be opened"], c:1,
+    e:"Vintage means harvest year. The wine might be bottled a year or more later, after aging." },
+  { q:"What is the ideal serving temperature for a full-bodied red?",
+    a:["Ice cold, 38–45°F","Slightly cool, 60–65°F","Warm room, 75–80°F","It doesn't matter"], c:1,
+    e:"“Room temperature” dates from cold European cellars. A warm red tastes boozy, so 15 to 20 minutes in the fridge often helps." },
+  { q:"What do hops mainly add to beer?",
+    a:["Alcohol","Color","Bitterness, aroma and preservation","Carbonation"], c:2,
+    e:"Hops balance the sweetness of malt and help keep beer fresh. Alcohol and fizz come from yeast eating sugar." },
+];
+
+// ---------- State ----------
+let S = { phase:"quiz", i:0, wine:0, beer:0, picks:[], t:0, right:0, answered:false, tPick:null };
+
+const $ = id => document.getElementById(id);
+const stage = $("stage");
+const esc = s => s;
+
+function share(){
+  const tot = S.wine + S.beer;
+  return tot === 0 ? 50 : Math.round(S.wine / tot * 100);
+}
+function updateMeter(){
+  const p = share();
+  $("fill").style.width = p + "%";
+  $("bar").setAttribute("aria-valuenow", p);
+  $("read").textContent = p === 50 ? "Dead even: 50 / 50"
+    : p > 50 ? `Pouring red: ${p}% wine / ${100-p}% beer`
+    : `Pouring amber: ${p}% wine / ${100-p}% beer`;
+}
+function dots(n, at){
+  return `<span class="dots">${Array.from({length:n},(_,k)=>`<i class="${k<=at?'on':''}"></i>`).join("")}</span>`;
+}
+function profile(){ const p = share(); return PROFILES.find(x => p >= x.min); }
+
+function glassSVG(p){
+  // a stemmed glass split by share: red fill height ~ wine share, amber on top for beer
+  const h = 70, wineH = Math.round(h * p/100), beerH = h - wineH;
+  return `<svg class="glass" viewBox="0 0 92 132" role="img" aria-label="${p}% wine, ${100-p}% beer">
+    <defs><clipPath id="bowl"><path d="M14 10 H78 L72 72 Q46 96 20 72 Z"/></clipPath></defs>
+    <g clip-path="url(#bowl)">
+      <rect x="0" y="${84-wineH}" width="92" height="${wineH}" fill="var(--wine)"/>
+      <rect x="0" y="${84-wineH-beerH}" width="92" height="${beerH}" fill="var(--beer)"/>
+    </g>
+    <path d="M14 10 H78 L72 72 Q46 96 20 72 Z" fill="none" stroke="var(--ink)" stroke-width="2"/>
+    <path d="M46 88 V120 M28 122 H64" stroke="var(--ink)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+// ---------- Render ----------
+function render(){
+  stage.classList.remove("pop"); void stage.offsetWidth; stage.classList.add("pop");
+  updateMeter();
+  if (S.phase === "quiz") return renderQuiz();
+  if (S.phase === "result") return renderResult();
+  if (S.phase === "trivia") return renderTrivia();
+  if (S.phase === "final") return renderFinal();
+}
+
+function renderQuiz(){
+  const Q = QUIZ[S.i];
+  stage.innerHTML = `
+    <div class="step"><span>Round 1 · Question ${S.i+1} of ${QUIZ.length}</span>${dots(QUIZ.length, S.i)}</div>
+    <h2>${Q.q}</h2>
+    <div class="opts">${Q.a.map((o,k)=>`<button class="opt" id="q${S.i}o${k}" data-k="${k}">${o[0]}</button>`).join("")}</div>
+    ${S.i>0?`<div class="row"><button class="btn ghost" id="back">Back</button></div>`:""}`;
+  stage.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    const o = Q.a[+b.dataset.k];
+    S.wine += o[1]; S.beer += o[2]; S.picks.push(+b.dataset.k);
+    S.i++;
+    if (S.i >= QUIZ.length) S.phase = "result";
+    render();
+  });
+  const back = $("back");
+  if (back) back.onclick = () => {
+    S.i--; const k = S.picks.pop(); const o = QUIZ[S.i].a[k];
+    S.wine -= o[1]; S.beer -= o[2]; render();
+  };
+}
+
+function renderResult(){
+  const P = profile(), p = share();
+  stage.innerHTML = `
+    <div class="step"><span>Round 1 · Your pour</span><span>${p}% red / ${100-p}% beer</span></div>
+    <div class="verdict">
+      ${glassSVG(p)}
+      <div>
+        <span class="tag ${P.cls}">${P.tag}</span>
+        <div class="result-title">${P.name}</div>
+        <p style="margin:0">${P.blurb}</p>
+      </div>
+    </div>
+    <div class="pair">
+      <div><div class="k">Pour this next</div>${P.try}</div>
+      <div><div class="k">Cross the aisle</div>${P.stretch}</div>
+    </div>
+    <div class="row">
+      <button class="btn" id="go">Round 2: Prove it</button>
+      <button class="btn ghost" id="again">Retake quiz</button>
+    </div>`;
+  $("go").onclick = () => { S.phase="trivia"; S.t=0; S.right=0; S.answered=false; render(); };
+  $("again").onclick = reset;
+}
+
+function renderTrivia(){
+  const T = TRIVIA[S.t];
+  const done = S.answered;
+  stage.innerHTML = `
+    <div class="step"><span>Round 2 · Trivia ${S.t+1} of ${TRIVIA.length}</span><span>Score ${S.right}</span></div>
+    <h2>${T.q}</h2>
+    <div class="opts">${T.a.map((o,k)=>{
+      let c = "";
+      if (done){ if (k===T.c) c="correct"; else if (k===S.tPick) c="wrong"; else c="dim"; }
+      return `<button class="opt ${c}" id="t${S.t}o${k}" data-k="${k}" ${done?"disabled":""}>${o}</button>`;
+    }).join("")}</div>
+    ${done?`<p class="explain"><b>${S.tPick===T.c?"Cheers, that's right.":"Not quite."}</b> ${T.e}</p>
+      <div class="row"><button class="btn" id="next">${S.t+1<TRIVIA.length?"Next question":"See final score"}</button></div>`:""}`;
+  if (!done) stage.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    S.tPick = +b.dataset.k; S.answered = true; if (S.tPick === T.c) S.right++; render();
+    const n = $("next"); if (n) n.focus();
+  });
+  else $("next").onclick = () => {
+    S.t++; S.answered=false; S.tPick=null;
+    if (S.t >= TRIVIA.length) S.phase = "final";
+    render();
+  };
+}
+
+function renderFinal(){
+  const P = profile(), r = S.right, n = TRIVIA.length;
+  const rank = r>=9 ? "Certified Expert. You could work either side of the bar."
+    : r>=7 ? "Seasoned Enthusiast. Your friends ask you what to order."
+    : r>=4 ? "Curious Taster. You know enough to enjoy it and want to know more."
+    : "Fresh Pour. Plenty to learn, and the learning is the fun part.";
+  stage.innerHTML = `
+    <div class="step"><span>Last call</span><span>Both rounds done</span></div>
+    <div class="verdict">
+      <div class="score">${r}<span style="font-size:.45em;color:var(--muted)">/${n}</span></div>
+      <div>
+        <span class="tag ${P.cls}">${P.name}</span>
+        <p style="margin:8px 0 0">${rank}</p>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn" id="copy">Copy my result</button>
+      <button class="btn ghost" id="again">Play again</button>
+      <span id="copied" class="eyebrow" hidden>Copied</span>
+    </div>`;
+  $("again").onclick = reset;
+  $("copy").onclick = () => {
+    const txt = `Cellar or Taproom? I'm "${P.name}" (${share()}% red wine / ${100-share()}% beer) and scored ${r}/${n} on the trivia round.`;
+    const ok = () => { $("copied").hidden = false; };
+    try { navigator.clipboard.writeText(txt).then(ok, ok); } catch(e){ ok(); }
+  };
+}
+
+function reset(){ S = { phase:"quiz", i:0, wine:0, beer:0, picks:[], t:0, right:0, answered:false, tPick:null }; render(); }
+
+function start(data){ if (data && data.S) S = data.S; render(); }
+window.claude?.hot?.snapshot?.(() => ({ S }));
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
