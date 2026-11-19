@@ -84,6 +84,16 @@ const c1 = E.checkCode('ABCD-EFGH', 'Pat Lee', first, 6);
 assert.strictEqual(c1, E.checkCode('abcd-efgh', ' pat lee ', first, 6));
 assert.notStrictEqual(c1, E.checkCode('ABCD-EFGH', 'Pat Lee', Object.assign({}, first, { is: 8 }), 6));
 
+// Built-in calculator math (no eval; usual order of operations).
+const C = require('../part3-site/js/calc.js');
+assert.strictEqual(C.evaluate('68400+12600+8900+9600+3400'), 102900);
+assert.strictEqual(C.evaluate('2+3*4'), 14);
+assert.strictEqual(C.evaluate('1800-4800'), -3000);
+assert.strictEqual(C.evaluate('-3000+65000'), 62000);
+assert.strictEqual(C.evaluate('0.1+0.2'), 0.3);
+assert.strictEqual(C.evaluate('5+'), null, 'unfinished expression');
+assert(Number.isNaN(C.evaluate('7/0')), 'divide by zero');
+
 // The single-file build is up to date with part3-site/.
 const single = require('../tools/build-part3-single.js');
 assert.strictEqual(fs.readFileSync(single.OUT, 'utf8'), single.build(),

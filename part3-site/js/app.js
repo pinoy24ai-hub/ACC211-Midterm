@@ -67,7 +67,10 @@
     return renderCalc(T[state.view].id);
   }
 
-  function go(i) { state.view = i; save(); window.scrollTo(0, 0); render(); }
+  function go(i) {
+    state.view = i; save(); window.scrollTo(0, 0); render();
+    if ((i === 0 || i === DONE) && window.Part3Calc && window.Part3Calc.isOpen()) window.Part3Calc.toggle(false);
+  }
 
   // ---------- Welcome ----------
 
@@ -136,6 +139,7 @@
   function actionBar(id, i) {
     if (i < state.step) return '';
     return '<div class="actionbar"><div class="actionbar-inner"><div id="progress">' + progressHtml(id) + '</div>' +
+      (id === 'classify' ? '' : '<button class="btn calc-btn" data-act="calc" aria-label="Calculator" aria-pressed="' + (window.Part3Calc && window.Part3Calc.isOpen()) + '">&#129518;<span class="calc-lbl"> Calculator</span></button>') +
       '<button class="btn btn-primary" data-act="check">Check my answers</button></div></div>';
   }
 
@@ -202,9 +206,10 @@
     const v = r.amts[i], id = r.calc[i];
     const cls = ['num', r.ul[i] ? 'ul' : '', r.dbl[i] ? 'dbl' : ''];
     if (v == null) return '<td class="num"></td>';
-    if (!id || !editable) return '<td class="' + cls.join(' ').trim() + '">' + (r.kind === 'grand' ? '$' : '') + E.plain(v) + '</td>';
+    // data-v lets students click a shown amount to add it to the calculator.
+    if (!id || !editable) return '<td class="' + cls.join(' ').trim() + '" data-v="' + v + '">' + (r.kind === 'grand' ? '$' : '') + E.plain(v) + '</td>';
     const g = state.graded[kind][id];
-    if (g && g.ok) return '<td class="' + cls.concat(['calc', 'ok']).join(' ').trim() + '" data-cell="' + id + '">' + (r.kind === 'grand' ? '$' : '') + E.plain(v) + '</td>';
+    if (g && g.ok) return '<td class="' + cls.concat(['calc', 'ok']).join(' ').trim() + '" data-cell="' + id + '" data-v="' + v + '">' + (r.kind === 'grand' ? '$' : '') + E.plain(v) + '</td>';
     return '<td class="' + cls.concat(['calc', g ? 'bad' : '']).join(' ').trim() + '" data-cell="' + id + '"><input type="text" inputmode="decimal" autocomplete="off" data-calc="' + id + '"' +
       ' aria-label="' + esc(r.label) + '" value="' + esc(state.ans[kind][id] || '') + '" placeholder="?"></td>';
   }
@@ -301,7 +306,7 @@
     if (g.allRight) {
       state.step = i + 1;
       state.view = i + 1;
-      if (state.step === DONE) state.finishedAt = nowIso();
+      if (state.step === DONE) { state.finishedAt = nowIso(); if (window.Part3Calc && window.Part3Calc.isOpen()) window.Part3Calc.toggle(false); }
       else flash = { ok: true, html: '&#127881; <b>Task ' + (i + 1) + ' complete!</b> On to Task ' + (i + 2) + '.' };
       save();
       window.scrollTo(0, 0);
@@ -337,8 +342,15 @@
 
   // ---------- Buttons ----------
 
+  // Calculator: remember the amount box being worked on, and add clicked amounts.
+  app.addEventListener('focusin', ev => {
+    if (ev.target.dataset && ev.target.dataset.calc && window.Part3Calc) window.Part3Calc.setTarget(ev.target);
+  });
+
   document.addEventListener('click', async ev => {
     if (!state) return;
+    const amt = ev.target.closest('table.fs td[data-v]');
+    if (amt && window.Part3Calc && window.Part3Calc.isOpen()) { window.Part3Calc.addAmount(Number(amt.dataset.v)); return; }
     const step = ev.target.closest('[data-go]');
     if (step) {
       const i = Number(step.dataset.go);
@@ -348,6 +360,7 @@
     const btn = ev.target.closest('[data-act]');
     if (!btn) return;
     const act = btn.dataset.act;
+    if (act === 'calc') { window.Part3Calc.toggle(); return; }
     if (act === 'check') {
       const c = counts(T[state.view].id);
       const left = c.total - c.answered;
