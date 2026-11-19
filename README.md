@@ -132,39 +132,30 @@ node tests/part2-exam.test.js   # 3,000 randomized exam versions, plus build che
 
 ## Single-file version
 
-**`part3-single/ACC211_Merch_Statements.html`** is the whole app in one file (about 475 KB, PDF library included). Students can double-click it to open it in any modern browser, with no internet needed. Share it by email, a shared drive, or as a Canvas file **that students download and open** (Canvas's built-in preview may block the PDF button).
+**`part3-single/ACC211_Merch_Statements.html`** is the whole app in one file (about 455 KB, PDF library included). Students can double-click it to open it in any modern browser, with no internet needed. Share it by email, a shared drive, or as a Canvas file **that students download and open** (Canvas's built-in preview may block the PDF button).
 
 - Saved progress is tied to where the file sits. If a student moves or re-downloads the file, the browser treats it as a new copy and starts fresh.
 - **Never edit the single file directly.** Edit `part3-site/`, then run `node tools/build-part3-single.js`. The tests fail if the single file is out of date.
 
-## Stages
+## How it works
 
-| Stage | Task | Points |
-|---|---|---|
-| 1 | Classify each of the 33 adjusted accounts into one of 13 statement categories | 20 |
-| 2 | Multiple-step income statement (net sales, gross profit, selling and administrative expenses, income from operations, other income and expense, net income) | 35 |
-| 3 | Statement of owner's equity | 15 |
-| 4 | Classified balance sheet (current assets, PP&E with accumulated depreciation, current and long-term liabilities, ending capital) | 30 |
+1. **Classify the accounts.** For each of the 33 accounts on the adjusted trial balance, students pick one of 14 categories from a drop-down grouped by statement:
+   - *Income Statement:* sales revenue, deduction from sales (contra revenue), cost of goods sold, selling expense, administrative expense, other income, other expense
+   - *Statement of Owner's Equity:* beginning capital, withdrawals
+   - *Balance Sheet:* current asset, property and equipment, **contra asset: deduction from property and equipment** (accumulated depreciation), current liability, long-term liability
+2. **Check as often as needed.** Correct answers lock in green. Wrong or blank ones turn red with a one-line hint explaining where the account belongs and why. A progress bar shows answered and correct counts.
+3. **All correct: the statements appear.** The app builds the multiple-step income statement, statement of owner's equity, and classified balance sheet in textbook format (three columns, single and double rules). Accumulated depreciation is subtracted from its own equipment account to show book value. Callouts show net income flowing to the SOE and ending capital flowing to the balance sheet.
+4. **PDF certificate.** One download: a landscape certificate of completion (name, date, first-check result, checks used, certificate ID, check code) followed by the three statements.
 
-On each statement students choose the title and date line, choose the account for each line, type its balance, and type every subtotal themselves. Detail amounts go in the inner column and totals in the outer column.
-
-## How feedback and scoring work
-
-- **The first Check of a stage sets its score** (the "first-try score"). After that, every line is marked right, half right, or wrong with a short explanation, and students can fix their work and check again as often as they like.
-- **Check figures** (key totals) can be revealed after the first Check. The PDF records which stages they were viewed on.
-- **Line credit:** a correct account with its correct balance earns 1 item; the correct account with a wrong amount earns half. Each heading line (title, date) is 1 item. Stage score = items right / items possible x stage points.
-- **Carry-forward:** subtotals are graded on the student's own numbers, net income on the SOE accepts the student's own income statement figure, and capital on the balance sheet accepts the student's own ending capital. One mistake is never penalized twice.
-- **Retakes:** "Start a new attempt" clears the work. Highest first-try score counts.
-- **PDF report** (`ACC211_Merch_Statements_<Name>_AttemptN.pdf`): first-try and after-corrections scores per stage, checks used, check figures viewed, a report ID and check code, and every statement as entered, marked line by line.
-
-Key figures: net sales $590,000, gross profit $227,500, income from operations $65,000, net income $62,000, ending capital $137,100, total assets $248,200.
+Key figures: net sales $590,000, gross profit $227,500, income from operations $65,000, net income $62,000, ending capital $137,100, total property and equipment $92,100, total assets $248,200.
 
 ## Changing the data
 
-All data lives in `part3-site/js/engine.js` (`ACCOUNTS`, plus a `WHY` explanation for each account). The answer key and check figures are built from the statement templates, so they update automatically. Run the tests after any change:
+All data lives in `part3-site/js/engine.js` (`ACCOUNTS`, plus a `WHY` hint for each account). The statements are generated from the data, so they update automatically. Run the tests after any change, then rebuild the single file:
 
 ```
 node tests/part3.test.js
+node tools/build-part3-single.js
 ```
 
-They confirm the trial balance balances, the statements tie together, every account is used exactly once, perfect answers score 100, and carry-forward credit works.
+The tests confirm the trial balance balances, every category is used, the statements tie together and balance, accumulated depreciation sits under its equipment, and the single file is current.

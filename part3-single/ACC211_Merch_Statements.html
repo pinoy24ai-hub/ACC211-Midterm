@@ -263,111 +263,98 @@ button, input, select { font: inherit; color: inherit; }
   <style>
 /* Part 3 additions on top of the shared Part 1 styles */
 
+:root { --bad: #b42318; --bad-soft: #fdecea; --ok-soft: #e7f5ec; }
+
 .brand-mark { font-size: 14px; }
 .phase-steps li { padding-right: 8px; white-space: nowrap; }
 .phase-steps li span.lbl { width: auto; height: auto; background: none; border-radius: 0; display: inline; font-size: inherit; font-weight: inherit; }
 .phase-steps li.active span.lbl { background: none; color: inherit; }
 .phase-steps li.reachable { cursor: pointer; }
 .phase-steps li.reachable:hover { opacity: 1; }
-@media (max-width: 760px) { .phase-steps li .lbl { display: none; } }
+@media (max-width: 760px) { .phase-steps li span.lbl { display: none; } }
 
-:root { --bad: #b42318; --bad-soft: #fdecea; --ok-soft: #e7f5ec; --half: #9a6700; --half-soft: #fff4d6; }
+.lead { color: var(--ink-2); font-size: 1.02rem; max-width: 70ch; }
+.steps-list { padding-left: 1.3rem; margin: 0 0 1.2rem; }
+.steps-list li { margin-bottom: .5rem; }
 
-/* Refresher */
-details.refresher { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 14px; }
-details.refresher summary { cursor: pointer; font-weight: 700; color: var(--brand); }
-details.refresher p { margin: 8px 0 6px; color: var(--ink-2); }
-details.refresher ul { margin: 0 0 6px; padding-left: 1.2rem; color: var(--ink-2); }
-details.refresher .formula { font-family: var(--mono); font-size: 13px; background: var(--surface-2); border-radius: 6px; padding: 8px 10px; display: block; white-space: pre-wrap; }
-
-/* Status strip */
-.status { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-.status .pill { border-radius: 8px; padding: 8px 12px; font-size: 14px; background: var(--surface-2); border: 1px solid var(--line); }
-.status .pill b { font-family: var(--mono); }
-.status .pill.first { background: var(--brand-soft); border-color: #c6d8ec; }
-.status .pill.msg-ok { background: var(--ok-soft); border-color: #b6dfc4; }
-.status .pill.msg-bad { background: var(--bad-soft); border-color: #f3c3bd; }
+/* Banners */
+.banner { border-radius: 8px; padding: 10px 14px; margin: 0 0 14px; font-size: 15px; }
+.banner.ok { background: var(--ok-soft); border: 1px solid #b6dfc4; }
+.banner.bad { background: var(--bad-soft); border: 1px solid #f3c3bd; }
 
 /* Classification table */
-.cls-tbl select { width: 100%; min-width: 220px; border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 8px; background: #fff; }
+.tbl-wrap { overflow-x: auto; }
+.cls-tbl td { vertical-align: middle; }
+.cls-tbl td.acct .no { color: var(--muted); font-family: var(--mono); font-size: 12px; margin-right: 4px; }
+.cls-tbl td.pick { width: 44%; }
+.cls-tbl select { width: 100%; border: 1px solid var(--line-strong); border-radius: 6px; padding: 7px 8px; background: #fff; font-size: 14px; }
 .cls-tbl tr.ok td { background: var(--ok-soft); }
+.cls-tbl tr.ok select { border-color: #8cc9a1; color: var(--ink); opacity: 1; background: #f4fbf6; }
 .cls-tbl tr.bad td { background: var(--bad-soft); }
-.cls-tbl tr.note-row td { background: #fff; color: var(--bad); font-size: 13px; padding-top: 0; border-top: 0; }
+.cls-tbl tr.bad select { border-color: #e7a59d; }
+.cls-tbl tr.note-row td { background: #fff8f7; color: var(--bad); font-size: 13px; padding-top: 2px; }
 .cls-tbl td.mk { width: 22px; text-align: center; font-weight: 700; }
+.cls-tbl tr.ok td.mk { color: var(--ok); }
+.cls-tbl tr.bad td.mk { color: var(--bad); }
 @media (max-width: 640px) {
-  .cls-tbl thead { display: none; }
-  .cls-tbl, .cls-tbl tbody, .cls-tbl tr, .cls-tbl td { display: block; width: 100%; }
-  .cls-tbl tr { border-bottom: 1px solid var(--line); padding: 6px 0; }
+  .cls-tbl thead, .cls-tbl tfoot { display: none; }
+  .cls-tbl, .cls-tbl tbody, .cls-tbl tr, .cls-tbl td { display: block; width: 100% !important; }
+  .cls-tbl tr { border-bottom: 1px solid var(--line); padding: 8px 4px; }
+  .cls-tbl tr.note-row { padding-top: 0; }
   .cls-tbl td { border: 0; padding: 2px 4px; }
-  .cls-tbl td.no, .cls-tbl td.mk { display: inline-block; width: auto; }
-  .cls-tbl td.num { text-align: left; }
+  .cls-tbl td.mk { display: none; }
+  .cls-tbl td.acct { font-weight: 600; }
+  .cls-tbl td.num { display: inline-block; width: auto !important; text-align: left; color: var(--muted); font-size: 13px; }
   .cls-tbl td.num:empty { display: none; }
-  .cls-tbl select { min-width: 0; }
+  .cls-tbl tr.ok td.acct::after { content: " \2713"; color: var(--ok); }
 }
 
-/* Statement builder */
-.stmt { border: 1px solid var(--line-strong); border-radius: 8px; padding: 16px; background: #fff; }
-.stmt-head { text-align: center; display: grid; gap: 6px; justify-items: center; margin-bottom: 14px; }
-.stmt-head .biz { font-weight: 700; }
-.stmt-head select { min-width: 260px; max-width: 100%; text-align: center; border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 8px; background: #fff; font-weight: 600; }
-.stmt-head .hd { display: flex; gap: 8px; align-items: center; }
-.stmt-head .hd.ok select { border-color: var(--ok); background: var(--ok-soft); }
-.stmt-head .hd.bad select { border-color: var(--bad); background: var(--bad-soft); }
-.colhead, .sl { display: grid; grid-template-columns: minmax(0, 1fr) 128px 128px; gap: 8px; align-items: center; }
-.colhead { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border-bottom: 2px solid var(--line); padding-bottom: 4px; margin-bottom: 4px; }
-.colhead span { text-align: right; }
-.sl { padding: 3px 4px; border-radius: 6px; }
-.sl .lab { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.sl .pre { font-size: 13px; color: var(--ink-2); flex: none; width: 38px; }
-.sl select { flex: 1; min-width: 0; border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 6px; background: #fff; }
-.sl input { width: 100%; border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 8px; text-align: right; font-family: var(--mono); background: #fff; }
-.sl input.tot { background: #fbfcfe; }
-.sl.total .c2 input { border-top: 2px solid var(--ink-2); }
-.sl.grand .c2 input { border-bottom: 4px double var(--ink-2); font-weight: 700; }
-.sl.sub .lab, .sl.given .lab { font-weight: 600; }
-.sl.hdr { font-weight: 700; color: var(--ink-2); padding-top: 10px; }
-.sl.hdr.big { text-align: center; color: var(--brand); font-size: 1.02rem; border-bottom: 1px solid var(--line); }
-.sl.hdr.big .lab { justify-content: center; }
-.ind1 .lab { padding-left: 18px; }
-.ind2 .lab { padding-left: 36px; }
-.sl.ok { background: var(--ok-soft); }
-.sl.bad { background: var(--bad-soft); }
-.sl.half { background: var(--half-soft); }
-.sl.ok input, .sl.ok select { border-color: #8cc9a1; }
-.sl.bad input, .sl.bad select { border-color: #e7a59d; }
-.sl .mk { font-weight: 700; width: 14px; flex: none; text-align: center; }
-.sl.ok .mk { color: var(--ok); }
-.sl.bad .mk { color: var(--bad); }
-.sl.half .mk { color: var(--half); }
-.sl-note { font-size: 13px; color: var(--bad); padding: 0 4px 6px 22px; }
-.sl-note.half { color: var(--half); }
-@media (max-width: 640px) {
-  .stmt { padding: 10px; }
-  .colhead { display: none; }
-  .sl:not(.hdr) { grid-template-columns: 1fr 1fr; }
-  .sl:not(.hdr) .lab { grid-column: 1 / -1; }
-  .sl .c:empty { display: none; }
-  .sl .c1 input::placeholder, .sl .c2 input::placeholder { color: var(--muted); }
-  .sl.hdr { grid-template-columns: 1fr; }
-  .ind1 .lab { padding-left: 8px; }
-  .ind2 .lab { padding-left: 16px; }
-  .stmt-head select { min-width: 0; width: 100%; }
+/* Sticky action bar with progress */
+.actionbar { position: sticky; bottom: 0; z-index: 15; background: rgba(255, 255, 255, .97); border-top: 1px solid var(--line); box-shadow: 0 -4px 14px rgba(16, 24, 40, .06); margin-top: 16px; }
+.actionbar-inner { max-width: 1240px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 16px; align-items: center; }
+.actionbar-inner > div { flex: 1; }
+.progress .bar { height: 10px; border-radius: 999px; background: #e6ebf2; position: relative; overflow: hidden; }
+.progress .bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; transition: width .25s; }
+.progress .bar i.answered { background: #b9cde3; }
+.progress .bar i.right { background: var(--ok); }
+.progress .ptext { display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 13px; color: var(--ink-2); margin-top: 4px; }
+.progress .ptext .pr b { color: var(--ok); }
+
+/* Category guide */
+.guide h4 { margin: 12px 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--brand-2); }
+.guide dl { margin: 0; }
+.guide dt { font-weight: 600; font-size: 14px; margin-top: 6px; }
+.guide dd { margin: 0; color: var(--ink-2); font-size: 13px; }
+.guide .tipnote { margin-top: 12px; }
+
+/* Financial statements */
+.done-hero h1 { font-size: 1.5rem; }
+.stmt-wrap { overflow-x: auto; }
+table.fs { width: 100%; max-width: 760px; margin: 0 auto; border-collapse: collapse; font-size: 14.5px; }
+table.fs caption { text-align: center; line-height: 1.4; margin-bottom: 10px; }
+table.fs caption b { display: block; }
+table.fs td { padding: 3px 6px; }
+table.fs td.num { width: 104px; text-align: right; font-family: var(--mono); white-space: nowrap; }
+table.fs td.ul { box-shadow: inset 0 -1px 0 var(--ink); }
+table.fs td.dbl { border-bottom: 3px double var(--ink); }
+table.fs tr.hdr td.lbl { font-weight: 600; padding-top: 8px; }
+table.fs tr.big td.lbl { text-align: center; font-weight: 700; color: var(--brand); padding-top: 12px; }
+table.fs tr.grand td { font-weight: 700; }
+table.fs tr.ind1 td.lbl { padding-left: 24px; }
+table.fs tr.ind2 td.lbl { padding-left: 44px; }
+@media (max-width: 560px) {
+  table.fs { font-size: 12.5px; }
+  table.fs td { padding: 3px 3px; }
+  table.fs td.num { width: 70px; }
+  table.fs tr.ind1 td.lbl { padding-left: 10px; }
+  table.fs tr.ind2 td.lbl { padding-left: 20px; }
 }
+.flow { text-align: center; margin: 12px auto; padding: 8px 14px; max-width: 560px; background: var(--select); border: 1px solid var(--select-line); border-radius: 999px; font-size: 14px; }
+.check-line { text-align: center; color: var(--ok); font-weight: 600; margin: 14px 0 0; }
 
-/* Side panel */
-.tb-tbl { font-size: 12.5px; }
-.tb-tbl td { padding: 3px 4px; }
-.tb-tbl .num { font-size: 12px; }
-.carry { background: var(--select); border: 1px solid var(--select-line); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 14px; }
-.carry b { font-family: var(--mono); }
-.figs { margin-top: 14px; }
-.figs .tbl td:last-child { text-align: right; font-family: var(--mono); }
-.guide dt { font-weight: 700; margin-top: 8px; }
-.guide dd { margin: 2px 0 0; color: var(--ink-2); font-size: 14px; }
-
-/* Results */
-.res-tbl td.num, .res-tbl th.num { text-align: right; }
-.history { margin-top: 18px; }
+@media print {
+  .actionbar, .done-hero .btn-row, .flow { display: none !important; }
+}
 
 </style>
 </head>
@@ -817,8 +804,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   <script>
 /*
  * ACC 211 Part 3 engine: financial statements for a merchandising business (perpetual).
- * Pure logic (no DOM). Holds the fixed adjusted trial balance, the statement templates,
- * the answer key, and the graders. Every student works with the same numbers.
+ * Pure logic (no DOM). Holds the fixed adjusted trial balance, grades the account
+ * classification, and builds the three financial statements from the classification.
  */
 (function (root) {
   'use strict';
@@ -828,45 +815,44 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   const BIZ = { name: 'Ridgeline Outdoor Supply', owner: 'Morgan Cruz', year: 2026 };
   const Y = BIZ.year;
 
-  // cls: classification category (Stage 1). sec: the statement section the account belongs in.
-  // pair: for accumulated depreciation, the equipment account it reduces.
+  // cls: the correct category. pair: for accumulated depreciation, the equipment account it reduces.
   const ACCOUNTS = [
-    { no: 101, name: 'Cash', bal: 28400, side: 'dr', sec: 'ca' },
-    { no: 112, name: 'Accounts Receivable', bal: 36200, side: 'dr', sec: 'ca' },
-    { no: 120, name: 'Merchandise Inventory', bal: 84500, side: 'dr', sec: 'ca' },
-    { no: 126, name: 'Store Supplies', bal: 2300, side: 'dr', sec: 'ca' },
-    { no: 127, name: 'Office Supplies', bal: 1100, side: 'dr', sec: 'ca' },
-    { no: 130, name: 'Prepaid Insurance', bal: 3600, side: 'dr', sec: 'ca' },
-    { no: 181, name: 'Store Equipment', bal: 96000, side: 'dr', sec: 'ppeA' },
-    { no: 182, name: 'Accumulated Depreciation - Store Equipment', bal: 31200, side: 'cr', sec: 'ppeC', pair: 181 },
-    { no: 185, name: 'Office Equipment', bal: 42000, side: 'dr', sec: 'ppeA' },
-    { no: 186, name: 'Accumulated Depreciation - Office Equipment', bal: 14700, side: 'cr', sec: 'ppeC', pair: 185 },
-    { no: 201, name: 'Accounts Payable', bal: 41800, side: 'cr', sec: 'cl' },
-    { no: 211, name: 'Salaries Payable', bal: 4600, side: 'cr', sec: 'cl' },
-    { no: 212, name: 'Interest Payable', bal: 1500, side: 'cr', sec: 'cl' },
-    { no: 216, name: 'Unearned Revenue', bal: 3200, side: 'cr', sec: 'cl' },
-    { no: 251, name: 'Notes Payable (due 2030)', bal: 60000, side: 'cr', sec: 'ltl' },
-    { no: 301, name: BIZ.owner + ', Capital', bal: 115100, side: 'cr', sec: 'cap' },
-    { no: 302, name: BIZ.owner + ', Drawing', bal: 40000, side: 'dr', sec: 'draw' },
-    { no: 401, name: 'Sales', bal: 612000, side: 'cr', sec: 'rev' },
-    { no: 412, name: 'Sales Returns and Allowances', bal: 14800, side: 'dr', sec: 'contra' },
-    { no: 413, name: 'Sales Discounts', bal: 7200, side: 'dr', sec: 'contra' },
-    { no: 501, name: 'Cost of Goods Sold', bal: 362500, side: 'dr', sec: 'cogs' },
-    { no: 611, name: 'Sales Salaries Expense', bal: 68400, side: 'dr', sec: 'sell' },
-    { no: 612, name: 'Advertising Expense', bal: 12600, side: 'dr', sec: 'sell' },
-    { no: 613, name: 'Delivery Expense', bal: 8900, side: 'dr', sec: 'sell' },
-    { no: 614, name: 'Depreciation Expense - Store Equipment', bal: 9600, side: 'dr', sec: 'sell' },
-    { no: 615, name: 'Store Supplies Expense', bal: 3400, side: 'dr', sec: 'sell' },
-    { no: 711, name: 'Office Salaries Expense', bal: 41200, side: 'dr', sec: 'admin' },
-    { no: 712, name: 'Utilities Expense', bal: 7800, side: 'dr', sec: 'admin' },
-    { no: 713, name: 'Insurance Expense', bal: 4200, side: 'dr', sec: 'admin' },
-    { no: 714, name: 'Depreciation Expense - Office Equipment', bal: 4900, side: 'dr', sec: 'admin' },
-    { no: 715, name: 'Office Supplies Expense', bal: 1500, side: 'dr', sec: 'admin' },
-    { no: 811, name: 'Interest Revenue', bal: 1800, side: 'cr', sec: 'oi' },
-    { no: 911, name: 'Interest Expense', bal: 4800, side: 'dr', sec: 'oe' }
+    { no: 101, name: 'Cash', bal: 28400, side: 'dr', cls: 'ca' },
+    { no: 112, name: 'Accounts Receivable', bal: 36200, side: 'dr', cls: 'ca' },
+    { no: 120, name: 'Merchandise Inventory', bal: 84500, side: 'dr', cls: 'ca' },
+    { no: 126, name: 'Store Supplies', bal: 2300, side: 'dr', cls: 'ca' },
+    { no: 127, name: 'Office Supplies', bal: 1100, side: 'dr', cls: 'ca' },
+    { no: 130, name: 'Prepaid Insurance', bal: 3600, side: 'dr', cls: 'ca' },
+    { no: 181, name: 'Store Equipment', bal: 96000, side: 'dr', cls: 'pe' },
+    { no: 182, name: 'Accumulated Depreciation - Store Equipment', bal: 31200, side: 'cr', cls: 'cpe', pair: 181 },
+    { no: 185, name: 'Office Equipment', bal: 42000, side: 'dr', cls: 'pe' },
+    { no: 186, name: 'Accumulated Depreciation - Office Equipment', bal: 14700, side: 'cr', cls: 'cpe', pair: 185 },
+    { no: 201, name: 'Accounts Payable', bal: 41800, side: 'cr', cls: 'cl' },
+    { no: 211, name: 'Salaries Payable', bal: 4600, side: 'cr', cls: 'cl' },
+    { no: 212, name: 'Interest Payable', bal: 1500, side: 'cr', cls: 'cl' },
+    { no: 216, name: 'Unearned Revenue', bal: 3200, side: 'cr', cls: 'cl' },
+    { no: 251, name: 'Notes Payable (due 2030)', bal: 60000, side: 'cr', cls: 'ltl' },
+    { no: 301, name: BIZ.owner + ', Capital', bal: 115100, side: 'cr', cls: 'cap' },
+    { no: 302, name: BIZ.owner + ', Drawing', bal: 40000, side: 'dr', cls: 'draw' },
+    { no: 401, name: 'Sales', bal: 612000, side: 'cr', cls: 'rev' },
+    { no: 412, name: 'Sales Returns and Allowances', bal: 14800, side: 'dr', cls: 'contra' },
+    { no: 413, name: 'Sales Discounts', bal: 7200, side: 'dr', cls: 'contra' },
+    { no: 501, name: 'Cost of Goods Sold', bal: 362500, side: 'dr', cls: 'cogs' },
+    { no: 611, name: 'Sales Salaries Expense', bal: 68400, side: 'dr', cls: 'sell' },
+    { no: 612, name: 'Advertising Expense', bal: 12600, side: 'dr', cls: 'sell' },
+    { no: 613, name: 'Delivery Expense', bal: 8900, side: 'dr', cls: 'sell' },
+    { no: 614, name: 'Depreciation Expense - Store Equipment', bal: 9600, side: 'dr', cls: 'sell' },
+    { no: 615, name: 'Store Supplies Expense', bal: 3400, side: 'dr', cls: 'sell' },
+    { no: 711, name: 'Office Salaries Expense', bal: 41200, side: 'dr', cls: 'admin' },
+    { no: 712, name: 'Utilities Expense', bal: 7800, side: 'dr', cls: 'admin' },
+    { no: 713, name: 'Insurance Expense', bal: 4200, side: 'dr', cls: 'admin' },
+    { no: 714, name: 'Depreciation Expense - Office Equipment', bal: 4900, side: 'dr', cls: 'admin' },
+    { no: 715, name: 'Office Supplies Expense', bal: 1500, side: 'dr', cls: 'admin' },
+    { no: 811, name: 'Interest Revenue', bal: 1800, side: 'cr', cls: 'oi' },
+    { no: 911, name: 'Interest Expense', bal: 4800, side: 'dr', cls: 'oe' }
   ];
   const ACCT = {};
-  ACCOUNTS.forEach(a => { ACCT[a.no] = a; a.cls = (a.sec === 'ppeA' || a.sec === 'ppeC') ? 'ppe' : a.sec; });
+  ACCOUNTS.forEach(a => { ACCT[a.no] = a; });
 
   // Why each account goes where it goes (shown after a Check when a student misplaces it).
   const WHY = {
@@ -876,10 +862,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     126: 'Supplies on hand will be used within a year, so they are a current asset.',
     127: 'Supplies on hand will be used within a year, so they are a current asset.',
     130: 'Insurance paid in advance will be used up within a year, so it is a current asset.',
-    181: 'Equipment is a long-lived asset used in operations: property, plant, and equipment.',
-    185: 'Equipment is a long-lived asset used in operations: property, plant, and equipment.',
-    182: 'Accumulated depreciation is a contra asset. It is subtracted from Store Equipment under property, plant, and equipment.',
-    186: 'Accumulated depreciation is a contra asset. It is subtracted from Office Equipment under property, plant, and equipment.',
+    181: 'Equipment is a long-lived asset used in the business, so it belongs in property and equipment.',
+    185: 'Equipment is a long-lived asset used in the business, so it belongs in property and equipment.',
+    182: 'Accumulated depreciation is a contra asset. It is deducted from Store Equipment in the property and equipment group.',
+    186: 'Accumulated depreciation is a contra asset. It is deducted from Office Equipment in the property and equipment group.',
     201: 'Amounts owed to suppliers are due within a year: a current liability.',
     211: 'Salaries owed to employees are due within a year: a current liability.',
     212: 'Interest owed is due within a year: a current liability.',
@@ -906,311 +892,163 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   };
 
   const CATS = [
-    { id: 'rev', stmt: 'Income Statement', label: 'Sales revenue' },
-    { id: 'contra', stmt: 'Income Statement', label: 'Deduction from sales (contra revenue)' },
-    { id: 'cogs', stmt: 'Income Statement', label: 'Cost of goods sold' },
-    { id: 'sell', stmt: 'Income Statement', label: 'Selling expense' },
-    { id: 'admin', stmt: 'Income Statement', label: 'Administrative expense' },
-    { id: 'oi', stmt: 'Income Statement', label: 'Other income' },
-    { id: 'oe', stmt: 'Income Statement', label: 'Other expense' },
-    { id: 'cap', stmt: 'Statement of Owner\'s Equity', label: 'Beginning capital' },
-    { id: 'draw', stmt: 'Statement of Owner\'s Equity', label: 'Withdrawals' },
-    { id: 'ca', stmt: 'Balance Sheet', label: 'Current asset' },
-    { id: 'ppe', stmt: 'Balance Sheet', label: 'Property, plant, and equipment' },
-    { id: 'cl', stmt: 'Balance Sheet', label: 'Current liability' },
-    { id: 'ltl', stmt: 'Balance Sheet', label: 'Long-term liability' }
+    { id: 'rev', stmt: 'Income Statement', label: 'Sales revenue', tip: 'Revenue from selling merchandise.' },
+    { id: 'contra', stmt: 'Income Statement', label: 'Deduction from sales (contra revenue)', tip: 'Subtracted from Sales to get net sales.' },
+    { id: 'cogs', stmt: 'Income Statement', label: 'Cost of goods sold', tip: 'The cost of the merchandise that was sold.' },
+    { id: 'sell', stmt: 'Income Statement', label: 'Selling expense', tip: 'Costs of selling and delivering merchandise.' },
+    { id: 'admin', stmt: 'Income Statement', label: 'Administrative expense', tip: 'Costs of running the office and the business as a whole.' },
+    { id: 'oi', stmt: 'Income Statement', label: 'Other income', tip: 'Income that does not come from selling merchandise.' },
+    { id: 'oe', stmt: 'Income Statement', label: 'Other expense', tip: 'Expenses not related to normal operations, such as interest.' },
+    { id: 'cap', stmt: 'Statement of Owner\'s Equity', label: 'Beginning capital', tip: 'The owner\'s capital at the start of the year.' },
+    { id: 'draw', stmt: 'Statement of Owner\'s Equity', label: 'Withdrawals', tip: 'Cash or assets the owner took out for personal use.' },
+    { id: 'ca', stmt: 'Balance Sheet', label: 'Current asset', tip: 'Cash, or assets used up or turned into cash within a year.' },
+    { id: 'pe', stmt: 'Balance Sheet', label: 'Property and equipment', tip: 'Long-lived assets used in the business.' },
+    { id: 'cpe', stmt: 'Balance Sheet', label: 'Contra asset: deduction from property and equipment', tip: 'Accumulated depreciation, subtracted from its equipment account.' },
+    { id: 'cl', stmt: 'Balance Sheet', label: 'Current liability', tip: 'Debts due within a year.' },
+    { id: 'ltl', stmt: 'Balance Sheet', label: 'Long-term liability', tip: 'Debts due more than a year from now.' }
   ];
   const CAT = {};
   CATS.forEach(c => { CAT[c.id] = c; });
-
-  const SEC_LABEL = {
-    rev: 'sales revenue', contra: 'deduction from sales', cogs: 'cost of goods sold', sell: 'selling expense',
-    admin: 'administrative expense', oi: 'other income', oe: 'other expense', ca: 'current asset',
-    ppeA: 'equipment (property, plant, and equipment) account', ppeC: 'accumulated depreciation (contra asset) account',
-    cl: 'current liability', ltl: 'long-term liability'
-  };
-
-  // ---------- Statement templates ----------
-  // hdr: a caption. acct: pick an account and type its amount. sub: a subtotal the student
-  // computes (graded on the student's own numbers). given: a labeled line whose amount the
-  // student supplies (accepted values come from acc()).
-  // col: 1 = inner (detail) column, 2 = outer (totals) column.
-
-  const P = BIZ.owner;
-  const rows = (prefix, n, sec, col, ind) => Array.from({ length: n }, (_, i) => ({ t: 'acct', id: prefix + (i + 1), sec, col, ind }));
-  const ids = (prefix, n) => Array.from({ length: n }, (_, i) => prefix + (i + 1));
-
-  const IS_LINES = [
-    { t: 'hdr', label: 'Revenue from sales:', ind: 0 },
-    { t: 'acct', id: 's1', sec: 'rev', col: 1, ind: 1 },
-    { t: 'acct', id: 'd1', sec: 'contra', col: 1, ind: 1, pre: 'Less:' },
-    { t: 'acct', id: 'd2', sec: 'contra', col: 1, ind: 2 },
-    { t: 'sub', id: 'ns', label: 'Net sales', col: 2, ind: 1, from: ['s1', 'd1', 'd2'], f: v => v.s1 - v.d1 - v.d2,
-      hint: 'Net sales = Sales minus the two deductions from sales.' },
-    { t: 'acct', id: 'c1', sec: 'cogs', col: 2, ind: 1 },
-    { t: 'sub', id: 'gp', label: 'Gross profit', col: 2, ind: 0, from: ['ns', 'c1'], f: v => v.ns - v.c1, total: true,
-      hint: 'Gross profit = Net sales minus Cost of goods sold.' },
-    { t: 'hdr', label: 'Operating expenses:', ind: 0 },
-    { t: 'hdr', label: 'Selling expenses:', ind: 1 }
-  ].concat(rows('se', 5, 'sell', 1, 2), [
-    { t: 'sub', id: 'tse', label: 'Total selling expenses', col: 2, ind: 2, from: ids('se', 5), f: v => ids('se', 5).reduce((s, k) => s + v[k], 0),
-      hint: 'Add the five selling expenses you listed.' },
-    { t: 'hdr', label: 'Administrative expenses:', ind: 1 }
-  ], rows('ae', 5, 'admin', 1, 2), [
-    { t: 'sub', id: 'tae', label: 'Total administrative expenses', col: 2, ind: 2, from: ids('ae', 5), f: v => ids('ae', 5).reduce((s, k) => s + v[k], 0),
-      hint: 'Add the five administrative expenses you listed.' },
-    { t: 'sub', id: 'toe', label: 'Total operating expenses', col: 2, ind: 1, from: ['tse', 'tae'], f: v => v.tse + v.tae,
-      hint: 'Total operating expenses = Total selling expenses plus Total administrative expenses.' },
-    { t: 'sub', id: 'ifo', label: 'Income from operations', col: 2, ind: 0, from: ['gp', 'toe'], f: v => v.gp - v.toe, total: true,
-      hint: 'Income from operations = Gross profit minus Total operating expenses.' },
-    { t: 'hdr', label: 'Other income and expense:', ind: 0 },
-    { t: 'acct', id: 'oi1', sec: 'oi', col: 1, ind: 1 },
-    { t: 'acct', id: 'oe1', sec: 'oe', col: 1, ind: 1, pre: 'Less:' },
-    { t: 'sub', id: 'noi', label: 'Net other income (expense)', col: 2, ind: 1, from: ['oi1', 'oe1'], f: v => v.oi1 - v.oe1, either: true,
-      hint: 'Net other income (expense) = Other income minus Other expense. A negative result can be shown in parentheses.' },
-    { t: 'sub', id: 'ni', label: 'Net income', col: 2, ind: 0, from: ['ifo', 'oi1', 'oe1'], f: v => v.ifo + v.oi1 - v.oe1, total: true, grand: true,
-      hint: 'Net income = Income from operations plus other income minus other expense.' }
-  ]);
-
-  const SOE_LINES = [
-    { t: 'given', id: 'beg', label: P + ', Capital, January 1, ' + Y, col: 2, ind: 0, acc: () => [ACCT[301].bal],
-      hint: 'Beginning capital is the Capital balance on the adjusted trial balance (there were no new investments this year).' },
-    { t: 'given', id: 'nin', label: 'Net income for the year', pre: 'Add:', col: 1, ind: 1, acc: ctx => [KEY.is.ni].concat(ctx.ni != null ? [ctx.ni] : []),
-      hint: 'Bring net income forward from your income statement.' },
-    { t: 'given', id: 'wd', label: 'Withdrawals', pre: 'Less:', col: 1, ind: 1, acc: () => [ACCT[302].bal],
-      hint: 'Withdrawals are the Drawing balance on the adjusted trial balance.' },
-    { t: 'sub', id: 'inc', label: 'Increase in owner\'s capital', col: 2, ind: 1, from: ['nin', 'wd'], f: v => v.nin - v.wd,
-      hint: 'Increase in capital = Net income minus Withdrawals.' },
-    { t: 'sub', id: 'end', label: P + ', Capital, December 31, ' + Y, col: 2, ind: 0, from: ['beg', 'inc'], f: v => v.beg + v.inc, total: true, grand: true,
-      hint: 'Ending capital = Beginning capital plus the increase in capital.' }
-  ];
-
-  const BS_LINES = [
-    { t: 'hdr', label: 'Assets', ind: 0, big: true },
-    { t: 'hdr', label: 'Current assets:', ind: 0 }
-  ].concat(rows('ca', 6, 'ca', 1, 1), [
-    { t: 'sub', id: 'tca', label: 'Total current assets', col: 2, ind: 1, from: ids('ca', 6), f: v => ids('ca', 6).reduce((s, k) => s + v[k], 0),
-      hint: 'Add the six current assets you listed.' },
-    { t: 'hdr', label: 'Property, plant, and equipment:', ind: 0 },
-    { t: 'acct', id: 'pa1', sec: 'ppeA', col: 1, ind: 1 },
-    { t: 'acct', id: 'pc1', sec: 'ppeC', col: 1, ind: 1, pre: 'Less:', pair: 'pa1' },
-    { t: 'sub', id: 'bv1', label: 'Book value', col: 2, ind: 2, from: ['pa1', 'pc1'], f: v => v.pa1 - v.pc1,
-      hint: 'Book value = the equipment\'s cost minus its accumulated depreciation.' },
-    { t: 'acct', id: 'pa2', sec: 'ppeA', col: 1, ind: 1 },
-    { t: 'acct', id: 'pc2', sec: 'ppeC', col: 1, ind: 1, pre: 'Less:', pair: 'pa2' },
-    { t: 'sub', id: 'bv2', label: 'Book value', col: 2, ind: 2, from: ['pa2', 'pc2'], f: v => v.pa2 - v.pc2,
-      hint: 'Book value = the equipment\'s cost minus its accumulated depreciation.' },
-    { t: 'sub', id: 'tppe', label: 'Total property, plant, and equipment', col: 2, ind: 1, from: ['bv1', 'bv2'], f: v => v.bv1 + v.bv2,
-      hint: 'Add the two book values.' },
-    { t: 'sub', id: 'ta', label: 'Total assets', col: 2, ind: 0, from: ['tca', 'tppe'], f: v => v.tca + v.tppe, total: true, grand: true,
-      hint: 'Total assets = Total current assets plus Total property, plant, and equipment.' },
-    { t: 'hdr', label: 'Liabilities', ind: 0, big: true },
-    { t: 'hdr', label: 'Current liabilities:', ind: 0 }
-  ], rows('cl', 4, 'cl', 1, 1), [
-    { t: 'sub', id: 'tcl', label: 'Total current liabilities', col: 2, ind: 1, from: ids('cl', 4), f: v => ids('cl', 4).reduce((s, k) => s + v[k], 0),
-      hint: 'Add the four current liabilities you listed.' },
-    { t: 'hdr', label: 'Long-term liabilities:', ind: 0 },
-    { t: 'acct', id: 'lt1', sec: 'ltl', col: 2, ind: 1 },
-    { t: 'sub', id: 'tl', label: 'Total liabilities', col: 2, ind: 0, from: ['tcl', 'lt1'], f: v => v.tcl + v.lt1, total: true,
-      hint: 'Total liabilities = Total current liabilities plus long-term liabilities.' },
-    { t: 'hdr', label: 'Owner\'s Equity', ind: 0, big: true },
-    { t: 'given', id: 'cap', label: P + ', Capital', col: 2, ind: 1, acc: ctx => [KEY.soe.end].concat(ctx.end != null ? [ctx.end] : []),
-      hint: 'Use the ending capital (December 31) from your statement of owner\'s equity, not the beginning balance.' },
-    { t: 'sub', id: 'tloe', label: 'Total liabilities and owner\'s equity', col: 2, ind: 0, from: ['tl', 'cap'], f: v => v.tl + v.cap, total: true, grand: true,
-      hint: 'Total liabilities and owner\'s equity = Total liabilities plus ending capital. It should equal Total assets.' }
-  ]);
-
-  const PERIOD = 'For the Year Ended December 31, ' + Y;
-  const POINT = 'December 31, ' + Y;
-  const TITLES = ['Income Statement', 'Statement of Owner\'s Equity', 'Balance Sheet', 'Adjusted Trial Balance'];
-  const DATES = [PERIOD, POINT, 'For the Month Ended December 31, ' + Y];
-
-  const STATEMENTS = {
-    is: { lines: IS_LINES, title: 'Income Statement', date: PERIOD },
-    soe: { lines: SOE_LINES, title: 'Statement of Owner\'s Equity', date: PERIOD },
-    bs: { lines: BS_LINES, title: 'Balance Sheet', date: POINT }
-  };
-
-  const STAGES = [
-    { id: 'classify', short: 'Classify', title: 'Classify the Accounts', points: 20 },
-    { id: 'is', short: 'Income Statement', title: 'Multiple-Step Income Statement', points: 35 },
-    { id: 'soe', short: 'Owner\'s Equity', title: 'Statement of Owner\'s Equity', points: 15 },
-    { id: 'bs', short: 'Balance Sheet', title: 'Classified Balance Sheet', points: 30 }
-  ];
-  const POSSIBLE = STAGES.reduce((s, x) => s + x.points, 0);
 
   // ---------- Helpers ----------
 
   function money(n) { return (n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLocaleString('en-US'); }
   function plain(n) { const s = Math.abs(Math.round(n)).toLocaleString('en-US'); return n < 0 ? '(' + s + ')' : s; }
+  const sum = list => list.reduce((s, a) => s + a.bal, 0);
 
-  // Accepts 1,800  $1,800  1800.00  -3,000  (3,000). Returns null for blank or unreadable input.
-  function parseAmt(str) {
-    let s = String(str == null ? '' : str).trim();
-    if (!s) return null;
-    let neg = false;
-    if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); }
-    s = s.replace(/[$,\s]/g, '');
-    if (s.startsWith('-')) { neg = !neg; s = s.slice(1); }
-    if (!/^\d+(\.\d+)?$/.test(s)) return null;
-    const n = Number(s);
-    return neg ? -n : n;
-  }
-  const same = (a, b) => Math.abs(a - b) < 0.5;
-  const r2 = n => Math.round(n * 100) / 100;
+  // ---------- Grading ----------
 
-  function blankAnswers() {
-    return { classify: {}, is: { head: {}, acct: {}, amt: {} }, soe: { head: {}, acct: {}, amt: {} }, bs: { head: {}, acct: {}, amt: {} } };
-  }
-
-  // ---------- Answer key (built from the templates, so it always matches them) ----------
-
-  const KEY = {};
-  function buildKey() {
-    const ans = blankAnswers();
-    ACCOUNTS.forEach(a => { ans.classify[a.no] = a.cls; });
-    ['is', 'soe', 'bs'].forEach(kind => {
-      const S = STATEMENTS[kind], A = ans[kind];
-      A.head = { title: S.title, date: S.date };
-      const used = {};
-      const vals = {};
-      S.lines.forEach(L => {
-        if (L.t === 'acct') {
-          let pick;
-          if (L.pair) pick = ACCOUNTS.find(a => a.sec === 'ppeC' && a.pair === Number(A.acct[L.pair]));
-          else pick = ACCOUNTS.find(a => a.sec === L.sec && !used[a.no]);
-          used[pick.no] = true;
-          A.acct[L.id] = String(pick.no);
-          vals[L.id] = pick.bal;
-        } else if (L.t === 'given') {
-          vals[L.id] = L.acc({})[0];
-        } else if (L.t === 'sub') {
-          vals[L.id] = L.f(vals);
-        } else return;
-        A.amt[L.id] = plain(vals[L.id]);
-      });
-      KEY[kind] = vals;
-    });
-    return ans;
-  }
-  // SOE and BS "given" lines read KEY.is / KEY.soe, so build in order.
-  const ANSWER_KEY = buildKey();
-
-  // ---------- Graders ----------
-
-  function gradeClassify(ans) {
+  // answers: { [accountNo]: categoryId }
+  function gradeClassify(answers) {
     const items = {};
-    let units = 0;
+    let right = 0, answered = 0;
     ACCOUNTS.forEach(a => {
-      const pick = ans && ans[a.no];
-      let st, note;
-      if (!pick) { st = 'bad'; note = 'Choose a category.'; }
-      else if (pick === a.cls) { st = 'ok'; units += 1; }
-      else { st = 'bad'; note = 'Not ' + CAT[pick].label.toLowerCase() + '. ' + WHY[a.no]; }
-      items[a.no] = { st, note };
+      const pick = answers && answers[a.no];
+      if (pick) answered += 1;
+      if (pick === a.cls) { right += 1; items[a.no] = { ok: true }; }
+      else items[a.no] = { ok: false, note: pick && CAT[pick] ? 'Not ' + CAT[pick].label.toLowerCase() + '. ' + WHY[a.no] : 'Choose a category.' };
     });
-    return { units, total: ACCOUNTS.length, items };
+    return { right, answered, total: ACCOUNTS.length, allRight: right === ACCOUNTS.length, items };
   }
 
-  // Values the student typed, for carry-forward into later statements.
-  function typedValue(ans, kind, id) {
-    const A = ans && ans[kind];
-    return A ? parseAmt(A.amt && A.amt[id]) : null;
+  function answerKey() { const k = {}; ACCOUNTS.forEach(a => { k[a.no] = a.cls; }); return k; }
+
+  // ---------- Statements ----------
+  // Each statement is a list of rows: { label, ind, kind, amts: [c1, c2, c3], ul: [..], dbl: [..] }.
+  // kind: 'hdr' (caption), 'big' (centered group title), 'item', 'sub' (subtotal), 'grand' (final total).
+  // ul / dbl mark a single or double rule under that amount, as on a printed statement.
+
+  function row(label, ind, col, amt, opt) {
+    const r = { label, ind, kind: (opt && opt.kind) || 'item', amts: [null, null, null], ul: [false, false, false], dbl: [false, false, false] };
+    if (col) r.amts[col - 1] = amt;
+    if (opt && opt.ul) r.ul[col - 1] = true;
+    if (opt && opt.dbl) r.dbl[col - 1] = true;
+    return r;
   }
-  function carryCtx(all) {
-    return { ni: typedValue(all, 'is', 'ni'), end: typedValue(all, 'soe', 'end') };
-  }
+  const hdr = (label, ind, big) => ({ label, ind, kind: big ? 'big' : 'hdr', amts: [null, null, null], ul: [false, false, false], dbl: [false, false, false] });
 
-  function gradeStatement(kind, all) {
-    const S = STATEMENTS[kind];
-    const A = (all && all[kind]) || { head: {}, acct: {}, amt: {} };
-    const ctx = carryCtx(all || {});
-    const lines = {};
-    let units = 0, total = 0;
+  function buildStatements(answers) {
+    const cls = answers || answerKey();
+    const list = id => ACCOUNTS.filter(a => cls[a.no] === id);
 
-    // Heading: statement title and date line.
-    const head = {};
-    total += 2;
-    head.title = A.head && A.head.title === S.title ? { st: 'ok' } : { st: 'bad', note: A.head && A.head.title ? 'This is the ' + S.title + '.' : 'Choose the statement title.' };
-    const dateNote = kind === 'bs'
-      ? 'A balance sheet shows one moment in time, so its date line is just the date.'
-      : 'This statement covers a period of time, so its date line starts "For the Year Ended."';
-    head.date = A.head && A.head.date === S.date ? { st: 'ok' } : { st: 'bad', note: A.head && A.head.date ? dateNote : 'Choose the date line.' };
-    units += (head.title.st === 'ok' ? 1 : 0) + (head.date.st === 'ok' ? 1 : 0);
-
-    const vals = {}, blank = {};
-    const used = {};
-    S.lines.forEach(L => {
-      if (L.t === 'hdr') return;
-      total += 1;
-      const typed = parseAmt(A.amt && A.amt[L.id]);
-      const raw = A.amt && String(A.amt[L.id] || '').trim();
-      vals[L.id] = typed == null ? 0 : typed;
-      blank[L.id] = typed == null;
-      let st = 'bad', note = '', earn = 0;
-
-      if (L.t === 'acct') {
-        const no = Number(A.acct && A.acct[L.id]);
-        const a = ACCT[no];
-        if (!a) note = 'Choose an account for this line.';
-        else if (used[no]) note = a.name + ' is already listed above. Each account appears once.';
-        else if (a.sec !== L.sec) note = a.name + ' is not a ' + SEC_LABEL[L.sec] + '. ' + WHY[no];
-        else if (L.pair && ACCT[Number(A.acct[L.pair])] && ACCT[Number(A.acct[L.pair])].sec === 'ppeA' && a.pair !== Number(A.acct[L.pair])) {
-          note = 'Subtract the accumulated depreciation that belongs to the equipment on the line above.';
-        } else if (typed != null && same(Math.abs(typed), a.bal)) { st = 'ok'; earn = 1; }
-        else { st = 'half'; earn = 0.5; note = raw && typed == null ? 'Right account. Enter the amount as a number.' : 'Right account. Use its balance from the adjusted trial balance.'; }
-        if (a) used[no] = true;
-        if (typed != null) vals[L.id] = Math.abs(typed);
-      } else if (L.t === 'given') {
-        const accepted = L.acc(ctx);
-        if (typed == null) note = raw ? 'Enter the amount as a number.' : 'Enter an amount.';
-        else if (accepted.some(x => same(Math.abs(typed), Math.abs(x)))) { st = 'ok'; earn = 1; }
-        else note = L.hint;
-      } else if (L.t === 'sub') {
-        const expect = L.f(vals);
-        const anyInput = L.from.some(k => !blank[k]);
-        if (typed == null) note = raw ? 'Enter the amount as a number.' : 'Enter an amount.';
-        else if (!anyInput) note = 'Fill in the lines above first. ' + L.hint;
-        else if (same(typed, expect) || (L.either && same(Math.abs(typed), Math.abs(expect)))) { st = 'ok'; earn = 1; note = 'carry'; }
-        else note = L.hint;
-        if (L.either && typed != null) vals[L.id] = expect < 0 ? -Math.abs(typed) : Math.abs(typed);
-      }
-      units += earn;
-      lines[L.id] = { st, note: note === 'carry' ? '' : note };
+    // Income statement
+    const IS = [];
+    const rev = list('rev'), contra = list('contra');
+    const sales = sum(rev), ded = sum(contra), ns = sales - ded;
+    IS.push(hdr('Revenue from sales:', 0));
+    rev.forEach(a => IS.push(row(a.name, 1, 2, a.bal)));
+    contra.forEach((a, i) => {
+      const r = row((i === 0 ? 'Less: ' : '') + a.name, i === 0 ? 1 : 2, 1, a.bal, { ul: i === contra.length - 1 });
+      if (i === contra.length - 1) { r.amts[1] = ded; r.ul[1] = true; }
+      IS.push(r);
     });
+    IS.push(row('Net sales', 1, 3, ns, { kind: 'sub' }));
+    const cogs = sum(list('cogs'));
+    list('cogs').forEach((a, i, all) => IS.push(row(a.name, 0, 3, a.bal, { ul: i === all.length - 1 })));
+    const gp = ns - cogs;
+    IS.push(row('Gross profit', 0, 3, gp, { kind: 'sub' }));
+    IS.push(hdr('Operating expenses:', 0));
+    const opGroup = (id, title, totalLabel, last) => {
+      const items = list(id), t = sum(items);
+      IS.push(hdr(title, 1));
+      items.forEach((a, i) => IS.push(row(a.name, 2, 1, a.bal, { ul: i === items.length - 1 })));
+      IS.push(row(totalLabel, 2, 2, t, { kind: 'sub', ul: last }));
+      return t;
+    };
+    const tse = opGroup('sell', 'Selling expenses:', 'Total selling expenses', false);
+    const tae = opGroup('admin', 'Administrative expenses:', 'Total administrative expenses', true);
+    const toe = tse + tae;
+    IS.push(row('Total operating expenses', 1, 3, toe, { kind: 'sub', ul: true }));
+    const ifo = gp - toe;
+    IS.push(row('Income from operations', 0, 3, ifo, { kind: 'sub' }));
+    const oi = list('oi'), oe = list('oe');
+    const net = sum(oi) - sum(oe);
+    IS.push(hdr('Other income and expense:', 0));
+    oi.forEach(a => IS.push(row(a.name, 1, 2, a.bal)));
+    oe.forEach((a, i) => IS.push(row((i === 0 ? 'Less: ' : '') + a.name, 1, 2, a.bal, { ul: i === oe.length - 1 })));
+    IS.push(row(net < 0 ? 'Net other expense' : 'Net other income', 1, 3, net, { kind: 'sub', ul: true }));
+    const ni = ifo + net;
+    IS.push(row(ni < 0 ? 'Net loss' : 'Net income', 0, 3, ni, { kind: 'grand', dbl: true }));
 
-    // How many slots in each section hold a right account (for section headers).
-    return { units, total, lines, head };
-  }
+    // Statement of owner's equity
+    const P = BIZ.owner;
+    const beg = sum(list('cap')), wd = sum(list('draw')), inc = ni - wd, end = beg + inc;
+    const SOE = [
+      row(P + ', Capital, January 1, ' + Y, 0, 3, beg),
+      row((ni < 0 ? 'Less: Net loss' : 'Add: Net income') + ' for the year', 1, 2, Math.abs(ni)),
+      row('Less: Withdrawals', 1, 2, wd, { ul: true }),
+      row((inc < 0 ? 'Decrease' : 'Increase') + ' in owner\'s equity', 1, 3, inc, { kind: 'sub', ul: true }),
+      row(P + ', Capital, December 31, ' + Y, 0, 3, end, { kind: 'grand', dbl: true })
+    ];
 
-  function gradeStage(id, all) {
-    return id === 'classify' ? gradeClassify(all && all.classify) : gradeStatement(id, all);
-  }
-
-  function stageScore(id, g) {
-    const st = STAGES.find(s => s.id === id);
-    return r2(g.units / g.total * st.points);
-  }
-
-  function gradeAll(all) {
-    const stages = STAGES.map(s => {
-      const g = gradeStage(s.id, all);
-      return { id: s.id, score: stageScore(s.id, g), possible: s.points };
+    // Classified balance sheet
+    const BS = [];
+    const ca = list('ca'), tca = sum(ca);
+    BS.push(hdr('Assets', 0, true));
+    BS.push(hdr('Current assets:', 0));
+    ca.forEach((a, i) => BS.push(row(a.name, 1, 2, a.bal, { ul: i === ca.length - 1 })));
+    BS.push(row('Total current assets', 1, 3, tca, { kind: 'sub' }));
+    BS.push(hdr('Property and equipment:', 0));
+    const pe = list('pe'), cpe = list('cpe');
+    let tpe = 0;
+    pe.forEach((a, i) => {
+      BS.push(row(a.name, 1, 1, a.bal));
+      const contras = cpe.filter(c => c.pair === a.no);
+      const bv = a.bal - sum(contras);
+      tpe += bv;
+      contras.forEach((c, j) => {
+        const r = row('Less: Accumulated depreciation', 2, 1, c.bal, { ul: true });
+        if (j === contras.length - 1) { r.amts[1] = bv; r.ul[1] = i === pe.length - 1; }
+        BS.push(r);
+      });
+      if (!contras.length) { const last = BS[BS.length - 1]; last.amts = [null, a.bal, null]; }
     });
-    return { stages, total: r2(stages.reduce((s, x) => s + x.score, 0)), possible: POSSIBLE };
+    BS.push(row('Total property and equipment', 1, 3, tpe, { kind: 'sub', ul: true }));
+    const ta = tca + tpe;
+    BS.push(row('Total assets', 0, 3, ta, { kind: 'grand', dbl: true }));
+    BS.push(hdr('Liabilities', 0, true));
+    BS.push(hdr('Current liabilities:', 0));
+    const cl = list('cl'), tcl = sum(cl);
+    cl.forEach((a, i) => BS.push(row(a.name, 1, 2, a.bal, { ul: i === cl.length - 1 })));
+    BS.push(row('Total current liabilities', 1, 3, tcl, { kind: 'sub' }));
+    BS.push(hdr('Long-term liabilities:', 0));
+    const ltl = list('ltl'), tltl = sum(ltl);
+    ltl.forEach((a, i) => BS.push(row(a.name, 1, 3, a.bal, { ul: i === ltl.length - 1 })));
+    const tl = tcl + tltl;
+    BS.push(row('Total liabilities', 0, 3, tl, { kind: 'sub' }));
+    BS.push(hdr('Owner\'s Equity', 0, true));
+    BS.push(row(P + ', Capital', 1, 3, end, { ul: true }));
+    BS.push(row('Total liabilities and owner\'s equity', 0, 3, tl + end, { kind: 'grand', dbl: true }));
+
+    return {
+      is: { title: 'Income Statement', date: 'For the Year Ended December 31, ' + Y, rows: IS },
+      soe: { title: 'Statement of Owner\'s Equity', date: 'For the Year Ended December 31, ' + Y, rows: SOE },
+      bs: { title: 'Balance Sheet', date: 'December 31, ' + Y, rows: BS },
+      fig: { sales, ns, gp, toe, ifo, net, ni, beg, wd, end, tca, tpe, ta, tcl, tl, tloe: tl + end }
+    };
   }
 
-  // Check figures the student can reveal after the first Check.
-  function checkFigures(id) {
-    if (id === 'classify') {
-      return CATS.map(c => [c.stmt + ': ' + c.label, ACCOUNTS.filter(a => a.cls === c.id).length + ' account' + (ACCOUNTS.filter(a => a.cls === c.id).length === 1 ? '' : 's')]);
-    }
-    if (id === 'is') return [['Net sales', KEY.is.ns], ['Gross profit', KEY.is.gp], ['Total operating expenses', KEY.is.toe], ['Income from operations', KEY.is.ifo], ['Net income', KEY.is.ni]].map(r => [r[0], money(r[1])]);
-    if (id === 'soe') return [['Increase in owner\'s capital', KEY.soe.inc], ['Ending capital, December 31', KEY.soe.end]].map(r => [r[0], money(r[1])]);
-    return [['Total current assets', KEY.bs.tca], ['Total property, plant, and equipment', KEY.bs.tppe], ['Total assets', KEY.bs.ta], ['Total liabilities', KEY.bs.tl], ['Total liabilities and owner\'s equity', KEY.bs.tloe]].map(r => [r[0], money(r[1])]);
-  }
-
-  // ---------- Report codes (same scheme as Parts 1 and 2) ----------
+  // ---------- Certificate codes (same hashing scheme as Parts 1 and 2) ----------
 
   function hashString(str) {
     let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
@@ -1224,7 +1062,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     return 4294967296 * (2097151 & h2) + (h1 >>> 0);
   }
   const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-  function newReportId() {
+  function newCertId() {
     const bytes = new Uint32Array(8);
     if (root.crypto && root.crypto.getRandomValues) root.crypto.getRandomValues(bytes);
     else for (let i = 0; i < 8; i++) bytes[i] = Math.floor(Math.random() * 4294967296);
@@ -1232,17 +1070,14 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     for (let i = 0; i < 8; i++) s += CODE_ALPHABET[bytes[i] % CODE_ALPHABET.length];
     return s.slice(0, 4) + '-' + s.slice(4);
   }
-  // firstScores: { classify, is, soe, bs } first-try stage scores.
-  function checkCode(reportId, name, firstScores, attempt) {
-    const s = ['ACC211-P3-PRACTICE', String(reportId || '').toUpperCase(), String(name || '').trim().toLowerCase(),
-      STAGES.map(st => (firstScores[st.id] || 0).toFixed(2)).join(','), 'A' + (attempt || 1)].join('|');
+  function checkCode(certId, name, firstRight, checks) {
+    const s = ['ACC211-P3-CERT', String(certId || '').toUpperCase(), String(name || '').trim().toLowerCase(), firstRight, checks].join('|');
     return hashString(s).toString(36).toUpperCase().slice(-8);
   }
 
   const api = {
-    BIZ, ACCOUNTS, ACCT, CATS, CAT, WHY, STATEMENTS, STAGES, POSSIBLE, TITLES, DATES, KEY, ANSWER_KEY,
-    money, plain, parseAmt, blankAnswers, gradeClassify, gradeStatement, gradeStage, stageScore, gradeAll,
-    checkFigures, carryCtx, newReportId, checkCode
+    BIZ, ACCOUNTS, ACCT, CATS, CAT, WHY, money, plain,
+    gradeClassify, answerKey, buildStatements, newCertId, checkCode
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.Part3Engine = api;
@@ -1250,128 +1085,101 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
 </script>
   <script>
-/* ACC 211 Part 3 practice: PDF report (jsPDF + AutoTable, bundled in /vendor). */
+/* ACC 211 Part 3 practice: PDF certificate plus the financial statements (jsPDF + AutoTable in /vendor). */
 (function () {
   'use strict';
 
   const E = window.Part3Engine;
-  const BRAND = [31, 78, 121], INK = [27, 37, 51], MUTED = [107, 119, 137];
-  const OK = [44, 122, 75], BAD = [180, 35, 24], HALF = [154, 103, 0];
+  const BRAND = [31, 78, 121], INK = [27, 37, 51], MUTED = [107, 119, 137], GOLD = [200, 134, 42];
 
   // Standard PDF fonts only cover Latin-1, so swap typographic characters for plain ones.
   function t(s) {
     return String(s == null ? '' : s)
       .replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
-      .replace(/[–—−]/g, '-').replace(/→/g, '->').replace(/[^\x00-\xFF]/g, '?');
+      .replace(/[–—−]/g, '-').replace(/[^\x00-\xFF]/g, '?');
   }
-  const pts = n => (Math.round(n * 100) / 100).toFixed(2);
-  const markText = st => st === 'ok' ? 'Right' : st === 'half' ? 'Half' : 'Wrong';
-  const markColor = st => st === 'ok' ? OK : st === 'half' ? HALF : BAD;
 
-  function download(state, now, firstTotal, check) {
-    const doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'letter' });
-    const W = doc.internal.pageSize.getWidth(), M = 48;
-    const B = E.BIZ;
+  function certificate(doc, state, check) {
+    const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
+    const B = E.BIZ, n = E.ACCOUNTS.length;
+    doc.setDrawColor.apply(doc, BRAND).setLineWidth(6).rect(24, 24, W - 48, H - 48);
+    doc.setDrawColor.apply(doc, GOLD).setLineWidth(1.5).rect(36, 36, W - 72, H - 72);
+    const c = W / 2;
+    doc.setTextColor.apply(doc, BRAND).setFont('helvetica', 'bold').setFontSize(13);
+    doc.text('ACC 211  |  PRINCIPLES OF ACCOUNTING', c, 92, { align: 'center' });
+    doc.setFont('times', 'bold').setFontSize(40).setTextColor.apply(doc, INK);
+    doc.text('Certificate of Completion', c, 150, { align: 'center' });
+    doc.setFont('helvetica', 'normal').setFontSize(13).setTextColor.apply(doc, MUTED);
+    doc.text('This certifies that', c, 196, { align: 'center' });
+    doc.setFont('times', 'bolditalic').setFontSize(34).setTextColor.apply(doc, BRAND);
+    doc.text(t(state.name), c, 244, { align: 'center' });
+    doc.setDrawColor.apply(doc, GOLD).setLineWidth(1).line(c - 200, 256, c + 200, 256);
+    doc.setFont('helvetica', 'normal').setFontSize(13).setTextColor.apply(doc, INK);
+    doc.text(doc.splitTextToSize('correctly classified all ' + n + ' accounts on the adjusted trial balance of ' + t(B.name) +
+      ', a merchandising business using the perpetual inventory system, and prepared its multiple-step income statement, ' +
+      'statement of owner\'s equity, and classified balance sheet for the year ended December 31, ' + B.year + '.', W - 260), c, 290, { align: 'center' });
 
-    doc.setFillColor.apply(doc, BRAND);
-    doc.rect(0, 0, W, 70, 'F');
-    doc.setTextColor(255, 255, 255).setFont('helvetica', 'bold').setFontSize(18);
-    doc.text('ACC 211 Practice: Merchandising Statements', M, 34);
-    doc.setFont('helvetica', 'normal').setFontSize(10);
-    doc.text(t(B.name) + ' (perpetual inventory)  |  Score Report', M, 52);
-
-    doc.setTextColor.apply(doc, INK).setFont('helvetica', 'bold').setFontSize(22);
-    doc.text(t(state.name), M, 98);
-    const checks = E.STAGES.map(s => s.short + ': ' + (state.checks[s.id] || 0)).join(', ');
-    const figs = E.STAGES.filter(s => state.figs[s.id]).map(s => s.short).join(', ') || 'None';
-    doc.autoTable({
-      startY: 112, margin: { left: M, right: M }, theme: 'plain',
-      body: [['Attempt', String(state.attempt)], ['Report ID', state.id], ['Check code', check],
-        ['Checks used', checks], ['Check figures viewed', figs],
-        ['Started', new Date(state.startedAt).toLocaleString()],
-        ['Finished', state.finishedAt ? new Date(state.finishedAt).toLocaleString() : 'Not finished']].map(r => [t(r[0]), t(r[1])]),
-      styles: { fontSize: 10, cellPadding: 2, textColor: INK }, columnStyles: { 0: { cellWidth: 120, textColor: MUTED } }
+    const done = state.finishedAt ? new Date(state.finishedAt) : new Date();
+    const y = H - 128;
+    doc.setFontSize(10.5).setTextColor.apply(doc, MUTED);
+    const cols = [['Completed', done.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })],
+      ['First check', state.firstRight + ' of ' + n + ' correct'], ['Checks used', String(state.checks)],
+      ['Certificate ID', state.id], ['Check code', check]];
+    const step = (W - 160) / cols.length;
+    cols.forEach((col, i) => {
+      const x = 80 + step * i + step / 2;
+      doc.setFont('helvetica', 'normal').setTextColor.apply(doc, MUTED).text(col[0].toUpperCase(), x, y, { align: 'center' });
+      doc.setFont('helvetica', 'bold').setTextColor.apply(doc, INK).text(t(col[1]), x, y + 16, { align: 'center' });
     });
-
-    doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 14, margin: { left: M, right: M }, theme: 'grid',
-      head: [['Stage', 'First try (counts)', 'After corrections', 'Possible']],
-      body: E.STAGES.map((s, i) => [t((i + 1) + '. ' + s.title), pts(state.first[s.id] || 0), pts(now.stages[i].score), String(s.points)]),
-      foot: [['Total', pts(firstTotal), pts(now.total), String(E.POSSIBLE)]],
-      headStyles: { fillColor: BRAND }, footStyles: { fillColor: [231, 239, 248], textColor: INK, fontStyle: 'bold' },
-      styles: { fontSize: 10.5, textColor: INK },
-      didParseCell: d => { if (d.column.index > 0) d.cell.styles.halign = 'right'; }
-    });
-    const y = doc.lastAutoTable.finalY + 16;
     doc.setFont('helvetica', 'normal').setFontSize(9).setTextColor.apply(doc, MUTED);
-    doc.text(doc.splitTextToSize('Upload this PDF to Canvas. The first-try score is the score from the first Check of each stage; ' +
-      'later corrections are shown for your learning but do not change it. If you make more than one attempt, your highest first-try score counts. ' +
-      'The pages that follow show your work as it stands now, marked line by line.', W - 2 * M), M, y);
+    doc.text('Upload this PDF to Canvas. The financial statements follow on the next pages.', c, H - 58, { align: 'center' });
+  }
 
-    // Classification
-    const gc = E.gradeClassify(state.ans.classify);
-    newPage(doc, 'Stage 1: Classify the Accounts', gc, now.stages[0].score, E.STAGES[0].points, M);
+  function statementPage(doc, S) {
+    doc.addPage('letter', 'portrait');
+    const M = 54, B = E.BIZ;
+    doc.setTextColor.apply(doc, INK).setFont('helvetica', 'bold').setFontSize(13);
+    const W = doc.internal.pageSize.getWidth();
+    doc.text(t(B.name), W / 2, M, { align: 'center' });
+    doc.text(t(S.title), W / 2, M + 17, { align: 'center' });
+    doc.setFont('helvetica', 'normal').setFontSize(11);
+    doc.text(t(S.date), W / 2, M + 33, { align: 'center' });
+    const body = S.rows.map(r => r.kind === 'big' ? [{ content: t(r.label), colSpan: 4 }] : [t('    '.repeat(r.ind) + r.label)].concat(r.amts.map(v => v == null ? '' : (r.kind === 'grand' ? '$' : '') + E.plain(v))));
     doc.autoTable({
-      startY: M + 24, margin: { left: M, right: M }, theme: 'grid',
-      head: [['Account', 'Your category', 'Result']],
-      body: E.ACCOUNTS.map(a => {
-        const pick = E.CAT[state.ans.classify[a.no]];
-        return [t(a.no + '  ' + a.name), t(pick ? pick.stmt + ': ' + pick.label : '(none)'), markText(gc.items[a.no].st)];
-      }),
-      headStyles: { fillColor: [244, 246, 249], textColor: INK }, styles: { fontSize: 9, textColor: INK, cellPadding: 3 },
-      columnStyles: { 2: { cellWidth: 50 } },
-      didParseCell: d => { if (d.section === 'body' && d.column.index === 2) d.cell.styles.textColor = markColor(gc.items[E.ACCOUNTS[d.row.index].no].st); }
+      startY: M + 46, margin: { left: M, right: M }, theme: 'plain', body,
+      styles: { fontSize: 10, textColor: INK, cellPadding: { top: 2.5, bottom: 2.5, left: 4, right: 6 } },
+      columnStyles: { 1: { cellWidth: 82, halign: 'right' }, 2: { cellWidth: 82, halign: 'right' }, 3: { cellWidth: 82, halign: 'right' } },
+      didParseCell: d => {
+        const r = S.rows[d.row.index];
+        if (r.kind === 'grand' || r.kind === 'big') d.cell.styles.fontStyle = 'bold';
+        if (r.kind === 'hdr' && d.column.index === 0) d.cell.styles.fontStyle = 'bold';
+        if (r.kind === 'big' && d.column.index === 0) { d.cell.styles.textColor = BRAND; d.cell.styles.halign = 'center'; }
+      },
+      didDrawCell: d => {
+        if (d.section !== 'body' || d.column.index === 0) return;
+        const r = S.rows[d.row.index], i = d.column.index - 1;
+        const x1 = d.cell.x + 10, x2 = d.cell.x + d.cell.width - 2, yb = d.cell.y + d.cell.height - 1;
+        doc.setDrawColor.apply(doc, INK).setLineWidth(0.7);
+        if (r.ul[i]) doc.line(x1, yb, x2, yb);
+        if (r.dbl[i]) { doc.line(x1, yb - 1.5, x2, yb - 1.5); doc.line(x1, yb + 1, x2, yb + 1); }
+      }
     });
+  }
 
-    // Statements
-    ['is', 'soe', 'bs'].forEach((kind, k) => {
-      const S = E.STATEMENTS[kind], A = state.ans[kind];
-      const g = E.gradeStatement(kind, state.ans);
-      newPage(doc, 'Stage ' + (k + 2) + ': ' + E.STAGES[k + 1].title, g, now.stages[k + 1].score, E.STAGES[k + 1].points, M);
-      const body = [], marks = [];
-      body.push([{ content: t(B.name + '\n' + (A.head.title || '(no title)') + '\n' + (A.head.date || '(no date line)')), colSpan: 3, styles: { halign: 'center', fontStyle: 'bold' } },
-        t(markText(g.head.title.st) + ' / ' + markText(g.head.date.st))]);
-      marks.push(g.head.title.st === 'ok' && g.head.date.st === 'ok' ? 'ok' : (g.head.title.st === 'ok' || g.head.date.st === 'ok') ? 'half' : 'bad');
-      S.lines.forEach(L => {
-        const pad = '   '.repeat(L.ind);
-        if (L.t === 'hdr') { body.push([{ content: t(pad + L.label), colSpan: 4, styles: { fontStyle: 'bold' } }]); marks.push(null); return; }
-        const acct = L.t === 'acct' ? (E.ACCT[Number(A.acct[L.id])] ? E.ACCT[Number(A.acct[L.id])].name : '(no account chosen)') : L.label;
-        const amt = A.amt[L.id] || '';
-        const m = g.lines[L.id];
-        body.push([t(pad + (L.pre ? L.pre + ' ' : '') + acct), L.col === 1 ? t(amt) : '', L.col === 2 ? t(amt) : '', markText(m.st)]);
-        marks.push(m.st);
-      });
-      doc.autoTable({
-        startY: M + 24, margin: { left: M, right: M }, theme: 'plain',
-        head: [['Line', 'Detail', 'Total', 'Result']],
-        body,
-        headStyles: { fillColor: [244, 246, 249], textColor: INK }, styles: { fontSize: 9, textColor: INK, cellPadding: 2.5 },
-        columnStyles: { 1: { cellWidth: 80, halign: 'right' }, 2: { cellWidth: 80, halign: 'right' }, 3: { cellWidth: 50 } },
-        didParseCell: d => {
-          if (d.section !== 'body') return;
-          const st = marks[d.row.index];
-          if (d.column.index === 3 && st) d.cell.styles.textColor = markColor(st);
-        }
-      });
-    });
-
-    const pages = doc.getNumberOfPages(), H = doc.internal.pageSize.getHeight();
-    for (let p = 1; p <= pages; p++) {
+  function download(state, statements, check) {
+    const doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'letter', orientation: 'landscape' });
+    certificate(doc, state, check);
+    ['is', 'soe', 'bs'].forEach(k => statementPage(doc, statements[k]));
+    const pages = doc.getNumberOfPages();
+    for (let p = 2; p <= pages; p++) {
       doc.setPage(p);
+      const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
       doc.setFont('helvetica', 'normal').setFontSize(8).setTextColor.apply(doc, MUTED);
-      doc.text(t(state.name) + '  |  Merchandising Statements Practice  |  Attempt ' + state.attempt + '  |  Report ' + state.id + '  |  Check ' + check, M, H - 24);
-      doc.text('Page ' + p + ' of ' + pages, W - M, H - 24, { align: 'right' });
+      doc.text(t(state.name) + '  |  ACC 211 Merchandising Statements Practice  |  Certificate ' + state.id + '  |  Check ' + check, 54, H - 28);
+      doc.text('Page ' + p + ' of ' + pages, W - 54, H - 28, { align: 'right' });
     }
     const safe = t(state.name).replace(/[^A-Za-z0-9]+/g, '_').replace(/^_|_$/g, '');
-    doc.save('ACC211_Merch_Statements_' + (safe || 'Student') + '_Attempt' + state.attempt + '.pdf');
-  }
-
-  function newPage(doc, title, g, score, possible, M) {
-    doc.addPage();
-    doc.setTextColor.apply(doc, BRAND).setFont('helvetica', 'bold').setFontSize(15);
-    doc.text(t(title), M, M);
-    doc.setTextColor.apply(doc, MUTED).setFont('helvetica', 'normal').setFontSize(9.5);
-    doc.text('Current work: ' + pts(score) + ' / ' + possible + '  (' + (Math.round(g.units * 10) / 10) + ' of ' + g.total + ' items right)', M, M + 14);
+    doc.save('ACC211_Merch_Statements_Certificate_' + (safe || 'Student') + '.pdf');
   }
 
   window.Part3Report = { download };
@@ -1379,16 +1187,15 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
 </script>
   <script>
-/* ACC 211 Part 3 practice: user interface and flow. */
+/* ACC 211 Part 3 practice: classify the accounts, then see the financial statements. */
 (function () {
   'use strict';
 
   const E = window.Part3Engine;
-  const STORE_KEY = 'acc211-part3-practice-state-v1';
+  const STORE_KEY = 'acc211-part3-practice-state-v2';
   const app = document.getElementById('app');
   const B = E.BIZ;
   let state = load();
-  let flash = null; // one-time message after a Check
 
   // ---------- Storage and helpers ----------
 
@@ -1401,16 +1208,9 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* storage unavailable */ } }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
   const nowIso = () => new Date().toISOString();
-  const fmtPts = n => (Math.round(n * 100) / 100).toFixed(2).replace(/\.00$/, '');
-  const stageIdx = () => state.stage;
-  const stage = () => E.STAGES[state.stage];
 
-  function newState(name, history, attempt) {
-    return {
-      v: 1, id: E.newReportId(), name, attempt: attempt || 1, history: history || [],
-      startedAt: nowIso(), finishedAt: null, stage: 0, reached: 0, phase: 'work',
-      ans: E.blankAnswers(), first: {}, checks: {}, marks: {}, figs: {}
-    };
+  function newState(name) {
+    return { v: 2, id: E.newCertId(), name, startedAt: nowIso(), finishedAt: null, phase: 'classify', ans: {}, checks: 0, firstRight: null, graded: {} };
   }
 
   function dialog(title, bodyHtml, okLabel, showCancel) {
@@ -1431,20 +1231,19 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     const steps = document.getElementById('stageSteps');
     const chip = document.getElementById('studentChip');
     if (!state) { steps.innerHTML = ''; chip.hidden = true; return; }
-    steps.innerHTML = E.STAGES.map((st, i) => {
-      const done = state.first[st.id] != null;
-      const cls = [state.phase === 'work' && i === state.stage ? 'active' : '', done ? 'done' : '', i <= state.reached ? 'reachable' : ''].join(' ').trim();
-      return '<li class="' + cls + '" data-goto="' + i + '" title="' + esc(st.title) + '"><span>' + (done ? '&#10003;' : i + 1) + '</span><span class="lbl">' + esc(st.short) + '</span></li>';
-    }).join('');
+    const done = state.phase === 'done';
+    steps.innerHTML =
+      '<li class="' + (done ? 'done reachable' : 'active') + '" data-go="classify"><span>' + (done ? '&#10003;' : '1') + '</span><span class="lbl">Classify the accounts</span></li>' +
+      '<li class="' + (done ? 'active reachable' : '') + '" data-go="done"><span>2</span><span class="lbl">Financial statements</span></li>';
     chip.hidden = false;
-    chip.innerHTML = '<b>' + esc(state.name) + '</b> &middot; Attempt ' + state.attempt;
+    chip.innerHTML = '<b>' + esc(state.name) + '</b>';
   }
 
   function render() {
     setChrome();
     if (!state) return renderWelcome();
-    if (state.phase === 'done') return renderResults();
-    return renderStage();
+    if (state.phase === 'done' && !state.reviewing) return renderStatements();
+    return renderClassify();
   }
 
   // ---------- Welcome ----------
@@ -1453,24 +1252,18 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     app.innerHTML =
       '<section class="card welcome">' +
       '<div class="eyebrow">Practice &middot; Merchandising business (perpetual)</div>' +
-      '<h1>Prepare the Financial Statements</h1>' +
-      '<p>' + esc(B.name) + ' is a merchandising business owned by ' + esc(B.owner) + '. It uses the perpetual inventory system. ' +
-      'Starting from its adjusted trial balance for ' + B.year + ', you will prepare its three financial statements, one stage at a time.</p>' +
-      '<div class="points-grid">' +
-      E.STAGES.map((s, i) => '<div><b>' + s.points + ' pts</b>Stage ' + (i + 1) + ': ' + esc(s.title) + '</div>').join('') +
-      '</div>' +
-      '<ul>' +
-      '<li>When you finish a stage, click <b>Check my work</b>. Your <b>first check</b> sets your score for that stage.</li>' +
-      '<li>After that, every line is marked right or wrong with a short explanation. Fix your work and check again as often as you like, and reveal the check figures if you want them.</li>' +
-      '<li>Mistakes do not carry over: subtotals are graded on your own numbers, and each statement uses what you carried forward from the one before.</li>' +
-      '<li>At the end, download your PDF report and upload it to Canvas. You can start a new attempt any time; your highest first-try score counts.</li>' +
-      '<li>Your work is saved in this browser as you go.</li>' +
-      '</ul>' +
+      '<h1>From Trial Balance to Financial Statements</h1>' +
+      '<p>' + esc(B.name) + ' is a merchandising business owned by ' + esc(B.owner) + '. Your job is to decide where each account on its adjusted trial balance belongs.</p>' +
+      '<ol class="steps-list">' +
+      '<li><b>Classify each account.</b> Pick its statement and category from the drop-down list.</li>' +
+      '<li><b>Check your answers</b> as often as you like. Correct answers lock in green; anything red comes with a hint.</li>' +
+      '<li><b>Get it all right</b> and the app builds the income statement, statement of owner\'s equity, and classified balance sheet for you, with a PDF certificate to upload to Canvas.</li>' +
+      '</ol>' +
       '<form id="startForm" novalidate>' +
-      '<div class="field"><label for="studentName">Your full name (first and last, as shown in Canvas)</label>' +
+      '<div class="field"><label for="studentName">Your full name (as it should appear on your certificate)</label>' +
       '<input type="text" id="studentName" autocomplete="name" maxlength="60" required></div>' +
       '<p class="error" id="startError"></p>' +
-      '<button class="btn btn-primary" type="submit">Start practicing</button>' +
+      '<button class="btn btn-primary" type="submit">Let\'s start</button>' +
       '</form></section>';
     document.getElementById('startForm').addEventListener('submit', ev => {
       ev.preventDefault();
@@ -1483,116 +1276,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     });
   }
 
-  // ---------- Shared pieces ----------
+  // ---------- Classify ----------
 
-  function tbTable(compact) {
-    let dr = 0, cr = 0;
-    const body = E.ACCOUNTS.map(a => {
-      if (a.side === 'dr') dr += a.bal; else cr += a.bal;
-      return '<tr><td class="no">' + a.no + '</td><td>' + esc(a.name) + '</td><td class="num">' + (a.side === 'dr' ? E.plain(a.bal) : '') +
-        '</td><td class="num">' + (a.side === 'cr' ? E.plain(a.bal) : '') + '</td></tr>';
-    }).join('');
-    return '<div class="header-block"><b>' + esc(B.name) + '</b><b>Adjusted Trial Balance</b>December 31, ' + B.year + '</div>' +
-      '<table class="tbl' + (compact ? ' tb-tbl' : '') + '"><thead><tr><th>No.</th><th>Account</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead>' +
-      '<tbody>' + body + '</tbody><tfoot><tr><td></td><td>Totals</td><td class="num">' + E.plain(dr) + '</td><td class="num">' + E.plain(cr) + '</td></tr></tfoot></table>';
-  }
-
-  const REFRESH = {
-    classify: '<p>Each account on the adjusted trial balance appears on exactly one statement.</p><ul>' +
-      '<li><b>Income statement:</b> Sales, the deductions from sales (contra revenues), Cost of Goods Sold, operating expenses (selling or administrative), and other income or expense.</li>' +
-      '<li><b>Statement of owner\'s equity:</b> beginning Capital and Drawing (withdrawals). Net income comes from the income statement.</li>' +
-      '<li><b>Balance sheet:</b> assets (current, or property, plant, and equipment) and liabilities (current or long-term). Ending capital comes from the statement of owner\'s equity.</li>' +
-      '<li><b>Current</b> means used up, collected, or paid within one year.</li>' +
-      '<li><b>Selling</b> expenses relate to selling and delivering merchandise. <b>Administrative</b> expenses relate to running the office and the business as a whole.</li></ul>',
-    is: '<p>A multiple-step income statement reaches net income in steps:</p>' +
-      '<span class="formula">Sales − Sales returns and allowances − Sales discounts = Net sales\nNet sales − Cost of goods sold = Gross profit\nGross profit − Total operating expenses = Income from operations\nIncome from operations + Other income − Other expense = Net income</span>' +
-      '<ul><li>Under the <b>perpetual</b> system, Cost of Goods Sold is a single account balance. You do not compute it from purchases.</li>' +
-      '<li>Operating expenses are split into selling expenses and administrative expenses, each with its own total.</li>' +
-      '<li>Detail amounts go in the inner column; totals go in the outer column.</li></ul>',
-    soe: '<span class="formula">Capital, January 1\n+ Net income\n− Withdrawals\n= Capital, December 31</span>' +
-      '<ul><li>Beginning capital is the Capital balance on the adjusted trial balance (the owner made no new investments this year).</li>' +
-      '<li>Net income comes from your income statement. Withdrawals are the Drawing balance.</li></ul>',
-    bs: '<p>A classified balance sheet groups assets and liabilities into useful categories:</p><ul>' +
-      '<li><b>Current assets</b>, then <b>property, plant, and equipment</b>. Show each equipment account at cost, subtract its accumulated depreciation, and show the book value.</li>' +
-      '<li><b>Current liabilities</b>, then <b>long-term liabilities</b>.</li>' +
-      '<li><b>Owner\'s equity</b> is the <b>ending</b> capital from the statement of owner\'s equity.</li></ul>' +
-      '<span class="formula">Total assets = Total liabilities + Owner\'s equity</span>'
-  };
-
-  const HOWTO = {
-    classify: 'For each account on the adjusted trial balance, choose the statement and category where it belongs.',
-    is: 'Choose the account for each line and type its balance. Then type each subtotal yourself. You do not need minus signs on "Less:" lines.',
-    soe: 'Type the amount for each line. Use the adjusted trial balance and your income statement.',
-    bs: 'Choose the account for each line and type its balance, then type each subtotal. For equipment, choose the equipment account, then its accumulated depreciation on the "Less:" line.'
-  };
-
-  function statusStrip(id, st) {
-    const parts = [];
-    if (state.first[id] != null) {
-      parts.push('<div class="pill first">First-try score (counts): <b>' + fmtPts(state.first[id]) + ' / ' + st.points + '</b></div>');
-      const g = state.marks[id];
-      if (g) parts.push('<div class="pill">Latest check: <b>' + fmtPts(E.stageScore(id, g)) + ' / ' + st.points + '</b> &middot; checks: ' + (state.checks[id] || 0) + '</div>');
-    } else {
-      parts.push('<div class="pill">Not checked yet. Your first check sets your score for this stage.</div>');
-    }
-    if (flash) {
-      parts.push('<div class="pill ' + (flash.ok ? 'msg-ok' : 'msg-bad') + '">' + flash.text + '</div>');
-      flash = null;
-    }
-    return '<div class="status">' + parts.join('') + '</div>';
-  }
-
-  function actions(id) {
-    const checked = state.first[id] != null;
-    const i = stageIdx();
-    const last = i === E.STAGES.length - 1;
-    return '<div class="btn-row" style="margin-top:16px">' +
-      (i > 0 ? '<button class="btn btn-ghost" data-act="prev">&larr; Back</button>' : '') +
-      '<span class="spacer"></span>' +
-      (checked && !state.figs[id] ? '<button class="btn" data-act="figs">Show check figures</button>' : '') +
-      '<button class="btn ' + (checked ? '' : 'btn-primary') + '" data-act="check">Check my work</button>' +
-      (checked ? '<button class="btn btn-primary" data-act="' + (last ? 'finish' : 'next') + '">' + (last ? 'See my results' : 'Next stage &rarr;') + '</button>' : '') +
-      '</div>';
-  }
-
-  function figsCard(id) {
-    if (!state.figs[id]) return '';
-    return '<div class="figs"><h3>Check figures</h3><table class="tbl"><tbody>' +
-      E.checkFigures(id).map(r => '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>').join('') + '</tbody></table></div>';
-  }
-
-  // ---------- Stage screen ----------
-
-  function renderStage() {
-    const st = stage(), id = st.id;
-    const head =
-      '<div class="phase-head"><div><div class="eyebrow">Stage ' + (stageIdx() + 1) + ' of ' + E.STAGES.length + ' &middot; ' + st.points + ' points</div>' +
-      '<h1>' + esc(st.title) + '</h1><p>' + esc(HOWTO[id]) + '</p></div></div>' +
-      '<details class="refresher"><summary>Quick refresher</summary>' + REFRESH[id] + '</details>' +
-      statusStrip(id, st);
-
-    let main, side;
-    if (id === 'classify') {
-      main = classifyTable();
-      side = '<section class="card ref guide"><h3>The thirteen categories</h3><p class="small muted">Grouped by the statement they appear on.</p>' + categoryGuide() + figsCard(id) + '</section>';
-    } else {
-      main = statementForm(id);
-      side = '<section class="card ref">' + carryBox(id) + tbTable(true) + figsCard(id) + '</section>';
-    }
-    app.innerHTML = '<div class="layout layout-wide-side"><div><section class="card">' + head + main + actions(id) + '</section></div><aside class="side">' + side + '</aside></div>';
-  }
-
-  function categoryGuide() {
-    let out = '', cur = '';
-    E.CATS.forEach(c => {
-      if (c.stmt !== cur) { if (cur) out += '</ul>'; cur = c.stmt; out += '<dt>' + esc(c.stmt) + '</dt><ul class="small">'; }
-      out += '<li>' + esc(c.label) + '</li>';
-    });
-    return '<dl>' + out + '</ul></dl>';
-  }
-
-  function catSelect(no, val) {
-    let html = '<select data-cls="' + no + '" aria-label="Category for account ' + no + '"><option value="">Choose a category</option>';
+  function catSelect(no, val, locked) {
+    let html = '<select data-cls="' + no + '" aria-label="Category for ' + esc(E.ACCT[no].name) + '"' + (locked ? ' disabled' : '') + '><option value="">Choose&hellip;</option>';
     let cur = '';
     E.CATS.forEach(c => {
       if (c.stmt !== cur) { if (cur) html += '</optgroup>'; cur = c.stmt; html += '<optgroup label="' + esc(c.stmt) + '">'; }
@@ -1601,194 +1288,168 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     return html + '</optgroup></select>';
   }
 
-  function classifyTable() {
-    const g = state.marks.classify;
-    const ans = state.ans.classify;
+  function counts() {
+    const answered = E.ACCOUNTS.filter(a => state.ans[a.no]).length;
+    const right = E.ACCOUNTS.filter(a => state.graded[a.no] && state.graded[a.no].ok).length;
+    return { answered, right, total: E.ACCOUNTS.length };
+  }
+
+  function progressHtml() {
+    const c = counts();
+    const pctA = Math.round(c.answered / c.total * 100), pctR = Math.round(c.right / c.total * 100);
+    return '<div class="progress" aria-label="Progress"><div class="bar"><i class="answered" style="width:' + pctA + '%"></i><i class="right" style="width:' + pctR + '%"></i></div>' +
+      '<div class="ptext"><span><b>' + c.answered + '</b> of ' + c.total + ' answered</span>' + (state.checks ? '<span class="pr"><b>' + c.right + '</b> correct</span>' : '') + '</div></div>';
+  }
+
+  function renderClassify() {
+    const done = state.phase === 'done';
     const rows = E.ACCOUNTS.map(a => {
-      const m = g && g.items[a.no];
-      const cls = m ? m.st : '';
-      let r = '<tr class="' + cls + '" data-row="' + a.no + '"><td class="mk">' + (m ? (m.st === 'ok' ? '&#10003;' : '&#10007;') : '') + '</td>' +
-        '<td class="no">' + a.no + '</td><td>' + esc(a.name) + '</td>' +
+      const g = state.graded[a.no];
+      const cls = g ? (g.ok ? 'ok' : 'bad') : '';
+      let r = '<tr class="' + cls + '" data-row="' + a.no + '"><td class="mk">' + (g ? (g.ok ? '&#10003;' : '&#10007;') : '') + '</td>' +
+        '<td class="acct"><span class="no">' + a.no + '</span> ' + esc(a.name) + '</td>' +
         '<td class="num">' + (a.side === 'dr' ? E.plain(a.bal) : '') + '</td><td class="num">' + (a.side === 'cr' ? E.plain(a.bal) : '') + '</td>' +
-        '<td>' + catSelect(a.no, ans[a.no]) + '</td></tr>';
-      if (m && m.note) r += '<tr class="note-row" data-note="' + a.no + '"><td></td><td colspan="5">' + esc(m.note) + '</td></tr>';
+        '<td class="pick">' + catSelect(a.no, state.ans[a.no], g && g.ok) + '</td></tr>';
+      if (g && !g.ok) r += '<tr class="note-row" data-note="' + a.no + '"><td></td><td colspan="4">&#128161; ' + esc(g.note) + '</td></tr>';
       return r;
     }).join('');
-    return '<div class="header-block"><b>' + esc(B.name) + '</b><b>Adjusted Trial Balance</b>December 31, ' + B.year + '</div>' +
-      '<table class="tbl cls-tbl"><thead><tr><th></th><th>No.</th><th>Account</th><th class="num">Debit</th><th class="num">Credit</th><th>Statement and category</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    let dr = 0, cr = 0;
+    E.ACCOUNTS.forEach(a => { if (a.side === 'dr') dr += a.bal; else cr += a.bal; });
+
+    app.innerHTML =
+      '<div class="layout layout-wide-side"><div><section class="card">' +
+      '<div class="eyebrow">Step 1 of 2</div><h1>Classify the Accounts</h1>' +
+      '<p class="lead">For each account, choose the financial statement and the category where it belongs. Stuck? The category guide explains each one.</p>' +
+      (done ? '<div class="banner ok">All correct. <button class="btn-link" data-act="statements">Back to your financial statements &rarr;</button></div>' : '') +
+      '<div id="flash"></div>' +
+      '<div class="header-block"><b>' + esc(B.name) + '</b><b>Adjusted Trial Balance</b>December 31, ' + B.year + '</div>' +
+      '<div class="tbl-wrap"><table class="tbl cls-tbl"><thead><tr><th></th><th>Account</th><th class="num">Debit</th><th class="num">Credit</th><th>Where does it belong?</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody><tfoot><tr><td></td><td>Totals</td><td class="num">' + E.plain(dr) + '</td><td class="num">' + E.plain(cr) + '</td><td></td></tr></tfoot></table></div>' +
+      '</section></div>' +
+      '<aside class="side"><section class="card guide"><h3>Category guide</h3>' + categoryGuide() + '</section></aside></div>' +
+      (done ? '' : '<div class="actionbar"><div class="actionbar-inner">' + '<div id="progress">' + progressHtml() + '</div>' +
+        '<button class="btn btn-primary" data-act="check">Check my answers</button></div></div>');
   }
 
-  function acctSelect(lineId, val) {
-    return '<select data-acct="' + lineId + '" aria-label="Account"><option value="">Choose an account</option>' +
-      E.ACCOUNTS.map(a => '<option value="' + a.no + '"' + (String(val) === String(a.no) ? ' selected' : '') + '>' + esc(a.name) + '</option>').join('') + '</select>';
-  }
-
-  function headSelect(key, val, opts, mark) {
-    return '<div class="hd ' + (mark ? mark.st : '') + '"><select data-head="' + key + '" aria-label="Statement ' + key + '">' +
-      '<option value="">' + (key === 'title' ? 'Choose the statement title' : 'Choose the date line') + '</option>' +
-      opts.map(o => '<option' + (val === o ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select></div>' +
-      (mark && mark.note ? '<div class="sl-note">' + esc(mark.note) + '</div>' : '');
-  }
-
-  function statementForm(kind) {
-    const S = E.STATEMENTS[kind], A = state.ans[kind], g = state.marks[kind];
-    let html = '<div class="stmt"><div class="stmt-head"><div class="biz">' + esc(B.name) + '</div>' +
-      headSelect('title', A.head.title, E.TITLES, g && g.head.title) +
-      headSelect('date', A.head.date, E.DATES, g && g.head.date) + '</div>' +
-      '<div class="colhead"><span></span><span>Detail</span><span>Total</span></div>';
-    S.lines.forEach(L => {
-      if (L.t === 'hdr') { html += '<div class="sl hdr ind' + L.ind + (L.big ? ' big' : '') + '"><div class="lab">' + esc(L.label) + '</div></div>'; return; }
-      const m = g && g.lines[L.id];
-      const cls = ['sl', L.t, 'ind' + L.ind, L.total ? 'total' : '', L.grand ? 'grand' : '', m ? m.st : ''].join(' ');
-      const mark = '<span class="mk">' + (m ? (m.st === 'ok' ? '&#10003;' : m.st === 'half' ? '&frac12;' : '&#10007;') : '') + '</span>';
-      const label = L.t === 'acct' ? acctSelect(L.id, A.acct[L.id]) : '<span>' + esc(L.label) + '</span>';
-      const input = '<input type="text" inputmode="decimal" autocomplete="off" data-amt="' + L.id + '" value="' + esc(A.amt[L.id] || '') + '"' +
-        ' aria-label="Amount' + (L.label ? ' for ' + esc(L.label) : '') + '"' + (L.t === 'sub' ? ' class="tot"' : '') + '>';
-      html += '<div class="' + cls + '" data-line="' + L.id + '"><div class="lab">' + mark + (L.pre ? '<span class="pre">' + L.pre + '</span>' : '') + label + '</div>' +
-        '<div class="c c1">' + (L.col === 1 ? input : '') + '</div><div class="c c2">' + (L.col === 2 ? input : '') + '</div></div>';
-      if (m && m.note) html += '<div class="sl-note ' + m.st + '" data-note="' + L.id + '">' + esc(m.note) + '</div>';
+  function categoryGuide() {
+    let out = '', cur = '';
+    E.CATS.forEach(c => {
+      if (c.stmt !== cur) { if (cur) out += '</dl>'; cur = c.stmt; out += '<h4>' + esc(c.stmt) + '</h4><dl>'; }
+      out += '<dt>' + esc(c.label) + '</dt><dd>' + esc(c.tip) + '</dd>';
     });
-    return html + '</div>';
+    return out + '</dl><p class="small muted tipnote"><b>Current</b> means used up, collected, or paid within one year.</p>';
   }
 
-  function carryBox(kind) {
-    const ctx = E.carryCtx(state.ans);
-    const show = v => v == null ? '<i>not entered yet</i>' : '<b>' + E.plain(v) + '</b>';
-    if (kind === 'soe') return '<div class="carry">From your income statement: net income ' + show(ctx.ni) + '</div>';
-    if (kind === 'bs') return '<div class="carry">From your statement of owner\'s equity: ending capital ' + show(ctx.end) + '</div>';
-    return '';
-  }
-
-  // ---------- Input handling ----------
-
-  function clearMark(kind, key) {
-    const g = state.marks[kind];
-    if (!g) return;
-    if (kind === 'classify') {
-      delete g.items[key];
-      const row = app.querySelector('tr[data-row="' + key + '"]');
+  app.addEventListener('change', ev => {
+    const el = ev.target;
+    if (!state || !el.dataset.cls) return;
+    const no = el.dataset.cls;
+    state.ans[no] = el.value;
+    // A changed answer loses its old mark until the next check.
+    if (state.graded[no]) {
+      delete state.graded[no];
+      const row = app.querySelector('tr[data-row="' + no + '"]');
       if (row) { row.className = ''; row.querySelector('.mk').innerHTML = ''; }
-      const n = app.querySelector('tr[data-note="' + key + '"]');
-      if (n) n.remove();
-    } else {
-      delete g.lines[key];
-      const row = app.querySelector('.sl[data-line="' + key + '"]');
-      if (row) { row.classList.remove('ok', 'bad', 'half'); row.querySelector('.mk').innerHTML = ''; }
-      const n = app.querySelector('.sl-note[data-note="' + key + '"]');
+      const n = app.querySelector('tr[data-note="' + no + '"]');
       if (n) n.remove();
     }
-  }
-
-  app.addEventListener('input', onEdit);
-  app.addEventListener('change', onEdit);
-  function onEdit(ev) {
-    if (!state || state.phase !== 'work') return;
-    const el = ev.target, kind = stage().id;
-    if (el.dataset.cls) { state.ans.classify[el.dataset.cls] = el.value; clearMark('classify', el.dataset.cls); }
-    else if (el.dataset.head) {
-      state.ans[kind].head[el.dataset.head] = el.value;
-      const g = state.marks[kind];
-      if (g && g.head[el.dataset.head]) { g.head[el.dataset.head] = { st: '' }; const hd = el.closest('.hd'); hd.className = 'hd'; if (hd.nextElementSibling && hd.nextElementSibling.classList.contains('sl-note')) hd.nextElementSibling.remove(); }
-    } else if (el.dataset.acct) { state.ans[kind].acct[el.dataset.acct] = el.value; clearMark(kind, el.dataset.acct); }
-    else if (el.dataset.amt) { state.ans[kind].amt[el.dataset.amt] = el.value; clearMark(kind, el.dataset.amt); }
-    else return;
     save();
-  }
-
-  // Tidy amounts on blur: 1800 -> 1,800 and -3000 -> (3,000).
-  app.addEventListener('focusout', ev => {
-    const el = ev.target;
-    if (!el.dataset || !el.dataset.amt || !state) return;
-    const n = E.parseAmt(el.value);
-    if (n == null) return;
-    el.value = E.plain(n);
-    state.ans[stage().id].amt[el.dataset.amt] = el.value;
-    save();
+    const p = document.getElementById('progress');
+    if (p) p.innerHTML = progressHtml();
   });
+
+  function doCheck() {
+    const g = E.gradeClassify(state.ans);
+    state.checks += 1;
+    if (state.firstRight == null) state.firstRight = g.right;
+    state.graded = g.items;
+    if (g.allRight) {
+      state.phase = 'done';
+      state.finishedAt = nowIso();
+      state.reviewing = false;
+      save();
+      window.scrollTo(0, 0);
+      render();
+      return;
+    }
+    save();
+    render();
+    const left = g.total - g.right;
+    document.getElementById('flash').innerHTML = '<div class="banner bad"><b>' + g.right + ' of ' + g.total + ' correct.</b> ' +
+      (left === 1 ? 'Just one to go! ' : left + ' to go. ') + 'Correct answers are locked in green. Read the hint on each red one, change your answer, and check again.</div>';
+    const firstBad = app.querySelector('tr.bad');
+    if (firstBad) firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // ---------- Statements ----------
+
+  function stmtTable(S) {
+    const cell = (r, i) => {
+      const v = r.amts[i];
+      const cls = ['num', r.ul[i] ? 'ul' : '', r.dbl[i] ? 'dbl' : ''].join(' ').trim();
+      // Final totals get a dollar sign, as on a printed statement.
+      return '<td class="' + cls + '">' + (v == null ? '' : (r.kind === 'grand' ? '$' : '') + E.plain(v)) + '</td>';
+    };
+    return '<div class="stmt-wrap"><table class="fs"><caption><b>' + esc(B.name) + '</b><b>' + esc(S.title) + '</b>' + esc(S.date) + '</caption><tbody>' +
+      S.rows.map(r => '<tr class="' + r.kind + ' ind' + r.ind + '">' + (r.kind === 'big' ? '<td class="lbl" colspan="4">' + esc(r.label) + '</td>'
+        : '<td class="lbl">' + esc(r.label) + '</td>' + cell(r, 0) + cell(r, 1) + cell(r, 2)) + '</tr>').join('') +
+      '</tbody></table></div>';
+  }
+
+  function renderStatements() {
+    const S = E.buildStatements(state.ans);
+    const F = S.fig;
+    app.innerHTML =
+      '<section class="card done-hero"><div class="eyebrow">Step 2 of 2</div>' +
+      '<h1>&#127881; All ' + E.ACCOUNTS.length + ' accounts classified correctly!</h1>' +
+      '<p class="lead">Here are ' + esc(B.name) + '\'s financial statements, built from your classifications. Notice how they connect: net income flows into the statement of owner\'s equity, and ending capital flows into the balance sheet.</p>' +
+      '<div class="btn-row"><button class="btn btn-primary" data-act="pdf">Download certificate and statements (PDF)</button>' +
+      '<button class="btn" data-act="review">Review my classifications</button><span class="spacer"></span>' +
+      '<button class="btn btn-ghost" data-act="restart">Start over</button></div></section>' +
+      '<section class="card">' + stmtTable(S.is) + '</section>' +
+      '<div class="flow">&#8595; Net income of <b>' + E.money(F.ni) + '</b> carries to the statement of owner\'s equity</div>' +
+      '<section class="card">' + stmtTable(S.soe) + '</section>' +
+      '<div class="flow">&#8595; Ending capital of <b>' + E.money(F.end) + '</b> carries to the balance sheet</div>' +
+      '<section class="card">' + stmtTable(S.bs) +
+      '<p class="check-line">&#10003; Total assets (' + E.money(F.ta) + ') equal total liabilities and owner\'s equity (' + E.money(F.tloe) + ').</p></section>';
+  }
 
   // ---------- Buttons ----------
 
   document.addEventListener('click', async ev => {
-    const step = ev.target.closest('[data-goto]');
-    if (step && state) {
-      const i = Number(step.dataset.goto);
-      if (i <= state.reached) { state.stage = i; state.phase = 'work'; save(); window.scrollTo(0, 0); render(); }
+    if (!state) return;
+    const step = ev.target.closest('[data-go]');
+    if (step && state.phase === 'done') {
+      state.reviewing = step.dataset.go === 'classify';
+      save(); window.scrollTo(0, 0); render();
       return;
     }
     const btn = ev.target.closest('[data-act]');
-    if (!btn || !state) return;
+    if (!btn) return;
     const act = btn.dataset.act;
-    if (act === 'check') return doCheck();
-    if (act === 'figs') {
-      const ok = await dialog('Show check figures?', '<p>The check figures show the correct key totals for this stage. Your first-try score is already locked in, so this will not change it.</p>', 'Show them');
-      if (ok) { state.figs[stage().id] = true; save(); render(); }
+    if (act === 'check') {
+      const left = E.ACCOUNTS.length - counts().answered;
+      if (left > 0 && !(await dialog('Check now?', '<p>You have not answered ' + left + ' account' + (left === 1 ? '' : 's') + ' yet. ' +
+        'Blank answers will be marked wrong. Your first check is recorded on your certificate.</p>', 'Check anyway'))) return;
+      return doCheck();
+    }
+    if (act === 'review') { state.reviewing = true; save(); window.scrollTo(0, 0); return render(); }
+    if (act === 'statements') { state.reviewing = false; save(); window.scrollTo(0, 0); return render(); }
+    if (act === 'pdf') {
+      try {
+        window.Part3Report.download(state, E.buildStatements(state.ans), E.checkCode(state.id, state.name, state.firstRight, state.checks));
+      } catch (e) {
+        dialog('Could not create the PDF', '<p>Something went wrong while building your PDF. Try again, or try another browser.</p>', 'OK', false);
+      }
       return;
     }
-    if (act === 'next') { state.stage += 1; state.reached = Math.max(state.reached, state.stage); save(); window.scrollTo(0, 0); return render(); }
-    if (act === 'prev') { state.stage -= 1; save(); window.scrollTo(0, 0); return render(); }
-    if (act === 'finish') { state.phase = 'done'; state.finishedAt = nowIso(); save(); window.scrollTo(0, 0); return render(); }
-    if (act === 'reopen') { state.phase = 'work'; save(); window.scrollTo(0, 0); return render(); }
-    if (act === 'pdf') return downloadPdf();
-    if (act === 'retake') {
-      const ok = await dialog('Start a new attempt?', '<p>Your current work will be cleared and you will start again at Stage 1 with the same adjusted trial balance. ' +
-        'Download the PDF report for this attempt first if you have not already. Your highest first-try score counts.</p>', 'Start new attempt');
+    if (act === 'restart') {
+      const ok = await dialog('Start over?', '<p>Your answers will be cleared and you will start again with a blank classification. Download your certificate first if you need it.</p>', 'Start over');
       if (!ok) return;
-      const hist = state.history.concat([{ attempt: state.attempt, id: state.id, first: firstTotal(), finishedAt: state.finishedAt }]);
-      state = newState(state.name, hist, state.attempt + 1);
+      state = newState(state.name);
       save(); window.scrollTo(0, 0); render();
     }
   });
-
-  function doCheck() {
-    const id = stage().id, st = stage();
-    const g = E.gradeStage(id, state.ans);
-    state.marks[id] = g;
-    state.checks[id] = (state.checks[id] || 0) + 1;
-    const score = E.stageScore(id, g);
-    const firstTime = state.first[id] == null;
-    if (firstTime) state.first[id] = score;
-    const allRight = g.units === g.total;
-    flash = allRight
-      ? { ok: true, text: 'Everything is correct. Nice work!' + (stageIdx() < E.STAGES.length - 1 ? ' Move on to the next stage.' : ' See your results when ready.') }
-      : { ok: false, text: (firstTime ? 'Your first-try score of ' + fmtPts(score) + ' / ' + st.points + ' is locked in. ' : '') + 'Lines marked in red or yellow need another look. Fix them and check again.' };
-    save();
-    render();
-  }
-
-  // ---------- Results ----------
-
-  function firstTotal() { return Math.round(E.STAGES.reduce((s, x) => s + (state.first[x.id] || 0), 0) * 100) / 100; }
-
-  function renderResults() {
-    const now = E.gradeAll(state.ans);
-    const first = firstTotal();
-    const best = Math.max(first, ...state.history.map(h => h.first || 0));
-    const check = E.checkCode(state.id, state.name, state.first, state.attempt);
-    app.innerHTML =
-      '<section class="card results"><div class="eyebrow">Attempt ' + state.attempt + ' complete</div>' +
-      '<h1>Your Results</h1>' +
-      '<div class="score-big"><b>' + fmtPts(first) + '</b><span>/ ' + E.POSSIBLE + ' first-try score</span></div>' +
-      '<table class="tbl res-tbl"><thead><tr><th>Stage</th><th class="num">First try</th><th class="num">After corrections</th><th class="num">Possible</th></tr></thead><tbody>' +
-      E.STAGES.map((s, i) => '<tr><td>' + (i + 1) + '. ' + esc(s.title) + '</td><td class="num">' + fmtPts(state.first[s.id] || 0) + '</td><td class="num">' + fmtPts(now.stages[i].score) + '</td><td class="num">' + s.points + '</td></tr>').join('') +
-      '</tbody><tfoot><tr><td>Total</td><td class="num">' + fmtPts(first) + '</td><td class="num">' + fmtPts(now.total) + '</td><td class="num">' + E.POSSIBLE + '</td></tr></tfoot></table>' +
-      '<dl class="meta-grid" style="margin-top:16px"><dt>Report ID</dt><dd>' + esc(state.id) + '</dd><dt>Check code</dt><dd>' + check + '</dd>' +
-      '<dt>Best first-try score</dt><dd>' + fmtPts(best) + ' / ' + E.POSSIBLE + '</dd></dl>' +
-      '<p>Download your report and upload it to Canvas. You can still go back and correct your statements; the "after corrections" column and the PDF will update, but your first-try score stays the same.</p>' +
-      '<div class="btn-row"><button class="btn btn-primary" data-act="pdf">Download PDF report</button>' +
-      '<button class="btn" data-act="reopen">Back to my statements</button><span class="spacer"></span>' +
-      '<button class="btn btn-ghost" data-act="retake">Start a new attempt</button></div>' +
-      (state.history.length ? '<div class="history"><h3>Earlier attempts</h3><table class="tbl"><thead><tr><th>Attempt</th><th>Report ID</th><th class="num">First-try score</th></tr></thead><tbody>' +
-        state.history.map(h => '<tr><td>' + h.attempt + '</td><td>' + esc(h.id) + '</td><td class="num">' + fmtPts(h.first || 0) + '</td></tr>').join('') + '</tbody></table></div>' : '') +
-      '</section>';
-  }
-
-  function downloadPdf() {
-    try {
-      window.Part3Report.download(state, E.gradeAll(state.ans), firstTotal(), E.checkCode(state.id, state.name, state.first, state.attempt));
-    } catch (e) {
-      dialog('Could not create the PDF', '<p>Something went wrong while building your report. Try again, or try another browser.</p>', 'OK', false);
-    }
-  }
 
   // Shared lab computers: open with #reset to clear saved work.
   if (location.hash === '#reset') {
