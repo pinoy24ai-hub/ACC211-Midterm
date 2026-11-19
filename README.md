@@ -130,6 +130,13 @@ node tests/part2-exam.test.js   # 3,000 randomized exam versions, plus build che
 
 **`part3-site/`** is a practice learning app. Deploy it as its own Netlify site by dragging the `part3-site` folder onto [app.netlify.com/drop](https://app.netlify.com/drop). Everyone works with the same fixed data: the adjusted trial balance of **Ridgeline Outdoor Supply** (owner Morgan Cruz), year ended December 31, 2026.
 
+## Single-file version
+
+**`part3-single/ACC211_Merch_Statements.html`** is the whole app in one file (about 475 KB, PDF library included). Students can double-click it to open it in any modern browser, with no internet needed. Share it by email, a shared drive, or as a Canvas file **that students download and open** (Canvas's built-in preview may block the PDF button).
+
+- Saved progress is tied to where the file sits. If a student moves or re-downloads the file, the browser treats it as a new copy and starts fresh.
+- **Never edit the single file directly.** Edit `part3-site/`, then run `node tools/build-part3-single.js`. The tests fail if the single file is out of date.
+
 ## Stages
 
 | Stage | Task | Points |
