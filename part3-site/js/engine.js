@@ -135,13 +135,14 @@
   // ul / dbl mark a single or double rule under that amount, as on a printed statement.
 
   function row(label, ind, col, amt, opt) {
-    const r = { label, ind, kind: (opt && opt.kind) || 'item', amts: [null, null, null], ul: [false, false, false], dbl: [false, false, false] };
+    const r = { label, ind, kind: (opt && opt.kind) || 'item', amts: [null, null, null], ul: [false, false, false], dbl: [false, false, false], calc: [null, null, null] };
     if (col) r.amts[col - 1] = amt;
+    if (opt && opt.calc) r.calc[col - 1] = opt.calc;
     if (opt && opt.ul) r.ul[col - 1] = true;
     if (opt && opt.dbl) r.dbl[col - 1] = true;
     return r;
   }
-  const hdr = (label, ind, big) => ({ label, ind, kind: big ? 'big' : 'hdr', amts: [null, null, null], ul: [false, false, false], dbl: [false, false, false] });
+  const hdr = (label, ind, big) => ({ label, ind, kind: big ? 'big' : 'hdr', amts: [null, null, null], ul: [false, false, false], dbl: [false, false, false], calc: [null, null, null] });
 
   function buildStatements(answers) {
     const cls = answers || answerKey();
@@ -155,46 +156,46 @@
     rev.forEach(a => IS.push(row(a.name, 1, 2, a.bal)));
     contra.forEach((a, i) => {
       const r = row((i === 0 ? 'Less: ' : '') + a.name, i === 0 ? 1 : 2, 1, a.bal, { ul: i === contra.length - 1 });
-      if (i === contra.length - 1) { r.amts[1] = ded; r.ul[1] = true; }
+      if (i === contra.length - 1) { r.amts[1] = ded; r.ul[1] = true; r.calc[1] = 'ded'; }
       IS.push(r);
     });
-    IS.push(row('Net sales', 1, 3, ns, { kind: 'sub' }));
+    IS.push(row('Net sales', 1, 3, ns, { kind: 'sub', calc: 'ns' }));
     const cogs = sum(list('cogs'));
     list('cogs').forEach((a, i, all) => IS.push(row(a.name, 0, 3, a.bal, { ul: i === all.length - 1 })));
     const gp = ns - cogs;
-    IS.push(row('Gross profit', 0, 3, gp, { kind: 'sub' }));
+    IS.push(row('Gross profit', 0, 3, gp, { kind: 'sub', calc: 'gp' }));
     IS.push(hdr('Operating expenses:', 0));
-    const opGroup = (id, title, totalLabel, last) => {
+    const opGroup = (id, title, totalLabel, last, calc) => {
       const items = list(id), t = sum(items);
       IS.push(hdr(title, 1));
       items.forEach((a, i) => IS.push(row(a.name, 2, 1, a.bal, { ul: i === items.length - 1 })));
-      IS.push(row(totalLabel, 2, 2, t, { kind: 'sub', ul: last }));
+      IS.push(row(totalLabel, 2, 2, t, { kind: 'sub', ul: last, calc }));
       return t;
     };
-    const tse = opGroup('sell', 'Selling expenses:', 'Total selling expenses', false);
-    const tae = opGroup('admin', 'Administrative expenses:', 'Total administrative expenses', true);
+    const tse = opGroup('sell', 'Selling expenses:', 'Total selling expenses', false, 'tse');
+    const tae = opGroup('admin', 'Administrative expenses:', 'Total administrative expenses', true, 'tae');
     const toe = tse + tae;
-    IS.push(row('Total operating expenses', 1, 3, toe, { kind: 'sub', ul: true }));
+    IS.push(row('Total operating expenses', 1, 3, toe, { kind: 'sub', ul: true, calc: 'toe' }));
     const ifo = gp - toe;
-    IS.push(row('Income from operations', 0, 3, ifo, { kind: 'sub' }));
+    IS.push(row('Income from operations', 0, 3, ifo, { kind: 'sub', calc: 'ifo' }));
     const oi = list('oi'), oe = list('oe');
     const net = sum(oi) - sum(oe);
     IS.push(hdr('Other income and expense:', 0));
     oi.forEach(a => IS.push(row(a.name, 1, 2, a.bal)));
     oe.forEach((a, i) => IS.push(row((i === 0 ? 'Less: ' : '') + a.name, 1, 2, a.bal, { ul: i === oe.length - 1 })));
-    IS.push(row(net < 0 ? 'Net other expense' : 'Net other income', 1, 3, net, { kind: 'sub', ul: true }));
+    IS.push(row(net < 0 ? 'Net other expense' : 'Net other income', 1, 3, net, { kind: 'sub', ul: true, calc: 'net' }));
     const ni = ifo + net;
-    IS.push(row(ni < 0 ? 'Net loss' : 'Net income', 0, 3, ni, { kind: 'grand', dbl: true }));
+    IS.push(row(ni < 0 ? 'Net loss' : 'Net income', 0, 3, ni, { kind: 'grand', dbl: true, calc: 'ni' }));
 
     // Statement of owner's equity
     const P = BIZ.owner;
     const beg = sum(list('cap')), wd = sum(list('draw')), inc = ni - wd, end = beg + inc;
     const SOE = [
       row(P + ', Capital, January 1, ' + Y, 0, 3, beg),
-      row((ni < 0 ? 'Less: Net loss' : 'Add: Net income') + ' for the year', 1, 2, Math.abs(ni)),
+      row((ni < 0 ? 'Less: Net loss' : 'Add: Net income') + ' for the year', 1, 2, Math.abs(ni), { calc: 'nin' }),
       row('Less: Withdrawals', 1, 2, wd, { ul: true }),
-      row((inc < 0 ? 'Decrease' : 'Increase') + ' in owner\'s equity', 1, 3, inc, { kind: 'sub', ul: true }),
-      row(P + ', Capital, December 31, ' + Y, 0, 3, end, { kind: 'grand', dbl: true })
+      row((inc < 0 ? 'Decrease' : 'Increase') + ' in owner\'s equity', 1, 3, inc, { kind: 'sub', ul: true, calc: 'inc' }),
+      row(P + ', Capital, December 31, ' + Y, 0, 3, end, { kind: 'grand', dbl: true, calc: 'end' })
     ];
 
     // Classified balance sheet
@@ -203,7 +204,7 @@
     BS.push(hdr('Assets', 0, true));
     BS.push(hdr('Current assets:', 0));
     ca.forEach((a, i) => BS.push(row(a.name, 1, 2, a.bal, { ul: i === ca.length - 1 })));
-    BS.push(row('Total current assets', 1, 3, tca, { kind: 'sub' }));
+    BS.push(row('Total current assets', 1, 3, tca, { kind: 'sub', calc: 'tca' }));
     BS.push(hdr('Property and equipment:', 0));
     const pe = list('pe'), cpe = list('cpe');
     let tpe = 0;
@@ -214,27 +215,27 @@
       tpe += bv;
       contras.forEach((c, j) => {
         const r = row('Less: Accumulated depreciation', 2, 1, c.bal, { ul: true });
-        if (j === contras.length - 1) { r.amts[1] = bv; r.ul[1] = i === pe.length - 1; }
+        if (j === contras.length - 1) { r.amts[1] = bv; r.ul[1] = i === pe.length - 1; r.calc[1] = 'bv' + (i + 1); }
         BS.push(r);
       });
       if (!contras.length) { const last = BS[BS.length - 1]; last.amts = [null, a.bal, null]; }
     });
-    BS.push(row('Total property and equipment', 1, 3, tpe, { kind: 'sub', ul: true }));
+    BS.push(row('Total property and equipment', 1, 3, tpe, { kind: 'sub', ul: true, calc: 'tpe' }));
     const ta = tca + tpe;
-    BS.push(row('Total assets', 0, 3, ta, { kind: 'grand', dbl: true }));
+    BS.push(row('Total assets', 0, 3, ta, { kind: 'grand', dbl: true, calc: 'ta' }));
     BS.push(hdr('Liabilities', 0, true));
     BS.push(hdr('Current liabilities:', 0));
     const cl = list('cl'), tcl = sum(cl);
     cl.forEach((a, i) => BS.push(row(a.name, 1, 2, a.bal, { ul: i === cl.length - 1 })));
-    BS.push(row('Total current liabilities', 1, 3, tcl, { kind: 'sub' }));
+    BS.push(row('Total current liabilities', 1, 3, tcl, { kind: 'sub', calc: 'tcl' }));
     BS.push(hdr('Long-term liabilities:', 0));
     const ltl = list('ltl'), tltl = sum(ltl);
     ltl.forEach((a, i) => BS.push(row(a.name, 1, 3, a.bal, { ul: i === ltl.length - 1 })));
     const tl = tcl + tltl;
-    BS.push(row('Total liabilities', 0, 3, tl, { kind: 'sub' }));
+    BS.push(row('Total liabilities', 0, 3, tl, { kind: 'sub', calc: 'tl' }));
     BS.push(hdr('Owner\'s Equity', 0, true));
-    BS.push(row(P + ', Capital', 1, 3, end, { ul: true }));
-    BS.push(row('Total liabilities and owner\'s equity', 0, 3, tl + end, { kind: 'grand', dbl: true }));
+    BS.push(row(P + ', Capital', 1, 3, end, { ul: true, calc: 'cap' }));
+    BS.push(row('Total liabilities and owner\'s equity', 0, 3, tl + end, { kind: 'grand', dbl: true, calc: 'tloe' }));
 
     return {
       is: { title: 'Income Statement', date: 'For the Year Ended December 31, ' + Y, rows: IS },
@@ -243,6 +244,69 @@
       fig: { sales, ns, gp, toe, ifo, net, ni, beg, wd, end, tca, tpe, ta, tcl, tl, tloe: tl + end }
     };
   }
+
+  // ---------- Tasks 2 to 4: calculate the subtotals and totals ----------
+
+  const HINTS = {
+    ded: 'Add the two deductions from sales: Sales Returns and Allowances plus Sales Discounts.',
+    ns: 'Net sales = Sales minus the total deductions from sales.',
+    gp: 'Gross profit = Net sales minus Cost of Goods Sold.',
+    tse: 'Add the five selling expenses.',
+    tae: 'Add the five administrative expenses.',
+    toe: 'Total operating expenses = Total selling expenses plus Total administrative expenses.',
+    ifo: 'Income from operations = Gross profit minus Total operating expenses.',
+    net: 'Net other income (expense) = Interest Revenue minus Interest Expense. A negative result can be typed as -3,000 or (3,000).',
+    ni: 'Net income = Income from operations plus other income minus other expense.',
+    nin: 'Carry net income over from the income statement.',
+    inc: 'Increase in owner\'s equity = Net income minus Withdrawals.',
+    end: 'Ending capital = Beginning capital plus the increase in owner\'s equity.',
+    bv1: 'Book value = Store Equipment minus its accumulated depreciation.',
+    bv2: 'Book value = Office Equipment minus its accumulated depreciation.',
+    tca: 'Add the six current assets.',
+    tpe: 'Add the two book values.',
+    ta: 'Total assets = Total current assets plus Total property and equipment.',
+    tcl: 'Add the four current liabilities.',
+    tl: 'Total liabilities = Total current liabilities plus long-term liabilities.',
+    cap: 'Use the ending capital (December 31) from the statement of owner\'s equity, not the beginning balance.',
+    tloe: 'Total liabilities and owner\'s equity = Total liabilities plus ending capital. It should equal total assets.'
+  };
+
+  // The cells a student must calculate on a statement: [{ id, label, value, hint }].
+  function blanks(kind) {
+    const out = [];
+    buildStatements()[kind].rows.forEach(r => r.calc.forEach((id, i) => {
+      if (id) out.push({ id, label: r.label, value: r.amts[i], hint: HINTS[id] });
+    }));
+    return out;
+  }
+
+  // Accepts 1,800  $1,800  -3,000  (3,000). Returns null for blank or unreadable input.
+  function parseAmt(str) {
+    let s = String(str == null ? '' : str).trim();
+    if (!s) return null;
+    let neg = false;
+    if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); }
+    s = s.replace(/[$,\s]/g, '');
+    if (s.startsWith('-')) { neg = !neg; s = s.slice(1); }
+    if (!/^\d+(\.\d+)?$/.test(s)) return null;
+    return neg ? -Number(s) : Number(s);
+  }
+
+  // answers: { [blankId]: typed text }. Signs are not graded: (3,000) and 3,000 both count.
+  function gradeCalc(kind, answers) {
+    const items = {};
+    let right = 0;
+    const list = blanks(kind);
+    list.forEach(b => {
+      const raw = answers && answers[b.id];
+      const v = parseAmt(raw);
+      if (v != null && Math.abs(Math.abs(v) - Math.abs(b.value)) < 0.5) { right += 1; items[b.id] = { ok: true }; }
+      else items[b.id] = { ok: false, note: v == null ? (String(raw || '').trim() ? 'Type the amount as a number, for example 12,500.' : 'Enter an amount.') : b.hint };
+    });
+    return { right, total: list.length, allRight: right === list.length, items };
+  }
+
+  function calcKey(kind) { const k = {}; blanks(kind).forEach(b => { k[b.id] = plain(b.value); }); return k; }
 
   // ---------- Certificate codes (same hashing scheme as Parts 1 and 2) ----------
 
@@ -266,14 +330,24 @@
     for (let i = 0; i < 8; i++) s += CODE_ALPHABET[bytes[i] % CODE_ALPHABET.length];
     return s.slice(0, 4) + '-' + s.slice(4);
   }
-  function checkCode(certId, name, firstRight, checks) {
-    const s = ['ACC211-P3-CERT', String(certId || '').toUpperCase(), String(name || '').trim().toLowerCase(), firstRight, checks].join('|');
+  // first: { classify, is, soe, bs } first-check correct counts. checks: total checks used.
+  function checkCode(certId, name, first, checks) {
+    const f = TASKS.map(t => (first && first[t.id]) || 0).join(',');
+    const s = ['ACC211-P3-CERT', String(certId || '').toUpperCase(), String(name || '').trim().toLowerCase(), f, checks].join('|');
     return hashString(s).toString(36).toUpperCase().slice(-8);
   }
 
+  const TASKS = [
+    { id: 'classify', short: 'Classify', title: 'Classify the Accounts' },
+    { id: 'is', short: 'Income Statement', title: 'Income Statement: Calculate the Totals' },
+    { id: 'soe', short: 'Owner\'s Equity', title: 'Statement of Owner\'s Equity: Calculate the Totals' },
+    { id: 'bs', short: 'Balance Sheet', title: 'Balance Sheet: Calculate the Totals' }
+  ];
+  function taskTotal(id) { return id === 'classify' ? ACCOUNTS.length : blanks(id).length; }
+
   const api = {
-    BIZ, ACCOUNTS, ACCT, CATS, CAT, WHY, money, plain,
-    gradeClassify, answerKey, buildStatements, newCertId, checkCode
+    BIZ, ACCOUNTS, ACCT, CATS, CAT, WHY, TASKS, HINTS, money, plain, parseAmt,
+    gradeClassify, answerKey, buildStatements, blanks, gradeCalc, calcKey, taskTotal, newCertId, checkCode
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.Part3Engine = api;

@@ -92,3 +92,21 @@ table.fs tr.ind2 td.lbl { padding-left: 44px; }
 @media print {
   .actionbar, .done-hero .btn-row, .flow { display: none !important; }
 }
+
+/* Tasks 2 to 4: amount boxes on the statements */
+table.fs.editable td.num { width: 116px; }
+table.fs td.calc input { width: 100%; border: 1.5px solid var(--brand-2); border-radius: 6px; padding: 5px 7px; text-align: right;
+  font-family: var(--mono); font-size: 14px; background: var(--brand-soft); }
+table.fs td.calc input::placeholder { color: var(--brand-2); font-weight: 700; }
+table.fs td.calc input:focus { background: #fff; }
+table.fs td.calc.bad input { border-color: var(--bad); background: var(--bad-soft); }
+table.fs td.calc.ok { background: var(--ok-soft); color: var(--ok); font-weight: 700; border-radius: 4px; }
+table.fs tr.note-row td { color: var(--bad); font-size: 13px; padding: 0 6px 6px 24px; text-align: left; }
+details.refresher .formula { font-family: var(--mono); font-size: 13px; background: var(--surface-2); border-radius: 6px; padding: 8px 10px; display: block; white-space: pre-wrap; margin-top: 8px; }
+details.refresher { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 12px; }
+details.refresher summary { cursor: pointer; font-weight: 700; color: var(--brand); }
+details.prev .stmt-wrap { margin-top: 10px; }
+@media (max-width: 560px) {
+  table.fs.editable td.num { width: 78px; }
+  table.fs td.calc input { font-size: 12.5px; padding: 4px 4px; }
+}

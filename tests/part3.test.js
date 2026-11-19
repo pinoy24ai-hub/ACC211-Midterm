@@ -55,10 +55,34 @@ assert.strictEqual(bsNames.filter(x => x === 'Less: Accumulated depreciation').l
 const peRows = S.bs.rows.filter(r => r.label === 'Less: Accumulated depreciation');
 assert.deepStrictEqual(peRows.map(r => r.amts[1]), [64800, 27300]);
 
-// Check codes depend on the name and the result.
-const c1 = E.checkCode('ABCD-EFGH', 'Pat Lee', 30, 2);
-assert.strictEqual(c1, E.checkCode('abcd-efgh', ' pat lee ', 30, 2));
-assert.notStrictEqual(c1, E.checkCode('ABCD-EFGH', 'Pat Lee', 31, 2));
+// Tasks 2 to 4: the blanks are exactly the calculated amounts, and each has a hint.
+const ids = k => E.blanks(k).map(b => b.id);
+assert.deepStrictEqual(ids('is'), ['ded', 'ns', 'gp', 'tse', 'tae', 'toe', 'ifo', 'net', 'ni']);
+assert.deepStrictEqual(ids('soe'), ['nin', 'inc', 'end']);
+assert.deepStrictEqual(ids('bs'), ['tca', 'bv1', 'bv2', 'tpe', 'ta', 'tcl', 'tl', 'cap', 'tloe']);
+['is', 'soe', 'bs'].forEach(k => E.blanks(k).forEach(b => assert(b.hint, b.id + ' has a hint')));
+// Account balances are never blanks: every blank value is a computed amount.
+['is', 'soe', 'bs'].forEach(k => E.blanks(k).forEach(b => assert(b.label !== 'Sales' && b.label !== 'Cash')));
+// Carry-overs line up across statements.
+const val = (k, id) => E.blanks(k).find(b => b.id === id).value;
+assert.strictEqual(val('soe', 'nin'), val('is', 'ni'));
+assert.strictEqual(val('bs', 'cap'), val('soe', 'end'));
+assert.strictEqual(val('bs', 'ta'), val('bs', 'tloe'));
+// Grading the blanks.
+['is', 'soe', 'bs'].forEach(k => assert(E.gradeCalc(k, E.calcKey(k)).allRight, k + ' key is all right'));
+assert.strictEqual(E.gradeCalc('is', {}).right, 0);
+['3,000', '(3,000)', '-3000', '$3,000'].forEach(v => assert(E.gradeCalc('is', { net: v }).items.net.ok, v));
+let gi = E.gradeCalc('is', Object.assign(E.calcKey('is'), { gp: '227,000' }));
+assert.strictEqual(gi.right, 8);
+assert(/Gross profit = /.test(gi.items.gp.note));
+assert(/as a number/.test(E.gradeCalc('is', { ns: 'abc' }).items.ns.note));
+assert(/ending capital/.test(E.gradeCalc('bs', { cap: '115,100' }).items.cap.note), 'beginning capital on the balance sheet gets a hint');
+
+// Check codes depend on the name and the results.
+const first = { classify: 30, is: 7, soe: 3, bs: 9 };
+const c1 = E.checkCode('ABCD-EFGH', 'Pat Lee', first, 6);
+assert.strictEqual(c1, E.checkCode('abcd-efgh', ' pat lee ', first, 6));
+assert.notStrictEqual(c1, E.checkCode('ABCD-EFGH', 'Pat Lee', Object.assign({}, first, { is: 8 }), 6));
 
 // The single-file build is up to date with part3-site/.
 const single = require('../tools/build-part3-single.js');

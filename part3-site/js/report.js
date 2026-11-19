@@ -12,7 +12,7 @@
       .replace(/[–—−]/g, '-').replace(/[^\x00-\xFF]/g, '?');
   }
 
-  function certificate(doc, state, check) {
+  function certificate(doc, state, check, checks) {
     const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
     const B = E.BIZ, n = E.ACCOUNTS.length;
     doc.setDrawColor.apply(doc, BRAND).setLineWidth(6).rect(24, 24, W - 48, H - 48);
@@ -29,14 +29,19 @@
     doc.setDrawColor.apply(doc, GOLD).setLineWidth(1).line(c - 200, 256, c + 200, 256);
     doc.setFont('helvetica', 'normal').setFontSize(13).setTextColor.apply(doc, INK);
     doc.text(doc.splitTextToSize('correctly classified all ' + n + ' accounts on the adjusted trial balance of ' + t(B.name) +
-      ', a merchandising business using the perpetual inventory system, and prepared its multiple-step income statement, ' +
+      ', a merchandising business using the perpetual inventory system, and calculated every subtotal and total on its multiple-step income statement, ' +
       'statement of owner\'s equity, and classified balance sheet for the year ended December 31, ' + B.year + '.', W - 260), c, 290, { align: 'center' });
 
     const done = state.finishedAt ? new Date(state.finishedAt) : new Date();
     const y = H - 128;
     doc.setFontSize(10.5).setTextColor.apply(doc, MUTED);
+    // First-check results per task, then the usual details.
+    doc.setFont('helvetica', 'normal').setFontSize(10).setTextColor.apply(doc, MUTED);
+    doc.text('FIRST-CHECK RESULTS', c, y - 62, { align: 'center' });
+    doc.setFont('helvetica', 'bold').setTextColor.apply(doc, INK);
+    doc.text(t(E.TASKS.map((tk, i) => 'Task ' + (i + 1) + ' ' + tk.short + ': ' + (state.first[tk.id] || 0) + '/' + E.taskTotal(tk.id)).join('     ')), c, y - 46, { align: 'center' });
     const cols = [['Completed', done.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })],
-      ['First check', state.firstRight + ' of ' + n + ' correct'], ['Checks used', String(state.checks)],
+      ['Checks used', String(checks)],
       ['Certificate ID', state.id], ['Check code', check]];
     const step = (W - 160) / cols.length;
     cols.forEach((col, i) => {
@@ -79,9 +84,9 @@
     });
   }
 
-  function download(state, statements, check) {
+  function download(state, statements, check, checks) {
     const doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'letter', orientation: 'landscape' });
-    certificate(doc, state, check);
+    certificate(doc, state, check, checks);
     ['is', 'soe', 'bs'].forEach(k => statementPage(doc, statements[k]));
     const pages = doc.getNumberOfPages();
     for (let p = 2; p <= pages; p++) {

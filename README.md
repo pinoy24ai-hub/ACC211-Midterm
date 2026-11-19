@@ -139,13 +139,18 @@ node tests/part2-exam.test.js   # 3,000 randomized exam versions, plus build che
 
 ## How it works
 
-1. **Classify the accounts.** For each of the 33 accounts on the adjusted trial balance, students pick one of 14 categories from a drop-down grouped by statement:
-   - *Income Statement:* sales revenue, deduction from sales (contra revenue), cost of goods sold, selling expense, administrative expense, other income, other expense
-   - *Statement of Owner's Equity:* beginning capital, withdrawals
-   - *Balance Sheet:* current asset, property and equipment, **contra asset: deduction from property and equipment** (accumulated depreciation), current liability, long-term liability
-2. **Check as often as needed.** Correct answers lock in green. Wrong or blank ones turn red with a one-line hint explaining where the account belongs and why. A progress bar shows answered and correct counts.
-3. **All correct: the statements appear.** The app builds the multiple-step income statement, statement of owner's equity, and classified balance sheet in textbook format (three columns, single and double rules). Accumulated depreciation is subtracted from its own equipment account to show book value. Callouts show net income flowing to the SOE and ending capital flowing to the balance sheet.
-4. **PDF certificate.** One download: a landscape certificate of completion (name, date, first-check result, checks used, certificate ID, check code) followed by the three statements.
+Four tasks, each unlocked only when the one before it is fully correct:
+
+| Task | What students do | Answers |
+|---|---|---|
+| 1. Classify | Pick one of 14 categories for each adjusted account, from a drop-down grouped by statement. Accumulated depreciation has its own category: **contra asset, deduction from property and equipment**. | 33 |
+| 2. Income statement | The accounts are placed for them. They calculate total deductions from sales, net sales, gross profit, total selling and administrative expenses, total operating expenses, income from operations, net other expense, and net income. | 9 |
+| 3. Statement of owner's equity | Carry net income over, then calculate the increase in owner's equity and ending capital. | 3 |
+| 4. Balance sheet | Calculate both book values (equipment minus accumulated depreciation), total current assets, total property and equipment, total assets, total current liabilities, total liabilities, carry ending capital over, and total liabilities and owner's equity. | 9 |
+
+- **Check as often as needed.** Correct answers lock in green. Wrong or blank ones turn red with a one-line hint (the account's classification for Task 1, the formula for Tasks 2 to 4). A progress bar shows answered and correct counts, and a "Formulas you need" panel is available on each statement. Tasks 3 and 4 can open the completed earlier statements for reference.
+- Amounts can be typed with or without commas or a dollar sign; a negative can be typed as -3,000 or (3,000). Press Enter to jump to the next box.
+- **When all four are done,** the completed statements appear in textbook format and students download one PDF: a landscape **certificate of completion** (name, date, first-check result for each task, checks used, certificate ID, check code) followed by the three statements.
 
 Key figures: net sales $590,000, gross profit $227,500, income from operations $65,000, net income $62,000, ending capital $137,100, total property and equipment $92,100, total assets $248,200.
 
